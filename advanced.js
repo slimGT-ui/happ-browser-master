@@ -13,18 +13,23 @@ let historyItems = [];
 const HISTORY_KEY = "checkHistory";
 const HISTORY_LIMIT = 50;
 
+let historyWriteQueue = Promise.resolve();
+
 window.HappHistory = {
   async add(type, details) {
-    try {
+    const write = historyWriteQueue.then(async () => {
       const stored = await browser.storage.local.get(HISTORY_KEY);
       const items = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
       items.unshift({ id: crypto.randomUUID(), type, checkedAt: new Date().toISOString(), ...details });
       const limited = items.slice(0, HISTORY_LIMIT);
       await browser.storage.local.set({ [HISTORY_KEY]: limited });
       renderHistory(limited);
-    } catch (error) {
+      await refreshSecuritySummary();
+    });
+    historyWriteQueue = write.catch(error => {
       console.warn("HAPP Browser: не удалось сохранить историю", error);
-    }
+    });
+    await historyWriteQueue;
   }
 };
 
@@ -99,13 +104,19 @@ function renderHistory(items) {
 
       const detail = document.createElement("p");
       detail.textContent = window.HappTimeline.describe(item);
+      const comparison = document.createElement("p");
+      comparison.className = "timeline-change";
+      const previous = window.HappTimeline.findPrevious(item, historyItems);
+      const change = window.HappTimeline.compareEvents(item, previous);
+      comparison.dataset.state = change.state;
+      comparison.textContent = change.label + " · " + change.detail;
       const date = document.createElement("time");
       const parsedDate = new Date(item.checkedAt);
       date.dateTime = Number.isNaN(parsedDate.getTime()) ? "" : parsedDate.toISOString();
       date.textContent = Number.isNaN(parsedDate.getTime())
         ? "Время неизвестно"
         : parsedDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-      body.append(heading, detail, date);
+      body.append(heading, detail, comparison, date);
       card.append(marker, body);
       track.append(card);
     }
@@ -138,8 +149,12 @@ async function runIpv6Check() {
       : v6 ? "IPv6 доступен, IPv4 endpoint не ответил. Результат IPv4 неопределённый."
       : "Ни один endpoint не ответил. Невозможно сделать вывод о доступности протоколов.";
     ipv6Results.append(note);
-    const status = v4 || v6 ? "observed" : "inconclusive";
-    ipv6Message.textContent = status === "observed" ? "Проверка завершена; смотри доступность каждого протокола отдельно." : "Недостаточно данных.";
+    const status = v4 && v6 ? "observed" : v4 || v6 ? "partial" : "inconclusive";
+    ipv6Message.textContent = status === "observed"
+      ? "Оба протокола доступны; это не подтверждает, что оба маршрутизируются через VPN."
+      : status === "partial"
+        ? "Получен частичный результат: доступен только один протокол. Второй остаётся неопределённым."
+        : "Недостаточно данных по обоим протоколам.";
     await window.HappHistory.add("IPv6", { status, ipv4: v4, ipv6: v6 });
   } catch (error) {
     ipv6Message.textContent = "Ошибка IPv6-проверки: " + (error.message || String(error));
