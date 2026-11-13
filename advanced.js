@@ -487,8 +487,10 @@ async function refreshSecuritySummary() {
 
     rows.push(ipv6?.status === "observed"
       ? securityRow("IPv4 / IPv6", "review", `IPv4: ${ipv6.ipv4 || "недоступен"} · IPv6: ${ipv6.ipv6 || "недоступен"}. Наличие IPv6 само по себе не является утечкой.`)
-      : ipv6?.status === "inconclusive"
-        ? securityRow("IPv4 / IPv6", "incomplete", "Не удалось определить доступность протоколов.")
+      : ipv6?.status === "partial"
+        ? securityRow("IPv4 / IPv6", "incomplete", "Получен частичный результат: доступен только один протокол.")
+        : ipv6?.status === "inconclusive"
+          ? securityRow("IPv4 / IPv6", "incomplete", "Не удалось определить доступность протоколов.")
         : ipv6?.status === "error"
           ? securityRow("IPv4 / IPv6", "error", ipv6.message || "IPv6-тест завершился ошибкой.")
           : securityRow("IPv4 / IPv6", "missing", "Запусти проверку IPv4 / IPv6."));
