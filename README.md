@@ -43,4 +43,5 @@ Firefox-расширение для маршрутизации трафика б
 
 ## Документация
 
-Технические выводы и план интеграции: [docs/INTEGRATION_RESEARCH.md](docs/INTEGRATION_RESEARCH.md).
+Технические выводы и план интеграции: [docs/INTEGRATION_RESEARCH.md](docs/INTEGRATION_RESEARCH.md).  
+Пошаговая проверка на Windows: [docs/WINDOWS_TEST_CHECKLIST.md](docs/WINDOWS_TEST_CHECKLIST.md).
