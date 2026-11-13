@@ -189,7 +189,7 @@ browser.storage.local.get("lastDnsCheck").then(({ lastDnsCheck }) => {
 
 
 function isIPv4(value) {
-  return /^(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)){3}$/.test(value);
+  return /^(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}$/.test(value);
 }
 
 function isPrivateIPv4(ip) {
@@ -223,9 +223,9 @@ function isPrivateAddress(ip) {
 }
 
 function extractCandidateAddress(candidate) {
-  if (candidate.address) return candidate.address.replace(/^\\[|\\]$/g, "");
-  const fields = candidate.candidate.split(/\\s+/);
-  return fields.length >= 8 ? fields[4].replace(/^\\[|\\]$/g, "") : "";
+  if (candidate.address) return candidate.address.replace(/^\[|\]$/g, "");
+  const fields = candidate.candidate.split(/\s+/);
+  return fields.length >= 8 ? fields[4].replace(/^\[|\]$/g, "") : "";
 }
 
 function collectIceCandidates(peer) {
@@ -244,9 +244,9 @@ function collectIceCandidates(peer) {
     const addCandidate = (candidate) => {
       if (!candidate) return;
       const address = extractCandidateAddress(candidate);
-      const typeMatch = candidate.candidate.match(/\\btyp\\s+(host|srflx|prflx|relay)\\b/);
+      const typeMatch = candidate.candidate.match(/\btyp\s+(host|srflx|prflx|relay)\\b/);
       const type = candidate.type || (typeMatch && typeMatch[1]) || "unknown";
-      const protocolMatch = candidate.candidate.match(/\\s(udp|tcp)\\s/i);
+      const protocolMatch = candidate.candidate.match(/\s(udp|tcp)\s/i);
       const protocol = candidate.protocol || (protocolMatch && protocolMatch[1].toUpperCase()) || "";
       const key = [address, type, protocol].join("|");
       if (address && !candidates.has(key)) candidates.set(key, { address, type, protocol });
@@ -349,10 +349,14 @@ async function runWebRtcCheck() {
       !isPrivateAddress(item.address) &&
       item.type !== "relay"
     );
-    const mismatches = publicIp
-      ? publicCandidates.filter(item => item.address !== publicIp)
-      : [];
-    const verdict = !publicIp || publicCandidates.length === 0
+    const baselineIsV4 = isIPv4(publicIp);
+    const baselineIsV6 = isIPv6(publicIp);
+    const comparableCandidates = publicCandidates.filter(item =>
+      (baselineIsV4 && isIPv4(item.address)) ||
+      (baselineIsV6 && isIPv6(item.address))
+    );
+    const mismatches = comparableCandidates.filter(item => item.address !== publicIp);
+    const verdict = !publicIp || comparableCandidates.length === 0
       ? "inconclusive"
       : mismatches.length
         ? "possible-leak"
