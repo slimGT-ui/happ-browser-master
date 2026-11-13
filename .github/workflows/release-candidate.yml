@@ -1,9 +1,9 @@
-name: Release candidate package
+name: Stable Firefox package
 
 on:
   push:
     branches:
-      - release/1.0.0-rc1
+      - release/1.0.0-stable
   workflow_dispatch:
 
 permissions:
@@ -22,11 +22,11 @@ jobs:
       - name: Validate source
         run: npm run validate
       - name: Build unsigned Firefox package
-        run: git archive --format=zip --output=happ-browser-0.10.1-rc1.zip HEAD
-      - name: Upload candidate package
+        run: git archive --format=zip --output=happ-browser-1.0.0.zip HEAD
+      - name: Upload stable package
         uses: actions/upload-artifact@v4
         with:
-          name: happ-browser-0.10.1-rc1
-          path: happ-browser-0.10.1-rc1.zip
+          name: happ-browser-1.0.0
+          path: happ-browser-1.0.0.zip
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
