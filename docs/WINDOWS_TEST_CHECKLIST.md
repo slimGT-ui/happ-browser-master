@@ -1,3 +1,5 @@
+> **Historical checklist — not applicable to the current main branch or 0.10.0 diagnostic release.** This checklist only applies to the separate SOCKS5 proxy proof of concept. HAPP Browser 0.10.0 does not configure Firefox proxy settings or control HAPP Desktop.
+
 # Windows + Firefox manual verification
 
 This checklist is the remaining machine-specific part of the current proof of concept. Do not enable LAN sharing just to make the test pass.
