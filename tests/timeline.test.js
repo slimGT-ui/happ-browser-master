@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
-  sortHistory, filterHistory, summarizeHistory, getStatus, describe, groupByDay
+  sortHistory, filterHistory, summarizeHistory, getStatus, describe, findPrevious, compareEvents, groupByDay
 } = require("../timeline.js");
 
 const history = [
@@ -39,4 +39,30 @@ test("timeline groups events by local calendar day and keeps unknown dates", () 
   assert.equal(groups.length, 4);
   assert.equal(groups[0].items[0].id, "rtc");
   assert.equal(groups.at(-1).key, "unknown");
+});
+
+test("timeline finds the immediately older event of the same diagnostic type", () => {
+  const previous = findPrevious(history[2], history);
+  assert.equal(previous.id, "dns".replace("dns", "old"));
+});
+test("timeline reports changed IP values and unchanged repeated results", () => {
+  const before = { type: "IP", ip: "8.8.8.8", country: "US" };
+  const after = { type: "IP", ip: "1.1.1.1", country: "US" };
+  assert.equal(compareEvents(after, before).state, "changed");
+  assert.match(compareEvents(after, before).detail, /8.8.8.8 → 1.1.1.1/);
+  assert.equal(compareEvents(before, { ...before }).state, "same");
+});
+test("timeline compares DNS resolver counts and IPv6 families", () => {
+  assert.equal(compareEvents(
+    { type: "DNS", resolvers: 3 }, { type: "DNS", resolvers: 1 }
+  ).state, "changed");
+  assert.equal(compareEvents(
+    { type: "IPv6", ipv4: "1.1.1.1", ipv6: "" },
+    { type: "IPv6", ipv4: "1.1.1.1", ipv6: "2001:4860::1" }
+  ).state, "unknown");
+});
+test("timeline marks partial IPv6 observations as incomplete", () => {
+  assert.deepEqual(getStatus({ type: "IPv6", status: "partial" }), {
+    state: "incomplete", label: "ЧАСТИЧНЫЙ РЕЗУЛЬТАТ"
+  });
 });
