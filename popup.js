@@ -50,6 +50,7 @@ async function checkPublicIp() {
     countryValue.textContent = data.country;
     countryDetail.textContent = data.country_code ? `Код страны: ${data.country_code}` : "Страна выхода в интернет";
     overall.textContent = "IP ПОЛУЧЕН";
+    await window.HappHistory?.add("IP", { ip: data.ip, country: data.country, status: "success" });
     setResultState("success");
     message.textContent = "Базовая проверка завершена. Это показывает внешний IP, но само по себе не доказывает отсутствие утечек.";
     await browser.storage.local.set({
@@ -70,6 +71,7 @@ async function checkPublicIp() {
     countryValue.textContent = "Недоступно";
     ipDetail.textContent = "Проверка не выполнена";
     countryDetail.textContent = "Проверка не выполнена";
+    await window.HappHistory?.add("IP", { status: "error", message: error.message || String(error) });
   } finally {
     button.disabled = false;
     button.textContent = "Проверить подключение";
@@ -170,8 +172,10 @@ async function runDnsCheck() {
     dnsMessage.textContent = resolvers.length
       ? `Тест завершён. Получено ${completed} DNS-наблюдений.`
       : `Тест завершён, но резолверы не обнаружены (${completed} наблюдений). Результат неопределённый.`;
+    await window.HappHistory?.add("DNS", { status: "success", resolvers: resolvers.length, lookups: completed });
   } catch (error) {
     dnsMessage.textContent = `Не удалось завершить DNS-тест: ${error.message || String(error)}`;
+    await window.HappHistory?.add("DNS", { status: "error", message: error.message || String(error) });
   } finally {
     dnsButton.disabled = false;
     dnsButton.textContent = "Повторить DNS-тест";
@@ -383,7 +387,9 @@ async function runWebRtcCheck() {
       : verdict === "no-mismatch"
         ? "Проверка завершена. Публичные ICE-адреса совпадают с контрольным IP."
         : "Проверка завершена не полностью. Для вывода недостаточно данных.";
+    await window.HappHistory?.add("WebRTC", { status: verdict, publicIp, candidates: candidates.length });
   } catch (error) {
+    await window.HappHistory?.add("WebRTC", { status: "error", message: error.message || String(error) });
     webrtcMessage.textContent = error.message === "ICE gathering timeout"
       ? "STUN не ответил за 12 секунд. Проверка не завершена — это не означает отсутствие утечки."
       : `Не удалось выполнить WebRTC-проверку: ${error.message || String(error)}`;
