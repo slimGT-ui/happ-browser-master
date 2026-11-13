@@ -12,7 +12,7 @@
   <main class="app">
     <header class="header">
       <div class="brand"><span class="brand-mark">H</span><div><h1>HAPP <span>Browser</span></h1><p>VPN COMPANION FOR FIREFOX</p></div></div>
-      <span class="version">0.2.0 · PREVIEW</span>
+      <span class="version">0.3.0 · PREVIEW</span>
     </header>
 
     <section class="hero">
@@ -43,7 +43,11 @@
       <button id="run-dns-check" class="secondary" type="button">Проверить DNS</button>
       <p id="dns-message" class="dns-message" role="status" aria-live="polite">Тест ещё не запускался.</p>
       <div id="dns-results" class="dns-results" aria-live="polite"></div>
-      <div class="check-row"><span>WebRTC leak</span><span class="pending">В разработке</span></div>
+      <div class="check-row"><span>WebRTC leak</span><span class="pending">STUN / ICE</span></div>
+      <p class="dns-note">Проверка собирает ICE-кандидаты WebRTC и сравнивает найденные публичные адреса с текущим IP выхода Firefox. Локальные адреса показываются отдельно.</p>
+      <button id="run-webrtc-check" class="secondary" type="button">Проверить WebRTC</button>
+      <p id="webrtc-message" class="dns-message" role="status" aria-live="polite">Тест ещё не запускался.</p>
+      <div id="webrtc-results" class="webrtc-results" aria-live="polite"></div>
       <div class="check-row"><span>IPv6 exposure</span><span class="pending">В разработке</span></div>
       <div class="check-row"><span>Website reachability</span><span class="pending">В разработке</span></div>
     </section>
