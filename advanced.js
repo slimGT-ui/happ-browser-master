@@ -81,8 +81,8 @@ async function runIpv6Check() {
       fetchJson("https://api4.ipify.org?format=json", {}, 9000).then(x => x.ip).catch(() => ""),
       fetchJson("https://api6.ipify.org?format=json", {}, 9000).then(x => x.ip).catch(() => "")
     ]);
-    const v4 = typeof v4Result === "string" && /^\d{1,3}(?:\.\d{1,3}){3}$/.test(v4Result) ? v4Result : "";
-    const v6 = typeof v6Result === "string" && v6Result.includes(":") ? v6Result : "";
+    const v4 = window.HappValidation.validIPv4(v4Result) ? v4Result : "";
+    const v6 = window.HappValidation.validIPv6(v6Result) ? v6Result : "";
     addRow(ipv6Results, "IPv4", v4 || "Недоступен");
     addRow(ipv6Results, "IPv6", v6 || "Недоступен");
     const note = document.createElement("p");
