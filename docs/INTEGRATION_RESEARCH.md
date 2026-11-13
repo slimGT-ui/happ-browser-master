@@ -21,6 +21,8 @@ Important: these port numbers are examples, not guaranteed defaults.
 
 The guide describes LAN sharing. It does **not** establish that HAPP exposes a loopback-only listener, nor does it document a supported local control API for reading profiles or starting/stopping connections. Do not assume either capability.
 
+The official guide explicitly labels this feature as sharing the VPN connection with devices on the same LAN. It instructs users to configure Firefox with the displayed **Current IP** and SOCKS5 port. Therefore, this documented path is a LAN-listener path; the guide does not say that the listener is bound only to loopback. Treat enabling it as potentially exposing a proxy to the local network, and verify the actual bind address/firewall behavior before recommending it.
+
 ### 2. Firefox exposes a WebExtension proxy API
 
 Mozilla documents the Firefox `proxy` WebExtension API and `browser.proxy.settings`:
@@ -28,7 +30,7 @@ Mozilla documents the Firefox `proxy` WebExtension API and `browser.proxy.settin
 - https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/proxy
 - https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/proxy/settings
 
-The API requires the `proxy` permission. It supports manual SOCKS configuration, SOCKS version 5, and proxy DNS. Firefox's proxy settings apply to the browser, not to unrelated operating-system applications. The API documentation also notes that changing proxy settings requires private-window access because the setting affects private and non-private windows; extension access to private windows is user-controlled.
+The API requires the `proxy` permission. It supports manual SOCKS configuration, SOCKS version 5, and proxy DNS. Firefox's proxy settings apply to Firefox, not to unrelated operating-system applications. The API documentation also notes that changing proxy settings requires private-window access because the setting affects private and non-private windows; the user controls whether the extension may access private windows. Firefox defaults to proxy-side DNS for SOCKS5 in current versions, but we should set this explicitly in the implementation.
 
 This is a plausible implementation path for the Firefox-only routing goal. It is not yet tested with HAPP.
 
@@ -48,6 +50,13 @@ This is a plausible implementation path for the Firefox-only routing goal. It is
 3. **Extension proof of concept:** add the Firefox `proxy` permission and a minimal enable/disable control using the verified endpoint. Preserve/restore the prior Firefox proxy configuration.
 4. **Reliability tests:** HAPP disconnected, proxy port closed, HAPP reconnect, Firefox restart, private windows, DNS behavior, and WebRTC considerations.
 5. **Only then:** investigate profile enumeration and connection control through a supported HAPP interface, if one exists.
+
+## Sources
+
+- HAPP official Russian guide: https://www.happ.su/main/ru/faq/local-network-connections
+- HAPP official English guide: https://www.happ.su/main/faq/local-network-connections
+- Mozilla proxy API: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/proxy
+- Mozilla proxy settings: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/proxy/settings
 
 ## Current conclusion
 
