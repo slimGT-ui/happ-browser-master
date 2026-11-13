@@ -56,7 +56,7 @@ test("manifest keeps arbitrary website access optional", () => {
   const optionalHosts = manifest.optional_host_permissions || [];
 
   assert.ok(requiredHosts.length > 0, "diagnostic service hosts must be declared");
-  assert.ok(requiredHosts.every(host => !/^https?:\\/\\/(?:\\*|\\*\\.)/.test(host)),
+  assert.ok(requiredHosts.every(host => !host.includes("*")),
     "required host permissions must not grant arbitrary website access");
   assert.deepEqual(optionalHosts.slice().sort(), ["http://*/*", "https://*/*"]);
   assert.equal(manifest.browser_specific_settings?.gecko?.id, "happ-browser@slimgt-ui",
