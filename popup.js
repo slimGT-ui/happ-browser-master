@@ -57,8 +57,8 @@ async function readState() {
   portInput.value = endpoint.port || "";
 
   const current = await browser.proxy.settings.get({});
-  const enabled = stored[STORAGE_KEYS.enabled] === true;
-  const matches = enabled && isOurProxy(current.value, endpoint);
+  const hasSavedSession = stored[STORAGE_KEYS.original] !== undefined;
+  const matches = hasSavedSession && isOurProxy(current.value, endpoint);
 
   if (matches) {
     setStatus("Firefox направляет трафик через SOCKS5", "connected",
@@ -68,7 +68,7 @@ async function readState() {
     return;
   }
 
-  if (enabled) {
+  if (hasSavedSession) {
     setStatus("Настройки прокси изменились", "warning",
       "Текущий прокси отличается от установленного расширением. Можно забыть старую сессию — текущие настройки Firefox останутся без изменений.");
     toggleButton.textContent = "Забыть старую сессию";
