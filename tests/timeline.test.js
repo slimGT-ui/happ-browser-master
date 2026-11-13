@@ -60,7 +60,11 @@ test("timeline compares DNS resolver counts and IPv6 families", () => {
   assert.equal(compareEvents(
     { type: "IPv6", ipv4: "1.1.1.1", ipv6: "" },
     { type: "IPv6", ipv4: "1.1.1.1", ipv6: "2001:4860::1" }
-  ).state, "same");
+  ).state, "changed");
+  assert.equal(compareEvents(
+    { type: "IPv6", ipv4: "1.1.1.1" },
+    { type: "IPv6", ipv4: "1.1.1.1", ipv6: "2001:4860::1" }
+  ).state, "unknown");
 });
 test("timeline marks partial IPv6 observations as incomplete", () => {
   assert.deepEqual(getStatus({ type: "IPv6", status: "partial" }), {
