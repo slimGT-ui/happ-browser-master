@@ -41,7 +41,7 @@ body {
 .fields label { margin-top:4px; color:#a39dad; font-size:10px; }
 .fields input {
   width:100%; height:36px; padding:0 10px; border:1px solid #393342; border-radius:8px;
-  outline:none; background:#121019; color:#f3f0fa; font:12px inherit;
+  outline:none; background:#121019; color:#f3f0fa; font:inherit; font-size:12px;
 }
 .fields input:focus { border-color:#9a70d6; box-shadow:0 0 0 2px rgba(154,112,214,.14); }
 .primary-button {
