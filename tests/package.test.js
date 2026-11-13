@@ -98,13 +98,13 @@ test("history writes are serialized and the security overview refreshes after re
 test("last IP result is restored as historical data, not presented as a live check", () => {
   const popup = read("popup.js");
   assert.match(popup, /async function restoreIpCheck\(\)/);
-  assert.match(popup, /Последний сохранённый результат/);
+  assert.match(popup, /актуальных данных/);
 });
 
 test("release docs describe the current preview and stable-release gates", () => {
   const changelog = read("CHANGELOG.md");
   const checklist = read("RELEASE_CHECKLIST.md");
   assert.match(changelog, /\[0\.10\.0\]/);
-  assert.match(checklist, /не создавать.*1\.0\.0/is);
+  assert.match(checklist, /Do not create.*1\.0\.0/is);
   assert.match(checklist, /HAPP Desktop profile enumeration/is);
 });
