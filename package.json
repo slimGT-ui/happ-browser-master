@@ -1,0 +1,14 @@
+{
+  "name": "happ-browser",
+  "version": "0.10.0",
+  "private": true,
+  "description": "Firefox extension for VPN and network diagnostics",
+  "scripts": {
+    "check": "node --check popup.js && node --check advanced.js && node --check ip-validation.js && node --check ip-classification.js && node --check timeline.js",
+    "test": "node --test",
+    "validate": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
