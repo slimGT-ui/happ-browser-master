@@ -36,10 +36,10 @@ test("application version is consistent across release metadata", () => {
   const version = manifest.version;
   assert.equal(packageJson.version, version, "package.json version must match manifest.json");
 
-  assert.match(popup, new RegExp(`<span class="version">${version.replace(/\\./g, "\\\\.")}\\s*·\\s*RC FOR 1\\.0\\.0</span>`),
-    "popup RC label must match manifest.json");
-  assert.ok(readme.includes(`Текущая версия — ${version} (Release Candidate 1 для 1.0.0)`),
-    "README candidate version must match manifest.json");
+  assert.match(popup, new RegExp(`<span class="version">${version.replace(/\\./g, "\\\\.")}\\s*·\\s*STABLE</span>`),
+    "popup stable label must match manifest.json");
+  assert.ok(readme.includes(`Текущая версия — ${version} Stable`),
+    "README stable version must match manifest.json");
   assert.match(advanced, new RegExp(`version: "${version}"`),
     "diagnostic report version must match manifest.json");
 });
@@ -101,7 +101,7 @@ test("last IP result is restored as historical data, not presented as a live che
   assert.match(popup, /актуальных данных/);
 });
 
-test("release docs describe the current preview and stable-release gates", () => {
+test("release docs describe the stable release and remaining publication gates", () => {
   const changelog = read("CHANGELOG.md");
   const checklist = read("RELEASE_CHECKLIST.md");
   assert.match(changelog, /\[0\.10\.0\]/);
