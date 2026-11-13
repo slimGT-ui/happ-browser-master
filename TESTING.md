@@ -53,7 +53,7 @@ node --test
 
 Current automated suite: 30 tests, including timeline sorting, filtering, summaries, status interpretation, descriptions, date grouping, change detection, previous-event lookup, popup wiring, WebRTC validator references, serialized history, release metadata and storage-failure handling. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js and ip-classification.js and timeline.js. These checks do not replace the manual browser/network scenarios below.
 
-Latest verified automated run: **29 passed, 0 failed** (commit b58f42c; [GitHub Actions run 43509744308](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43509744308)). Previous manual matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed before the latest pre-release hardening). The additional 0.10.0 changes below require a focused manual retest before release.
+Latest verified automated run: **30 passed, 0 failed** (commit 2978253; [GitHub Actions run 43510101050](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43510101050)). Previous manual matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed before the latest pre-release hardening). The additional 0.10.0 changes below require a focused manual retest before release.
 
 ## Result log
 
