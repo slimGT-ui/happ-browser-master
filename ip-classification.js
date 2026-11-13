@@ -72,10 +72,11 @@
       return isPublicIPv4(mapped);
     }
 
-    // Global unicast space only; exclude documentation and special-purpose 2001::/23.
+    // Global unicast space only; exclude documentation, Teredo and ORCHIDv2.
     return ipv6InRange(value, "2000::", 3) &&
       !ipv6InRange(value, "2001:db8::", 32) &&
-      !ipv6InRange(value, "2001::", 23);
+      !ipv6InRange(value, "2001::", 32) &&
+      !ipv6InRange(value, "2001:20::", 28);
   }
 
   function isPublicIp(address) {
