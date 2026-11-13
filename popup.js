@@ -35,6 +35,16 @@ async function fetchJson(url, options = {}, timeoutMs = 10000) {
   }
 }
 
+async function saveLocalResult(key, value) {
+  try {
+    await browser.storage.local.set({ [key]: value });
+    return true;
+  } catch (error) {
+    console.warn(`HAPP Browser: не удалось сохранить результат ${key}`, error);
+    return false;
+  }
+}
+
 function validIPv4(value) { return window.HappValidation.validIPv4(value); }
 function validIPv6(value) { return window.HappValidation.validIPv6(value); }
 function validIp(value) { return window.HappValidation.validIp(value); }
@@ -58,7 +68,7 @@ async function checkPublicIp() {
     setResultState("success");
     message.textContent = "Базовая проверка завершена. Один IP не доказывает отсутствие утечек.";
     const record = { ip: data.ip, country: data.country, status: "success" };
-    await browser.storage.local.set({ lastIpCheck: { ...record, countryCode: data.country_code || null, checkedAt: new Date().toISOString() } });
+    await saveLocalResult("lastIpCheck", { ...record, countryCode: data.country_code || null, checkedAt: new Date().toISOString() });
     await window.HappHistory?.add("IP", record);
   } catch (error) {
     const errorMessage = error.message || String(error);
@@ -150,7 +160,7 @@ async function runDnsCheck() {
       lookups, requestedLookups: hostnames.length, probesSent: sent,
       resolvers, verdict
     };
-    await browser.storage.local.set({ lastDnsCheck: testResult });
+    await saveLocalResult("lastDnsCheck", testResult);
     renderDnsResults(testResult);
     dnsMessage.textContent = verdict === "observed"
       ? `Получены DNS-наблюдения: ${lookups} запросов, ${resolvers.length} уникальных резолверов.`
@@ -327,7 +337,7 @@ async function runWebRtcCheck() {
       candidates: candidates.map(item => compared.find(entry => entry.address === item.address && entry.type === item.type) || item),
       publicCandidates: publicCandidates.length, compared: comparable.length, mismatches: mismatches.length
     };
-    await browser.storage.local.set({ lastWebRtcCheck: result });
+    await saveLocalResult("lastWebRtcCheck", result);
     renderWebRtcResults(result);
     webrtcMessage.textContent = verdict === "possible-leak"
       ? "Есть публичный ICE-адрес, не совпадающий с контрольным IP."
