@@ -279,11 +279,11 @@ async function runWebRtcCheck() {
     const candidates = await gathering;
     const publicCandidates = candidates.filter(item =>
       ["srflx", "prflx"].includes(item.type) && !isPrivateAddress(item.address) &&
-      (isIPv4(item.address) || isIPv6(item.address))
+      (validIPv4(item.address) || validIPv6(item.address))
     );
     let hasUncompared = false;
     const compared = publicCandidates.map(item => {
-      const expected = isIPv4(item.address) ? ipv4 : ipv6;
+      const expected = validIPv4(item.address) ? ipv4 : ipv6;
       if (!expected) {
         hasUncompared = true;
         return { ...item, comparison: "нет контрольного IP этого семейства", mismatch: false, comparable: false };
