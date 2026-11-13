@@ -14,10 +14,10 @@ test("IPv4 excludes private, shared, documentation and special-use ranges", () =
   ]) assert.equal(isPublicIPv4(ip), false, ip);
 });
 test("IPv6 recognizes global unicast addresses", () => {
-  for (const ip of ["2001:4860:4860::8888", "2606:4700:4700::1111"]) assert.equal(isPublicIPv6(ip), true, ip);
+  for (const ip of ["2001:4860:4860::8888", "2606:4700:4700::1111", "2001:1::1", "2002::1"]) assert.equal(isPublicIPv6(ip), true, ip);
 });
 test("IPv6 excludes non-global and special-purpose ranges", () => {
-  for (const ip of ["::", "::1", "fc00::1", "fd12::1", "fe80::1", "ff02::1", "2001:db8::1", "2001:1::1", "2002::1", "not-an-ip"]) {
+  for (const ip of ["::", "::1", "fc00::1", "fd12::1", "fe80::1", "ff02::1", "2001:db8::1", "2001:0::1", "2001:20::1", "not-an-ip"]) {
     assert.equal(isPublicIPv6(ip), false, ip);
   }
 });
