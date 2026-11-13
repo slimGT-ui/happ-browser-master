@@ -51,7 +51,7 @@ Run from the repository root with Node.js 20 (the version used by GitHub Actions
 node --test
 ```
 
-Current automated suite: 9 tests. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js and ip-validation.js. These checks do not replace the manual browser/network scenarios below.
+Current automated suite: 14 tests. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js and ip-classification.js. These checks do not replace the manual browser/network scenarios below.
 
 Latest verified automated run: **8 passed, 0 failed** (commit 916c0ce; GitHub Actions run 43506904172). Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
 
