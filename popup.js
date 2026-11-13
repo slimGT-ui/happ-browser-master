@@ -70,8 +70,8 @@ async function readState() {
 
   if (enabled) {
     setStatus("Настройки прокси изменились", "warning",
-      "Расширение больше не управляет текущими настройками. Не будем перезаписывать их автоматически.");
-    toggleButton.textContent = "Восстановить настройки";
+      "Текущий прокси отличается от установленного расширением. Можно забыть старую сессию — текущие настройки Firefox останутся без изменений.");
+    toggleButton.textContent = "Забыть старую сессию";
     toggleButton.disabled = false;
     return;
   }
@@ -180,8 +180,8 @@ async function disableProxy() {
     const current = await browser.proxy.settings.get({});
     const endpoint = stored[STORAGE_KEYS.endpoint] || {};
 
-    if (stored[STORAGE_KEYS.enabled] === true && !isOurProxy(current.value, endpoint)) {
-      throw new Error("Текущие настройки уже отличаются от установленных расширением. Не перезаписываю изменения пользователя. Проверь прокси в настройках Firefox вручную.");
+    if (!isOurProxy(current.value, endpoint)) {
+      throw new Error("Текущие настройки уже отличаются от прокси расширения. Нажми «Забыть старую сессию», чтобы очистить только служебные данные, не меняя настройки Firefox.");
     }
 
     if (current.levelOfControl && current.levelOfControl !== "controlled_by_this_extension") {
@@ -207,14 +207,38 @@ async function disableProxy() {
   }
 }
 
+async function forgetStaleSession() {
+  setBusy(true);
+  try {
+    await browser.storage.local.remove([
+      STORAGE_KEYS.enabled,
+      STORAGE_KEYS.endpoint,
+      STORAGE_KEYS.original
+    ]);
+    setStatus("Старая сессия забыта", "idle",
+      "Настройки Firefox не менялись. Текущий прокси, если он включён, остался как был.");
+  } catch (error) {
+    setStatus("Не удалось очистить состояние", "error", error.message || String(error));
+  } finally {
+    setBusy(false);
+    await readState().catch(() => {});
+  }
+}
+
 toggleButton.addEventListener("click", async () => {
   if (busy) return;
   const stored = await browser.storage.local.get([
     STORAGE_KEYS.enabled,
-    STORAGE_KEYS.original
+    STORAGE_KEYS.original,
+    STORAGE_KEYS.endpoint
   ]);
 
-  if (stored[STORAGE_KEYS.enabled] === true || stored[STORAGE_KEYS.original] !== undefined) {
+  if (stored[STORAGE_KEYS.original] !== undefined) {
+    const current = await browser.proxy.settings.get({});
+    if (!isOurProxy(current.value, stored[STORAGE_KEYS.endpoint] || {})) {
+      await forgetStaleSession();
+      return;
+    }
     await disableProxy();
   } else {
     await enableProxy();
