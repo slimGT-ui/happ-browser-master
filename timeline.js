@@ -122,18 +122,23 @@
         ["Доступность", previous.status, current.status]
       ];
     }
-    const comparable = fields.filter(([, before, after]) => before != null && before !== "" && after != null && after !== "");
+    const comparable = fields.filter(([, before, after]) => before != null && after != null);
+    const hasMissingFields = comparable.length !== fields.length;
     if (!comparable.length) {
       return { state: "unknown", label: "НЕДОСТАТОЧНО ДАННЫХ", detail: "В одной из проверок нет сопоставимых значений." };
     }
     const differences = comparable.filter(([, before, after]) => changed(before, after));
+    if (!differences.length && hasMissingFields) {
+      return { state: "unknown", label: "ЧАСТИЧНОЕ СРАВНЕНИЕ", detail: "Некоторые поля отсутствуют в одном из результатов." };
+    }
     if (!differences.length) {
       return { state: "same", label: "БЕЗ ИЗМЕНЕНИЙ", detail: "Сопоставимые значения совпадают с предыдущей проверкой." };
     }
     return {
       state: "changed",
       label: "ЕСТЬ ИЗМЕНЕНИЯ",
-      detail: differences.map(([label, before, after]) => label + ": " + String(before) + " → " + String(after)).join(" · ")
+      detail: differences.map(([label, before, after]) => label + ": " + String(before) + " → " + String(after)).join(" · ") +
+        (hasMissingFields ? " · часть полей не удалось сравнить" : "")
     };
   }
 
