@@ -38,6 +38,6 @@ test("application version is consistent across release metadata", () => {
     "popup version label must match manifest.json");
   assert.match(readme, new RegExp(`Текущая версия — ${version.replace(/\\./g, "\\\\.")} Preview`),
     "README current version must match manifest.json");
-  assert.match(advanced, new RegExp(`version: "\${version}"`),
+  assert.match(advanced, new RegExp(`version: "${version}"`),
     "diagnostic report version must match manifest.json");
 });
