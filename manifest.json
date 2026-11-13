@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
   "name": "HAPP Browser",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Диагностика VPN-подключения и сетевых утечек в Firefox.",
   "permissions": [
     "storage"
   ],
   "host_permissions": [
     "https://ipwho.is/*",
+    "https://api4.ipify.org/*",
+    "https://api6.ipify.org/*",
     "https://dnsleak.dev/*",
     "https://*.t.dnsleak.dev/*"
   ],
