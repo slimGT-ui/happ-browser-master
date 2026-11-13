@@ -67,3 +67,21 @@ test("manifest keeps arbitrary website access optional", () => {
   assert.equal(manifest.browser_specific_settings?.gecko?.id, "happ-browser@slimgt-ui",
     "extension ID must remain stable across updates");
 });
+
+test("WebRTC comparisons use the shared IP validators", () => {
+  const popup = read("popup.js");
+  assert.match(popup, /validIPv4\(item\.address\)/);
+  assert.match(popup, /validIPv6\(item\.address\)/);
+  assert.doesNotMatch(popup, /\bisIPv4\s*\(/);
+  assert.doesNotMatch(popup, /\bisIPv6\s*\(/);
+});
+
+test("popup IDs are unique and every interactive script loads after its dependencies", () => {
+  const html = read("popup.html");
+  const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map(match => match[1]);
+  assert.equal(new Set(ids).size, ids.length, "duplicate element IDs break querySelector wiring");
+  const scripts = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)].map(match => match[1]);
+  assert.ok(scripts.indexOf("ip-validation.js") < scripts.indexOf("popup.js"));
+  assert.ok(scripts.indexOf("ip-classification.js") < scripts.indexOf("popup.js"));
+  assert.ok(scripts.indexOf("timeline.js") < scripts.indexOf("advanced.js"));
+});
