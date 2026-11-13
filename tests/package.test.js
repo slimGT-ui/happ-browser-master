@@ -41,3 +41,11 @@ test("application version is consistent across release metadata", () => {
   assert.match(advanced, new RegExp(`version: "${version}"`),
     "diagnostic report version must match manifest.json");
 });
+
+test("IPv4/IPv6 reachability checks use strict address validation", () => {
+  const advanced = read("advanced.js");
+  assert.match(advanced, /HappValidation\.validIPv4\(v4Result\)/,
+    "IPv4 endpoint response must be validated as an actual IPv4 address");
+  assert.match(advanced, /HappValidation\.validIPv6\(v6Result\)/,
+    "IPv6 endpoint response must be validated as an actual IPv6 address");
+});
