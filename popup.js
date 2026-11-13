@@ -35,20 +35,9 @@ async function fetchJson(url, options = {}, timeoutMs = 10000) {
   }
 }
 
-function validIPv4(value) {
-  if (typeof value !== "string") return false;
-  const parts = value.split(".");
-  return parts.length === 4 && parts.every(part => /^\d{1,3}$/.test(part) && Number(part) <= 255);
-}
-
-function validIPv6(value) {
-  if (typeof value !== "string" || !value.includes(":") || value.length > 45) return false;
-  return /^[0-9a-f:]+$/i.test(value) && value.split("::").length <= 2;
-}
-
-function validIp(value) {
-  return validIPv4(value) || validIPv6(value);
-}
+function validIPv4(value) { return window.HappValidation.validIPv4(value); }
+function validIPv6(value) { return window.HappValidation.validIPv6(value); }
+function validIp(value) { return window.HappValidation.validIp(value); }
 
 async function checkPublicIp() {
   button.disabled = true;
