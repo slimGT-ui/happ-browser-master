@@ -177,22 +177,8 @@ browser.storage.local.get("lastDnsCheck").then(({ lastDnsCheck }) => {
   dnsMessage.textContent = "Показан последний сохранённый результат. Запусти тест заново для свежих данных.";
 }).catch(() => {});
 
-function isIPv4(value) { return validIPv4(value); }
-function isIPv6(value) { return validIPv6(value); }
-function isPrivateIPv4(ip) {
-  const [a, b] = ip.split(".").map(Number);
-  return a === 0 || a === 10 || a === 127 || a >= 224 ||
-    (a === 100 && b >= 64 && b <= 127) ||
-    (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) ||
-    (a === 192 && b === 168);
-}
-function isPrivateIPv6(ip) {
-  const value = ip.toLowerCase();
-  return value === "::" || value === "::1" || value.startsWith("fc") ||
-    value.startsWith("fd") || /^fe[89ab]/.test(value) || value.startsWith("ff");
-}
 function isPrivateAddress(ip) {
-  return isIPv4(ip) ? isPrivateIPv4(ip) : isIPv6(ip) ? isPrivateIPv6(ip) : true;
+  return !window.HappAddress.isPublicIp(ip);
 }
 function extractCandidateAddress(candidate) {
   if (candidate.address) return candidate.address.replace(/^\[|\]$/g, "");
