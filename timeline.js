@@ -80,6 +80,62 @@
     return item.status || "Результат проверки";
   }
 
+
+  function findPrevious(item, items) {
+    const currentTime = timestamp(item);
+    if (currentTime === null) return null;
+    return sortHistory(items).find(candidate =>
+      candidate !== item &&
+      candidate.type === item.type &&
+      timestamp(candidate) !== null &&
+      timestamp(candidate) < currentTime
+    ) || null;
+  }
+
+  function compareEvents(current, previous) {
+    if (!current || !previous) {
+      return { state: "unknown", label: "НЕТ ПРЕДЫДУЩЕГО ТЕСТА", detail: "Для сравнения нужна более ранняя проверка этого типа." };
+    }
+    const changed = (left, right) => JSON.stringify(left) !== JSON.stringify(right);
+    let fields = [];
+    if (current.type === "IP") {
+      fields = [
+        ["IP", previous.ip, current.ip],
+        ["Страна", previous.country, current.country]
+      ];
+    } else if (current.type === "DNS") {
+      fields = [["Количество резолверов", previous.resolvers, current.resolvers]];
+    } else if (current.type === "WebRTC") {
+      fields = [
+        ["Вердикт", previous.status || previous.verdict, current.status || current.verdict],
+        ["Несовпадения", previous.mismatches, current.mismatches]
+      ];
+    } else if (current.type === "IPv6") {
+      fields = [
+        ["IPv4", previous.ipv4, current.ipv4],
+        ["IPv6", previous.ipv6, current.ipv6]
+      ];
+    } else if (current.type === "Сайт") {
+      fields = [
+        ["Адрес", previous.url, current.url],
+        ["Доступность", previous.status, current.status]
+      ];
+    }
+    const comparable = fields.filter(([, before, after]) => before != null && before !== "" && after != null && after !== "");
+    if (!comparable.length) {
+      return { state: "unknown", label: "НЕДОСТАТОЧНО ДАННЫХ", detail: "В одной из проверок нет сопоставимых значений." };
+    }
+    const differences = comparable.filter(([, before, after]) => changed(before, after));
+    if (!differences.length) {
+      return { state: "same", label: "БЕЗ ИЗМЕНЕНИЙ", detail: "Сопоставимые значения совпадают с предыдущей проверкой." };
+    }
+    return {
+      state: "changed",
+      label: "ЕСТЬ ИЗМЕНЕНИЯ",
+      detail: differences.map(([label, before, after]) => label + ": " + String(before) + " → " + String(after)).join(" · ")
+    };
+  }
+
   function groupByDay(items) {
     const groups = [];
     const indexes = new Map();
@@ -97,5 +153,5 @@
     return groups;
   }
 
-  return Object.freeze({ sortHistory, filterHistory, summarizeHistory, getStatus, describe, groupByDay, TYPE_LABELS });
+  return Object.freeze({ sortHistory, filterHistory, summarizeHistory, getStatus, describe, findPrevious, compareEvents, groupByDay, TYPE_LABELS });
 });
