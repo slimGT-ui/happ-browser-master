@@ -51,9 +51,9 @@ Run from the repository root with Node.js 20 (the version used by GitHub Actions
 node --test
 ```
 
-Current automated suite: 14 tests. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js and ip-classification.js. These checks do not replace the manual browser/network scenarios below.
+Current automated suite: 20 tests, including timeline sorting, filtering, summaries, status interpretation, descriptions and date grouping. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js and ip-classification.js and timeline.js. These checks do not replace the manual browser/network scenarios below.
 
-Latest verified automated run: **14 passed, 0 failed** (commit b5fb2fb; [GitHub Actions run 43508083859](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43508083859)). Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
+Latest verified automated run: pending 0.10.0 timeline validation. Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
 
 ## Result log
 
