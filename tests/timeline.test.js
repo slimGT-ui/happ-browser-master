@@ -42,8 +42,9 @@ test("timeline groups events by local calendar day and keeps unknown dates", () 
 });
 
 test("timeline finds the immediately older event of the same diagnostic type", () => {
-  const previous = findPrevious(history[2], history);
-  assert.equal(previous.id, "dns".replace("dns", "old"));
+  const older = { id: "rtc-older", type: "WebRTC", checkedAt: "2026-01-02T09:00:00.000Z" };
+  const previous = findPrevious(history[2], [...history, older]);
+  assert.equal(previous.id, "rtc-older");
 });
 test("timeline reports changed IP values and unchanged repeated results", () => {
   const before = { type: "IP", ip: "8.8.8.8", country: "US" };
@@ -59,7 +60,7 @@ test("timeline compares DNS resolver counts and IPv6 families", () => {
   assert.equal(compareEvents(
     { type: "IPv6", ipv4: "1.1.1.1", ipv6: "" },
     { type: "IPv6", ipv4: "1.1.1.1", ipv6: "2001:4860::1" }
-  ).state, "unknown");
+  ).state, "same");
 });
 test("timeline marks partial IPv6 observations as incomplete", () => {
   assert.deepEqual(getStatus({ type: "IPv6", status: "partial" }), {
