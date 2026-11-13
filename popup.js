@@ -287,7 +287,12 @@ async function runWebRtcCheck() {
     peer.createDataChannel("happ-webrtc-check");
     const offer = await peer.createOffer();
     const gathering = collectIceCandidates(peer);
-    await peer.setLocalDescription(offer);
+    try {
+      await peer.setLocalDescription(offer);
+    } catch (error) {
+      await gathering.catch(() => {});
+      throw error;
+    }
     const candidates = await gathering;
     const publicCandidates = candidates.filter(item =>
       ["srflx", "prflx"].includes(item.type) && !isPrivateAddress(item.address) &&
