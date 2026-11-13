@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "HAPP Browser",
+  "version": "0.1.0",
+  "description": "Управление HAPP непосредственно из браузера Firefox.",
+  "action": {
+    "default_title": "HAPP Browser",
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "happ-browser@slimgt-ui",
+      "strict_min_version": "109.0"
+    }
+  }
+}
