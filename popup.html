@@ -13,7 +13,7 @@
   <main class="app">
     <header class="header">
       <div class="brand"><span class="brand-mark">H</span><div><h1>HAPP <span>Browser</span></h1><p>VPN COMPANION FOR FIREFOX</p></div></div>
-      <span class="version">0.5.0 · PREVIEW</span>
+      <span class="version">0.8.0 · PREVIEW</span>
     </header>
 
     <section class="hero">
@@ -59,6 +59,17 @@
       <div class="site-check-form"><input id="site-url" type="url" placeholder="example.com" autocomplete="url" aria-label="Адрес сайта"><button id="run-site-check" class="secondary" type="button">Проверить сайт</button></div>
       <p id="site-message" class="dns-message" role="status" aria-live="polite">Введи адрес сайта для проверки.</p>
       <div id="site-results" class="advanced-results" aria-live="polite"></div>
+      <section class="report-panel comparison-panel" aria-label="Сравнение VPN-профилей">
+        <div class="history-heading"><span class="eyebrow">VPN PROFILE COMPARISON</span></div>
+        <p class="dns-note">Сохрани результаты до переключения VPN, затем запусти проверки повторно и сравни новое состояние со снимком.</p>
+        <div class="site-check-form">
+          <input id="profile-label" type="text" maxlength="40" value="VPN выключен" aria-label="Название профиля">
+          <button id="save-profile" class="secondary" type="button">Сохранить текущее состояние</button>
+          <button id="compare-profile" class="secondary" type="button">Сравнить с сохранённым</button>
+        </div>
+        <p id="profile-message" class="dns-message" role="status" aria-live="polite">Снимок ещё не сохранён.</p>
+        <div id="profile-results" class="advanced-results" aria-live="polite"></div>
+      </section>
       <section class="report-panel" aria-label="Диагностический отчёт">
         <div class="history-heading"><span class="eyebrow">DIAGNOSTIC REPORT</span></div>
         <p class="dns-note">Собери последние результаты проверок в один JSON-файл или скопируй их.</p>
