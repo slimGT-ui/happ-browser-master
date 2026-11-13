@@ -31,3 +31,12 @@ body{width:380px;min-height:520px;margin:0;background:radial-gradient(ellipse at
 .footer{display:flex;justify-content:space-between;gap:10px;margin-top:auto;padding-top:17px;color:#716b7c;font-size:9px}
 .footer a{color:#b99aef;text-decoration:none}.footer a:hover{text-decoration:underline}
 .dns-note{margin:9px 0 0;color:#827c8c;font-size:9px;line-height:1.5}.secondary{display:flex;align-items:center;justify-content:center;width:100%;height:34px;margin-top:10px;border:1px solid rgba(185,154,239,.35);border-radius:8px;color:#cbb4f2;font-size:10px;font-weight:650;text-decoration:none}.secondary:hover{background:rgba(129,80,203,.12);border-color:#9c75d6}
+.dns-message{min-height:14px;margin:9px 0 0;color:#928b9d;font-size:9px;line-height:1.5}
+.dns-results{margin-top:9px}
+.dns-summary{margin-bottom:7px;color:#d8d2e1;font-size:10px;font-weight:650}
+.resolver-row{display:flex;flex-direction:column;gap:3px;padding:8px 9px;margin-top:6px;border:1px solid rgba(177,145,226,.13);border-radius:8px;background:rgba(255,255,255,.025)}
+.resolver-row strong{color:#eee8fa;font-size:10px;font-variant-numeric:tabular-nums}
+.resolver-row span{color:#8e8799;font-size:9px}
+.dns-disclaimer{margin:9px 0 0;color:#827c8c;font-size:9px;line-height:1.5}
+.secondary{background:transparent;cursor:pointer}
+.secondary:disabled{opacity:.55;cursor:wait}
