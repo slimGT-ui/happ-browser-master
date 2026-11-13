@@ -341,8 +341,14 @@ async function runWebRtcCheck() {
     });
     peer.createDataChannel("happ-webrtc-check");
     const offer = await peer.createOffer();
-    await peer.setLocalDescription(offer);
-    const candidates = await collectIceCandidates(peer);
+    const gathering = collectIceCandidates(peer);
+    try {
+      await peer.setLocalDescription(offer);
+    } catch (error) {
+      await gathering.catch(() => {});
+      throw error;
+    }
+    const candidates = await gathering;
 
     const publicCandidates = candidates.filter(item =>
       (isIPv4(item.address) || isIPv6(item.address)) &&
