@@ -48,8 +48,8 @@ For each case, record one of: **PASS**, **FAIL**, **BLOCKED**, or **NOT RUN**. I
 
 | ID | Result | Notes |
 |---|---|---|
-| IP-01 | NOT RUN | |
-| IP-02 | NOT RUN | |
+| IP-01 | PASS | User confirmed normal public IP lookup works |
+| IP-02 | PASS | User confirmed unavailable-IP-service behavior matches expected error handling |
 | DNS-01 | NOT RUN | |
 | DNS-02 | NOT RUN | |
 | DNS-03 | NOT RUN | |
