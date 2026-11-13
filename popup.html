@@ -59,6 +59,16 @@
       <div class="site-check-form"><input id="site-url" type="url" placeholder="example.com" autocomplete="url" aria-label="Адрес сайта"><button id="run-site-check" class="secondary" type="button">Проверить сайт</button></div>
       <p id="site-message" class="dns-message" role="status" aria-live="polite">Введи адрес сайта для проверки.</p>
       <div id="site-results" class="advanced-results" aria-live="polite"></div>
+      <section class="report-panel" aria-label="Диагностический отчёт">
+        <div class="history-heading"><span class="eyebrow">DIAGNOSTIC REPORT</span></div>
+        <p class="dns-note">Собери последние результаты проверок в один JSON-файл или скопируй их.</p>
+        <div class="report-actions">
+          <button id="export-report" class="secondary" type="button">Скачать JSON-отчёт</button>
+          <button id="copy-report" class="secondary" type="button">Скопировать отчёт</button>
+        </div>
+        <p class="report-warning">Отчёт может содержать публичные IP-адреса, DNS-резолверы, ICE-кандидаты и проверенные URL. Перед отправкой проверь его содержимое.</p>
+        <p id="report-message" class="dns-message" role="status" aria-live="polite">Отчёт ещё не сформирован.</p>
+      </section>
       <div class="history-heading"><span class="eyebrow">HISTORY</span><button id="clear-history" class="text-button" type="button">Очистить</button></div>
       <div id="history-list" class="history-list" aria-live="polite"></div>
     </section>
