@@ -1,6 +1,6 @@
 # HAPP Desktop integration research
 
-Status: research only. No runtime integration has been implemented yet.
+Status: Firefox SOCKS5 proof of concept implemented on the research branch. HAPP endpoint and Windows routing behavior remain unverified.
 
 ## Goal
 
@@ -62,13 +62,26 @@ This is a plausible implementation path for the Firefox-only routing goal. It is
 - The `proxy` permission is required. Firefox's API requires private-window access to change proxy settings; explain this clearly and handle the case where the user has not granted private-window access.
 - Explicitly configure SOCKS5 and proxy DNS.
 
+## Implemented proof of concept on research branch
+
+The extension now includes a Firefox popup that accepts a SOCKS5 host/port, applies Firefox's global SOCKS5 proxy settings with proxy-side DNS, and restores the exact settings captured before activation. It stores the endpoint and backup in browser.storage.local.
+
+Safety behavior:
+- Only loopback hosts (127.0.0.1, localhost, ::1) are accepted.
+- It does not enable HAPP LAN sharing or contact HAPP Desktop.
+- It refuses to overwrite settings controlled by another extension/policy.
+- If Firefox's proxy settings change while active, it offers to forget its saved session without modifying the current Firefox settings.
+- It checks Firefox private-window access before applying proxy settings.
+- It does not auto-connect after browser restart.
+
+This is a proof of concept, not a verified release. The extension cannot verify that a listener is actually SOCKS5 or that HAPP is connected; that requires the Windows checklist.
+
 ## Proposed implementation sequence
 
-1. **Manual feasibility test (Windows + Firefox):** identify the actual HAPP local proxy endpoint and determine whether it can be used without exposing it to the LAN.
-2. **Manual routing test:** configure Firefox only to use the endpoint; verify Firefox's public IP changes while a separate application remains on the direct connection.
-3. **Extension proof of concept:** add the Firefox `proxy` permission and a minimal enable/disable control using the verified endpoint. Preserve/restore the prior Firefox proxy configuration.
-4. **Reliability tests:** HAPP disconnected, proxy port closed, HAPP reconnect, Firefox restart, private windows, DNS behavior, and WebRTC considerations.
-5. **Only then:** investigate profile enumeration and connection control through a supported HAPP interface, if one exists.
+1. **Manual feasibility test (Windows):** follow WINDOWS_TEST_CHECKLIST.md to confirm a loopback listener and determine whether HAPP can run without system-wide routing.
+2. **Manual routing test:** compare direct Windows traffic with an explicit SOCKS5 request and then with Firefox using the extension.
+3. **Reliability tests:** HAPP disconnected, proxy port closed, HAPP reconnect, Firefox restart, private windows, DNS behavior, WebRTC considerations, and restoration after Firefox/extension errors.
+4. **Only then:** investigate profile enumeration and connection control through a supported HAPP interface, if one exists.
 
 ## Sources
 
