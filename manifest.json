@@ -3,8 +3,14 @@
   "name": "HAPP Browser",
   "version": "0.2.0",
   "description": "Диагностика VPN-подключения и сетевых утечек в Firefox.",
-  "permissions": ["storage"],
-  "host_permissions": ["https://ipwho.is/*"],
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://ipwho.is/*",
+    "https://dnsleak.dev/*",
+    "https://*.t.dnsleak.dev/*"
+  ],
   "action": {
     "default_title": "HAPP Browser",
     "default_popup": "popup.html"
