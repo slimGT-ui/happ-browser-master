@@ -21,5 +21,6 @@ jobs:
           node --check popup.js
           node --check advanced.js
           node --check ip-validation.js
+          node --check ip-classification.js
       - name: Run regression and package tests
         run: node --test
