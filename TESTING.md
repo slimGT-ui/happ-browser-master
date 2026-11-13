@@ -53,7 +53,7 @@ node --test
 
 Current automated suite: 8 tests. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js and ip-validation.js. These checks do not replace the manual browser/network scenarios below.
 
-Latest verified automated run: **7 passed, 0 failed** (commit 72860a5; GitHub Actions run 43505540798). Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
+Latest verified automated run: **8 passed, 0 failed** (commit 916c0ce; GitHub Actions run 43506904172). Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
 
 ## Result log
 
@@ -84,6 +84,19 @@ Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases 
 | UI-02 | PASS | User confirmed all remaining manual scenarios passed |
 | PERM-01 | PASS | User confirmed all remaining manual scenarios passed |
 | ERR-01 | PASS | User confirmed failed IP, DNS and WebRTC reruns replace stale successful states; successful results return after connectivity is restored |
+
+## Extension lifecycle checks
+
+These checks require a persistent, signed installation or an appropriate Firefox test build. A temporary add-on loaded through `about:debugging` is removed when Firefox restarts and is not sufficient to verify a normal installed-update lifecycle.
+
+| ID | Scenario | Steps | Expected result |
+|---|---|---|---|
+| LIFE-01 | Update preserves local data | Install a persistent build, run checks, save history and a VPN profile, then install a newer build with the same extension ID | History, latest results and saved profile remain available after the update |
+| LIFE-02 | Update does not duplicate state | Repeat the update process across two consecutive versions and reopen the popup | No duplicate history entries or reset profile caused by startup/update handling |
+| LIFE-03 | Uninstall behavior | Uninstall the extension through Firefox Add-ons Manager, then reinstall it | Firefox removes extension-owned local storage on uninstall; the reinstalled extension starts with empty extension data |
+| LIFE-04 | Permission lifecycle | Update the extension and separately run Website Reachability for a new origin | Required permissions remain limited to declared permissions; optional site access is requested only when that origin is tested |
+
+Do not mark these cases PASS based on a temporary add-on reload. Record the Firefox build, installation type and extension version used.
 
 ## Exit criteria for 0.6.0
 
