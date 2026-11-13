@@ -89,6 +89,11 @@
         <p class="report-warning">Отчёт может содержать публичные IP-адреса, DNS-резолверы, ICE-кандидаты и проверенные URL. Перед отправкой проверь его содержимое.</p>
         <p id="report-message" class="dns-message" role="status" aria-live="polite">Отчёт ещё не сформирован.</p>
       </section>
+      <section class="report-panel privacy-panel" aria-label="Конфиденциальность">
+        <div class="history-heading"><span class="eyebrow">PRIVACY &amp; PERMISSIONS</span></div>
+        <p class="dns-note">Проверки используют сторонние сервисы: ipwho.is, ipify, dnsleak.dev и Google STUN. Они могут видеть ваш сетевой IP и данные, необходимые для теста. Результаты и история хранятся локально в Firefox; автоматической отправки истории нет.</p>
+        <p class="report-warning">JSON-отчёт содержит диагностические данные и создаётся только по запросу. Проверь его перед отправкой. Проверка сайта обращается к выбранному адресу после отдельного разрешения Firefox.</p>
+      </section>
       <div class="history-heading"><span class="eyebrow">HISTORY</span><button id="clear-history" class="text-button" type="button">Очистить</button></div>
       <div id="history-list" class="history-list" aria-live="polite"></div>
     </section>
