@@ -189,7 +189,7 @@ browser.storage.local.get("lastDnsCheck").then(({ lastDnsCheck }) => {
 
 
 function isIPv4(value) {
-  return /^(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}$/.test(value);
+  return /^(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}$/.test(value);
 }
 
 function isPrivateIPv4(ip) {
@@ -244,7 +244,7 @@ function collectIceCandidates(peer) {
     const addCandidate = (candidate) => {
       if (!candidate) return;
       const address = extractCandidateAddress(candidate);
-      const typeMatch = candidate.candidate.match(/\btyp\s+(host|srflx|prflx|relay)\\b/);
+      const typeMatch = candidate.candidate.match(/\btyp\s+(host|srflx|prflx|relay)\b/);
       const type = candidate.type || (typeMatch && typeMatch[1]) || "unknown";
       const protocolMatch = candidate.candidate.match(/\s(udp|tcp)\s/i);
       const protocol = candidate.protocol || (protocolMatch && protocolMatch[1].toUpperCase()) || "";
