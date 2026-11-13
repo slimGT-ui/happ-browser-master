@@ -16,12 +16,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Check JavaScript syntax
-        run: |
-          node --check popup.js
-          node --check advanced.js
-          node --check ip-validation.js
-          node --check ip-classification.js
-          node --check timeline.js
-      - name: Run regression and package tests
-        run: node --test
+      - name: Validate project
+        run: npm run validate
