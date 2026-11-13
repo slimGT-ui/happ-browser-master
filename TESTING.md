@@ -52,7 +52,7 @@ For each case, record one of: **PASS**, **FAIL**, **BLOCKED**, or **NOT RUN**. I
 | IP-02 | PASS | User confirmed unavailable-IP-service behavior matches expected error handling |
 | DNS-01 | PASS | User confirmed DNS test with VPN disabled works |
 | DNS-02 | PASS | User confirmed DNS test with VPN enabled works |
-| DNS-03 | NOT RUN | |
+| DNS-03 | PASS | User confirmed the DNS test handles an unavailable DNS service as expected |
 | DNS-04 | NOT RUN | |
 | RTC-01 | NOT RUN | |
 | RTC-02 | NOT RUN | |
