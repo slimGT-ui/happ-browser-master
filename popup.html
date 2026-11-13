@@ -13,7 +13,7 @@
   <main class="app">
     <header class="header">
       <div class="brand"><span class="brand-mark">H</span><div><h1>HAPP <span>Browser</span></h1><p>VPN COMPANION FOR FIREFOX</p></div></div>
-      <span class="version">0.8.0 · PREVIEW</span>
+      <span class="version">0.9.0 · PREVIEW</span>
     </header>
 
     <section class="hero">
@@ -59,6 +59,14 @@
       <div class="site-check-form"><input id="site-url" type="url" placeholder="example.com" autocomplete="url" aria-label="Адрес сайта"><button id="run-site-check" class="secondary" type="button">Проверить сайт</button></div>
       <p id="site-message" class="dns-message" role="status" aria-live="polite">Введи адрес сайта для проверки.</p>
       <div id="site-results" class="advanced-results" aria-live="polite"></div>
+      <section class="report-panel security-panel" aria-label="Сводка безопасности">
+        <div class="history-heading"><span class="eyebrow">SECURITY OVERVIEW</span><button id="refresh-security" class="text-button" type="button">Обновить</button></div>
+        <div class="security-coverage"><strong id="security-coverage-value">0%</strong><span>покрытие диагностики</span></div>
+        <div class="security-meter" role="progressbar" aria-label="Покрытие диагностики" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="security-meter-fill"></span></div>
+        <p id="security-summary-message" class="dns-message" role="status" aria-live="polite">Сводка появится после запуска проверок.</p>
+        <div id="security-summary-results" class="advanced-results" aria-live="polite"></div>
+        <p class="report-warning">Покрытие показывает, сколько типов проверок имеют результаты, а не уровень безопасности или гарантию отсутствия утечек.</p>
+      </section>
       <section class="report-panel comparison-panel" aria-label="Сравнение VPN-профилей">
         <div class="history-heading"><span class="eyebrow">VPN PROFILE COMPARISON</span></div>
         <p class="dns-note">Сохрани результаты до переключения VPN, затем запусти проверки повторно и сравни новое состояние со снимком.</p>
