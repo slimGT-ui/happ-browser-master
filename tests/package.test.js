@@ -49,3 +49,16 @@ test("IPv4/IPv6 reachability checks use strict address validation", () => {
   assert.match(advanced, /HappValidation\.validIPv6\(v6Result\)/,
     "IPv6 endpoint response must be validated as an actual IPv6 address");
 });
+
+test("manifest keeps arbitrary website access optional", () => {
+  const manifest = JSON.parse(read("manifest.json"));
+  const requiredHosts = manifest.host_permissions || [];
+  const optionalHosts = manifest.optional_host_permissions || [];
+
+  assert.ok(requiredHosts.length > 0, "diagnostic service hosts must be declared");
+  assert.ok(requiredHosts.every(host => !/^https?:\\/\\/(?:\\*|\\*\\.)/.test(host)),
+    "required host permissions must not grant arbitrary website access");
+  assert.deepEqual(optionalHosts.slice().sort(), ["http://*/*", "https://*/*"]);
+  assert.equal(manifest.browser_specific_settings?.gecko?.id, "happ-browser@slimgt-ui",
+    "extension ID must remain stable across updates");
+});
