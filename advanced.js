@@ -7,6 +7,9 @@ const siteMessage = document.querySelector("#site-message");
 const siteResults = document.querySelector("#site-results");
 const historyList = document.querySelector("#history-list");
 const historyClear = document.querySelector("#clear-history");
+const historyFilter = document.querySelector("#history-filter");
+const historySummary = document.querySelector("#timeline-summary");
+let historyItems = [];
 const HISTORY_KEY = "checkHistory";
 const HISTORY_LIMIT = 50;
 
@@ -36,35 +39,77 @@ function addRow(container, label, value) {
   container.append(row);
 }
 function renderHistory(items) {
+  historyItems = Array.isArray(items) ? items.slice(0, HISTORY_LIMIT) : [];
+  const summary = window.HappTimeline.summarizeHistory(historyItems);
+  historySummary.replaceChildren();
+  for (const [value, label] of [
+    [summary.total, "ЗАПИСЕЙ"],
+    [summary.last24Hours, "ЗА 24 ЧАСА"],
+    [summary.types, "ТИПОВ ТЕСТОВ"]
+  ]) {
+    const metric = document.createElement("div");
+    metric.className = "timeline-metric";
+    const number = document.createElement("strong");
+    number.textContent = String(value);
+    const caption = document.createElement("span");
+    caption.textContent = label;
+    metric.append(number, caption);
+    historySummary.append(metric);
+  }
+
   historyList.replaceChildren();
-  if (!items.length) {
+  const filtered = window.HappTimeline.filterHistory(historyItems, historyFilter.value);
+  if (!filtered.length) {
     const empty = document.createElement("p");
     empty.className = "advanced-note";
-    empty.textContent = "Проверок пока нет.";
+    empty.textContent = historyItems.length
+      ? "Для выбранного типа проверок записей нет."
+      : "Проверок пока нет. Запусти диагностику — события появятся здесь.";
     historyList.append(empty);
     return;
   }
-  for (const item of items) {
-    const card = document.createElement("article");
-    card.className = "history-item";
-    const heading = document.createElement("div");
-    heading.className = "history-top";
-    const title = document.createElement("strong");
-    title.textContent = item.type || "Проверка";
-    const date = document.createElement("time");
-    date.dateTime = item.checkedAt || "";
-    const parsedDate = new Date(item.checkedAt);
-    date.textContent = Number.isNaN(parsedDate.getTime()) ? "Дата неизвестна" : parsedDate.toLocaleString();
-    heading.append(title, date);
-    const detail = document.createElement("p");
-    if (item.status === "error") detail.textContent = "Ошибка: " + (item.message || "неизвестно");
-    else if (item.type === "IP") detail.textContent = (item.ip || "IP не получен") + " · " + (item.country || "страна неизвестна");
-    else if (item.type === "DNS") detail.textContent = item.status === "observed" ? item.resolvers + " резолверов · " + item.lookups + " наблюдений" : "Недостаточно DNS-данных";
-    else if (item.type === "WebRTC") detail.textContent = "Вердикт: " + item.status + " · ICE: " + (item.candidates ?? 0) + " · сравнено: " + (item.compared ?? 0);
-    else if (item.type === "IPv6") detail.textContent = "IPv4: " + (item.ipv4 || "нет") + " · IPv6: " + (item.ipv6 || "нет");
-    else detail.textContent = (item.url || "") + " · " + item.status;
-    card.append(heading, detail);
-    historyList.append(card);
+
+  for (const group of window.HappTimeline.groupByDay(filtered)) {
+    const groupHeading = document.createElement("h3");
+    groupHeading.className = "timeline-day";
+    groupHeading.textContent = group.label;
+    historyList.append(groupHeading);
+
+    const track = document.createElement("div");
+    track.className = "timeline-track";
+    for (const item of group.items) {
+      const card = document.createElement("article");
+      card.className = "timeline-event";
+      const marker = document.createElement("span");
+      marker.className = "timeline-marker";
+      const status = window.HappTimeline.getStatus(item);
+      marker.dataset.state = status.state;
+
+      const body = document.createElement("div");
+      body.className = "timeline-event-body";
+      const heading = document.createElement("div");
+      heading.className = "timeline-event-heading";
+      const title = document.createElement("strong");
+      title.textContent = window.HappTimeline.TYPE_LABELS[item.type] || item.type || "Проверка";
+      const badge = document.createElement("span");
+      badge.className = "timeline-status";
+      badge.dataset.state = status.state;
+      badge.textContent = status.label;
+      heading.append(title, badge);
+
+      const detail = document.createElement("p");
+      detail.textContent = window.HappTimeline.describe(item);
+      const date = document.createElement("time");
+      const parsedDate = new Date(item.checkedAt);
+      date.dateTime = Number.isNaN(parsedDate.getTime()) ? "" : parsedDate.toISOString();
+      date.textContent = Number.isNaN(parsedDate.getTime())
+        ? "Время неизвестно"
+        : parsedDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      body.append(heading, detail, date);
+      card.append(marker, body);
+      track.append(card);
+    }
+    historyList.append(track);
   }
 }
 async function loadHistory() {
@@ -149,6 +194,7 @@ async function runSiteCheck() {
 }
 ipv6Button.addEventListener("click", runIpv6Check);
 siteButton.addEventListener("click", runSiteCheck);
+historyFilter.addEventListener("change", () => renderHistory(historyItems));
 historyClear.addEventListener("click", async () => {
   historyClear.disabled = true;
   try {
