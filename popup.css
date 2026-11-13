@@ -1,0 +1,131 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, "Segoe UI", sans-serif;
+  background: #0b0a10;
+  color: #f3f0fa;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 340px;
+  min-height: 270px;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(126, 77, 210, 0.19), transparent 58%),
+    #0b0a10;
+}
+
+.popup {
+  display: flex;
+  min-height: 270px;
+  flex-direction: column;
+  padding: 22px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(178, 137, 255, 0.35);
+  border-radius: 13px;
+  background: linear-gradient(145deg, #8252d6, #49258c);
+  box-shadow: 0 5px 22px rgba(111, 64, 190, 0.25);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 750;
+}
+
+.brand-copy h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-copy h1 span {
+  color: #b99aef;
+  font-weight: 500;
+}
+
+.brand-copy p {
+  margin: 4px 0 0;
+  color: #8e899a;
+  font-size: 11px;
+}
+
+.welcome {
+  margin-top: 32px;
+  padding: 18px;
+  border: 1px solid rgba(177, 145, 226, 0.13);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #b99aef;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.status-dot,
+.footer-indicator {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #a77bea;
+  box-shadow: 0 0 10px rgba(167, 123, 234, 0.55);
+}
+
+.welcome h2 {
+  margin: 17px 0 8px;
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+.welcome p {
+  margin: 0;
+  color: #a39dad;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 18px;
+  color: #8e899a;
+  font-size: 10px;
+}
+
+.footer-indicator {
+  width: 6px;
+  height: 6px;
+  background: #8c79b5;
+  box-shadow: none;
+}
+
+.version {
+  margin-left: auto;
+  color: #696473;
+  font-variant-numeric: tabular-nums;
+}
