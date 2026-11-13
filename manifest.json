@@ -11,6 +11,7 @@
     "https://dnsleak.dev/*",
     "https://*.t.dnsleak.dev/*"
   ],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
   "action": {
     "default_title": "HAPP Browser",
     "default_popup": "popup.html"
