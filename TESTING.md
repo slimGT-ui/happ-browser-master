@@ -45,15 +45,15 @@ Use the same device and network for paired VPN-off / VPN-on comparisons. Do not 
 
 ## Automated regression tests
 
-Run from the repository root with Node.js 18 or newer:
+Run from the repository root with Node.js 20 (the version used by GitHub Actions):
 
 ```bash
 node --test
 ```
 
-Current automated suite: 5 tests covering valid and invalid IPv4, full/compressed/IPv4-mapped IPv6, malformed IPv6 group counts and compression, and the combined IP validator. These tests do not replace the manual browser/network scenarios below.
+Current automated suite: 7 tests. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js and ip-validation.js. These checks do not replace the manual browser/network scenarios below.
 
-Latest automated run: **5 passed, 0 failed**. Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
+Latest verified automated run: **7 passed, 0 failed** (commit 72860a5; GitHub Actions run 43505540798). Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
 
 ## Result log
 
