@@ -274,7 +274,7 @@ async function buildDiagnosticReport() {
     reportVersion: 1,
     application: {
       name: "HAPP Browser",
-      version: "0.10.0",
+      version: "0.10.1",
       platform: "Firefox"
     },
     generatedAt: new Date().toISOString(),
