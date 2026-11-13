@@ -61,14 +61,18 @@ async function checkPublicIp() {
     await browser.storage.local.set({ lastIpCheck: { ...record, countryCode: data.country_code || null, checkedAt: new Date().toISOString() } });
     await window.HappHistory?.add("IP", record);
   } catch (error) {
+    const errorMessage = error.message || String(error);
     overall.textContent = "ОШИБКА";
     setResultState("error");
-    message.textContent = `Не удалось получить данные: ${error.message || String(error)}`;
+    message.textContent = `Не удалось получить данные: ${errorMessage}`;
     ipValue.textContent = "Недоступно";
     countryValue.textContent = "Недоступно";
     ipDetail.textContent = "Проверка не выполнена";
     countryDetail.textContent = "Проверка не выполнена";
-    await window.HappHistory?.add("IP", { status: "error", message: error.message || String(error) });
+    await browser.storage.local.set({
+      lastIpCheck: { status: "error", message: errorMessage, checkedAt: new Date().toISOString() }
+    }).catch(storageError => console.warn("HAPP Browser: не удалось сохранить ошибку IP-проверки", storageError));
+    await window.HappHistory?.add("IP", { status: "error", message: errorMessage });
   } finally {
     button.disabled = false;
     button.textContent = "Проверить подключение";
@@ -153,8 +157,12 @@ async function runDnsCheck() {
       : `Недостаточно данных: ${lookups} наблюдений, ${sent}/${hostnames.length} проб отправлено.`;
     await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, lookups, probesSent: sent });
   } catch (error) {
-    dnsMessage.textContent = `DNS-тест не завершён: ${error.message || String(error)}`;
-    await window.HappHistory?.add("DNS", { status: "error", message: error.message || String(error) });
+    const errorMessage = error.message || String(error);
+    dnsMessage.textContent = `DNS-тест не завершён: ${errorMessage}`;
+    await browser.storage.local.set({
+      lastDnsCheck: { verdict: "error", message: errorMessage, checkedAt: new Date().toISOString() }
+    }).catch(storageError => console.warn("HAPP Browser: не удалось сохранить ошибку DNS-проверки", storageError));
+    await window.HappHistory?.add("DNS", { status: "error", message: errorMessage });
   } finally {
     dnsButton.disabled = false;
     dnsButton.textContent = "Повторить DNS-тест";
@@ -315,8 +323,12 @@ async function runWebRtcCheck() {
         : "Недостаточно данных для надёжного сравнения.";
     await window.HappHistory?.add("WebRTC", { status: verdict, candidates: candidates.length, compared: comparable.length, mismatches: mismatches.length });
   } catch (error) {
-    webrtcMessage.textContent = `Проверка не завершена: ${error.message || String(error)}. Это не означает отсутствие утечки.`;
-    await window.HappHistory?.add("WebRTC", { status: "error", message: error.message || String(error) });
+    const errorMessage = error.message || String(error);
+    webrtcMessage.textContent = `Проверка не завершена: ${errorMessage}. Это не означает отсутствие утечки.`;
+    await browser.storage.local.set({
+      lastWebRtcCheck: { verdict: "error", message: errorMessage, checkedAt: new Date().toISOString() }
+    }).catch(storageError => console.warn("HAPP Browser: не удалось сохранить ошибку WebRTC-проверки", storageError));
+    await window.HappHistory?.add("WebRTC", { status: "error", message: errorMessage });
   } finally {
     peer?.close();
     webrtcButton.disabled = false;
