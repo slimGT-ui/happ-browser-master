@@ -85,9 +85,9 @@ Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases 
 | PERM-01 | PASS | User confirmed all remaining manual scenarios passed |
 | ERR-01 | PASS | User confirmed failed IP, DNS and WebRTC reruns replace stale successful states; successful results return after connectivity is restored |
 
-## Extension lifecycle checks
+## Extension lifecycle checks — RC1 gate
 
-These checks require a persistent, signed installation or an appropriate Firefox test build. A temporary add-on loaded through `about:debugging` is removed when Firefox restarts and is not sufficient to verify a normal installed-update lifecycle.
+These checks require a persistent, Mozilla-signed installation. A temporary add-on loaded through `about:debugging` is removed when Firefox restarts and is not sufficient to verify a normal installed-update lifecycle. Follow [RELEASE_CANDIDATE.md](RELEASE_CANDIDATE.md) to submit the 0.10.0 baseline and 0.10.1 RC1 as unlisted versions under the same add-on ID.
 
 | ID | Scenario | Steps | Expected result |
 |---|---|---|---|
@@ -98,9 +98,9 @@ These checks require a persistent, signed installation or an appropriate Firefox
 
 Do not mark these cases PASS based on a temporary add-on reload. Record the Firefox build, installation type and extension version used.
 
-## ## Focused retest for the final 0.10.0 hardening
+## Focused retest for the 0.10.0 diagnostic code
 
-The following changes were added after the previous 23-case manual pass. Record each as PASS/FAIL/BLOCKED before a stable release:
+The user confirmed all five focused scenarios below passed. RC1 changes release metadata and documentation only; no diagnostic behavior was intentionally changed:
 
 | ID | Scenario | Expected result |
 |---|---|---|
