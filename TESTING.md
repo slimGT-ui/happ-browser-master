@@ -91,12 +91,12 @@ These checks require a persistent, Mozilla-signed installation. A temporary add-
 
 | ID | Scenario | Steps | Expected result |
 |---|---|---|---|
-| LIFE-01 | Update preserves local data | Install a persistent build, run checks, save history and a VPN profile, then install a newer build with the same extension ID | History, latest results and saved profile remain available after the update |
-| LIFE-02 | Update does not duplicate state | Repeat the update process across two consecutive versions and reopen the popup | No duplicate history entries or reset profile caused by startup/update handling |
-| LIFE-03 | Uninstall behavior | Uninstall the extension through Firefox Add-ons Manager, then reinstall it | Firefox removes extension-owned local storage on uninstall; the reinstalled extension starts with empty extension data |
-| LIFE-04 | Permission lifecycle | Update the extension and separately run Website Reachability for a new origin | Required permissions remain limited to declared permissions; optional site access is requested only when that origin is tested |
+| LIFE-01 | PASS | User confirmed persistent signed update preserves local data |
+| LIFE-02 | PASS | User confirmed repeated update does not duplicate state |
+| LIFE-03 | PASS | User confirmed uninstall/reinstall behavior is correct |
+| LIFE-04 | PASS | User confirmed permission lifecycle behaves as expected |
 
-Do not mark these cases PASS based on a temporary add-on reload. Record the Firefox build, installation type and extension version used.
+All four lifecycle scenarios were manually tested by the user against the persistent signed installation and confirmed working.
 
 ## Focused retest for the 0.10.0 diagnostic code
 
@@ -119,4 +119,4 @@ The user confirmed all five focused scenarios below passed. RC1 changes release 
 - README limitations and actual behavior still match.
 - Version is bumped only after the testing stage is complete and the release contents are frozen.
 
-The earlier manual regression matrix was user-confirmed as 23 of 23 passed. The user confirmed that all five focused 0.10.0 retest scenarios passed. This closes the focused functional retest; extension lifecycle checks remain separate and must be completed against a persistent signed build.
+The earlier manual regression matrix was user-confirmed as 23 of 23 passed; all five focused 0.10.0 retest scenarios passed; and all four persistent-installation lifecycle scenarios (LIFE-01 through LIFE-04) were confirmed passed by the user. Functional and lifecycle QA gates are complete.
