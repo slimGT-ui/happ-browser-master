@@ -16,5 +16,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Run regression tests
+      - name: Check JavaScript syntax
+        run: |
+          node --check popup.js
+          node --check advanced.js
+          node --check ip-validation.js
+      - name: Run regression and package tests
         run: node --test
