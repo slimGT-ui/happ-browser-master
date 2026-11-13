@@ -181,7 +181,7 @@ async function buildDiagnosticReport() {
     reportVersion: 1,
     application: {
       name: "HAPP Browser",
-      version: "0.5.0",
+      version: "0.8.0",
       platform: "Firefox"
     },
     generatedAt: new Date().toISOString(),
@@ -233,3 +233,117 @@ async function copyDiagnosticReport() {
 
 reportExportButton.addEventListener("click", exportDiagnosticReport);
 reportCopyButton.addEventListener("click", copyDiagnosticReport);
+
+
+// 0.8.0 — compare a saved connection snapshot with the current diagnostics.
+const profileLabelInput = document.querySelector("#profile-label");
+const saveProfileButton = document.querySelector("#save-profile");
+const compareProfileButton = document.querySelector("#compare-profile");
+const profileMessage = document.querySelector("#profile-message");
+const profileResults = document.querySelector("#profile-results");
+const PROFILE_KEY = "connectionProfileSnapshot";
+
+async function readConnectionSnapshot() {
+  const stored = await browser.storage.local.get([
+    "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", HISTORY_KEY
+  ]);
+  const history = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
+  const latest = type => history.find(item => item.type === type) || null;
+  return {
+    capturedAt: new Date().toISOString(),
+    ip: stored.lastIpCheck || null,
+    dns: stored.lastDnsCheck || null,
+    webRtc: stored.lastWebRtcCheck || null,
+    ipv6: latest("IPv6"),
+    website: latest("Сайт")
+  };
+}
+
+function renderProfileComparison(rows) {
+  profileResults.replaceChildren();
+  for (const item of rows) {
+    const row = document.createElement("div");
+    row.className = "profile-diff-row";
+    const heading = document.createElement("strong");
+    heading.textContent = item.label;
+    const detail = document.createElement("span");
+    detail.textContent = item.detail;
+    const state = document.createElement("em");
+    state.dataset.state = item.state;
+    state.textContent = item.state === "changed" ? "ИЗМЕНИЛОСЬ"
+      : item.state === "same" ? "БЕЗ ИЗМЕНЕНИЙ" : "НЕТ ДАННЫХ";
+    row.append(heading, detail, state);
+    profileResults.append(row);
+  }
+}
+
+function compareValues(before, after, label, formatter = value => String(value)) {
+  if (before == null || after == null || before === "" || after === "") {
+    return { label, state: "missing", detail: "Недостаточно данных в одном из снимков." };
+  }
+  const same = JSON.stringify(before) === JSON.stringify(after);
+  return {
+    label,
+    state: same ? "same" : "changed",
+    detail: "До: " + formatter(before) + " · Сейчас: " + formatter(after)
+  };
+}
+
+async function saveConnectionProfile() {
+  saveProfileButton.disabled = true;
+  profileMessage.textContent = "Сохраняем снимок…";
+  try {
+    const snapshot = await readConnectionSnapshot();
+    if (!snapshot.ip && !snapshot.dns && !snapshot.webRtc && !snapshot.ipv6 && !snapshot.website) {
+      throw new Error("Сначала запусти хотя бы одну диагностику.");
+    }
+    const label = profileLabelInput.value.trim() || "Профиль подключения";
+    await browser.storage.local.set({ [PROFILE_KEY]: { label, ...snapshot } });
+    profileMessage.textContent = `Снимок «${label}» сохранён. Теперь переключи VPN и повтори проверки.`;
+    profileResults.replaceChildren();
+  } catch (error) {
+    profileMessage.textContent = "Не удалось сохранить снимок: " + (error.message || String(error));
+  } finally {
+    saveProfileButton.disabled = false;
+  }
+}
+
+async function compareConnectionProfile() {
+  compareProfileButton.disabled = true;
+  profileMessage.textContent = "Сравниваем результаты…";
+  try {
+    const stored = await browser.storage.local.get(PROFILE_KEY);
+    const baseline = stored[PROFILE_KEY];
+    if (!baseline) throw new Error("Сначала сохрани исходный профиль.");
+    const current = await readConnectionSnapshot();
+    const rows = [
+      compareValues(baseline.ip?.ip, current.ip?.ip, "Public IP"),
+      compareValues(baseline.ip?.country, current.ip?.country, "Страна"),
+      compareValues(
+        baseline.dns?.resolvers?.map(item => item.ip).sort() || null,
+        current.dns?.resolvers?.map(item => item.ip).sort() || null,
+        "DNS-резолверы",
+        value => Array.isArray(value) ? (value.join(", ") || "не обнаружены") : String(value)
+      ),
+      compareValues(baseline.webRtc?.verdict, current.webRtc?.verdict, "WebRTC verdict"),
+      compareValues(baseline.ipv6?.ipv4, current.ipv6?.ipv4, "IPv4"),
+      compareValues(baseline.ipv6?.ipv6, current.ipv6?.ipv6, "IPv6"),
+      compareValues(baseline.website?.status, current.website?.status, "Доступность сайта")
+    ];
+    renderProfileComparison(rows);
+    const changed = rows.filter(item => item.state === "changed").length;
+    const missing = rows.filter(item => item.state === "missing").length;
+    profileMessage.textContent = `«${baseline.label}» → текущее состояние: ${changed} изменений, ${missing} пунктов без данных. Сравнение не является автоматическим вердиктом об утечке.`;
+  } catch (error) {
+    profileMessage.textContent = "Не удалось сравнить профили: " + (error.message || String(error));
+    profileResults.replaceChildren();
+  } finally {
+    compareProfileButton.disabled = false;
+  }
+}
+
+saveProfileButton.addEventListener("click", saveConnectionProfile);
+compareProfileButton.addEventListener("click", compareConnectionProfile);
+browser.storage.local.get(PROFILE_KEY).then(({ [PROFILE_KEY]: profile }) => {
+  if (profile) profileMessage.textContent = `Сохранён снимок «${profile.label}» от ${new Date(profile.capturedAt).toLocaleString()}.`;
+}).catch(() => {});
