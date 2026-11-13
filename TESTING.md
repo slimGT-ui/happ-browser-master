@@ -41,6 +41,7 @@ Use the same device and network for paired VPN-off / VPN-on comparisons. Do not 
 | UI-01 | Repeated runs | Run each check several times in succession | Buttons recover after completion; no permanently disabled controls or duplicate result blocks |
 | UI-02 | Simultaneous checks | Start different checks in succession | Each check reports its own result; popup remains responsive |
 | PERM-01 | Fresh installation | Install temporary extension in a clean Firefox profile | Only declared permissions are requested initially; website permission is requested per origin |
+| ERR-01 | Failed rerun replaces stale result | Complete IP, DNS and WebRTC checks successfully; make the network unavailable and rerun them; open Security Overview; restore network and rerun | Latest failed checks show errors instead of previous successful results; fresh successful results return after connectivity is restored |
 
 ## Automated regression tests
 
@@ -52,7 +53,7 @@ node --test
 
 Current automated suite: 5 tests covering valid and invalid IPv4, full/compressed/IPv4-mapped IPv6, malformed IPv6 group counts and compression, and the combined IP validator. These tests do not replace the manual browser/network scenarios below.
 
-Latest automated run: **5 passed, 0 failed**. Manual browser test matrix: **22 passed, 0 failed, 0 deferred** (user-confirmed).
+Latest automated run: **5 passed, 0 failed**. Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
 
 ## Result log
 
@@ -82,6 +83,7 @@ Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases 
 | UI-01 | PASS | User confirmed all remaining manual scenarios passed |
 | UI-02 | PASS | User confirmed all remaining manual scenarios passed |
 | PERM-01 | PASS | User confirmed all remaining manual scenarios passed |
+| ERR-01 | PASS | User confirmed failed IP, DNS and WebRTC reruns replace stale successful states; successful results return after connectivity is restored |
 
 ## Exit criteria for 0.6.0
 
@@ -92,4 +94,4 @@ Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases 
 - README limitations and actual behavior still match.
 - Version is bumped only after the testing stage is complete and the release contents are frozen.
 
-The manual regression matrix is **fully passed** according to the user's report: 22 of 22 cases passed; no cases remain deferred.
+The manual regression matrix is **fully passed** according to the user's report: 23 of 23 cases passed; no cases remain deferred.
