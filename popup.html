@@ -3,50 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b0a10">
+  <meta name="theme-color" content="#09090d">
   <title>HAPP Browser</title>
   <link rel="stylesheet" href="popup.css">
   <script src="popup.js" defer></script>
 </head>
 <body>
-  <main class="popup">
+  <main class="app">
     <header class="header">
-      <div class="brand-mark" aria-hidden="true">H</div>
-      <div class="brand-copy">
-        <h1>HAPP <span>Browser</span></h1>
-        <p>VPN только внутри Firefox</p>
-      </div>
-      <span class="version">0.1.0</span>
+      <div class="brand"><span class="brand-mark">H</span><div><h1>HAPP <span>Browser</span></h1><p>VPN COMPANION FOR FIREFOX</p></div></div>
+      <span class="version">0.2.0 · PREVIEW</span>
     </header>
 
-    <section class="connection-card" aria-labelledby="connection-title">
-      <div class="card-heading">
-        <div>
-          <p class="eyebrow">ПОДКЛЮЧЕНИЕ</p>
-          <h2 id="connection-title">HAPP Desktop</h2>
-        </div>
-        <span id="status-indicator" class="status-indicator" aria-hidden="true"></span>
-      </div>
-      <p id="connection-status" class="connection-status" role="status" aria-live="polite">Проверяем настройки Firefox…</p>
-
-      <div class="fields">
-        <label for="proxy-host">Адрес SOCKS5</label>
-        <input id="proxy-host" type="text" value="127.0.0.1" autocomplete="off" spellcheck="false" placeholder="127.0.0.1">
-        <label for="proxy-port">Порт SOCKS5</label>
-        <input id="proxy-port" type="number" min="1" max="65535" inputmode="numeric" placeholder="Укажем после проверки HAPP">
-      </div>
-
-      <button id="toggle-proxy" class="primary-button" type="button" disabled>Подключить Firefox</button>
-      <p id="detail-message" class="detail-message">Пока не подключено. Остальные приложения Windows не затрагиваются.</p>
+    <section class="hero">
+      <div class="section-top"><span class="eyebrow">NETWORK STATUS</span><span id="overall-status" class="status-pill" data-state="idle">НЕ ПРОВЕРЕНО</span></div>
+      <h2>Состояние подключения</h2>
+      <p class="muted">Проверь, как Firefox выходит в интернет и какие сетевые данные видны сайтам.</p>
+      <button id="run-check" class="primary" type="button">Проверить подключение</button>
+      <p id="check-message" class="message" role="status" aria-live="polite">Проверка внешнего IP и страны.</p>
     </section>
 
-    <section class="notice" aria-label="Важно">
-      <span class="notice-mark" aria-hidden="true">!</span>
-      <p><strong>Важно:</strong> не включай «Allow LAN Connections» и не указывай сетевой IP, пока мы не проверим, где HAPP слушает прокси. Сейчас используем только localhost.</p>
+    <section class="results" aria-label="Результаты диагностики">
+      <article class="result-card">
+        <div class="card-head"><span class="eyebrow">PUBLIC IP</span><span class="dot" id="ip-dot"></span></div>
+        <strong id="ip-value" class="value">—</strong>
+        <span id="ip-detail" class="subvalue">Внешний IPv4/IPv6</span>
+      </article>
+      <article class="result-card">
+        <div class="card-head"><span class="eyebrow">LOCATION</span><span class="dot" id="country-dot"></span></div>
+        <strong id="country-value" class="value">—</strong>
+        <span id="country-detail" class="subvalue">Страна выхода в интернет</span>
+      </article>
+    </section>
+
+    <section class="planned">
+      <div class="section-top"><span class="eyebrow">SECURITY CHECKS</span><span class="soon">ПОЭТАПНО</span></div>
+      <div class="check-row"><span>DNS leak</span><span class="pending">В разработке</span></div>
+      <div class="check-row"><span>WebRTC leak</span><span class="pending">В разработке</span></div>
+      <div class="check-row"><span>IPv6 exposure</span><span class="pending">В разработке</span></div>
+      <div class="check-row"><span>Website reachability</span><span class="pending">В разработке</span></div>
     </section>
 
     <footer class="footer">
-      <span>HAPP Desktop · SOCKS5 · DNS через прокси</span>
+      <span>Независимый проект сообщества</span>
       <a href="https://github.com/slimGT-ui/happ-browser-master" target="_blank" rel="noreferrer">GitHub</a>
     </footer>
   </main>
