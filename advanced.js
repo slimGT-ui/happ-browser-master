@@ -159,3 +159,77 @@ historyClear.addEventListener("click", async () => {
   }
 });
 loadHistory().catch(() => renderHistory([]));
+
+
+// 0.7.0 — export the latest diagnostic snapshot and recent history.
+const reportExportButton = document.querySelector("#export-report");
+const reportCopyButton = document.querySelector("#copy-report");
+const reportMessage = document.querySelector("#report-message");
+
+async function buildDiagnosticReport() {
+  const stored = await browser.storage.local.get([
+    "lastIpCheck",
+    "lastDnsCheck",
+    "lastWebRtcCheck",
+    HISTORY_KEY
+  ]);
+  const history = Array.isArray(stored[HISTORY_KEY])
+    ? stored[HISTORY_KEY].slice(0, HISTORY_LIMIT)
+    : [];
+
+  return {
+    reportVersion: 1,
+    application: {
+      name: "HAPP Browser",
+      version: "0.5.0",
+      platform: "Firefox"
+    },
+    generatedAt: new Date().toISOString(),
+    privacyNotice: "This report may contain public IP addresses, DNS resolver addresses, WebRTC ICE candidates, and tested URLs. Review it before sharing.",
+    latestChecks: {
+      publicIp: stored.lastIpCheck || null,
+      dns: stored.lastDnsCheck || null,
+      webRtc: stored.lastWebRtcCheck || null,
+      ipv6: history.find(item => item.type === "IPv6") || null,
+      website: history.find(item => item.type === "Сайт") || null
+    },
+    recentHistory: history
+  };
+}
+
+async function exportDiagnosticReport() {
+  reportExportButton.disabled = true;
+  reportMessage.textContent = "Формируем отчёт…";
+  try {
+    const report = await buildDiagnosticReport();
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `happ-browser-report-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    reportMessage.textContent = "JSON-отчёт подготовлен. Проверь его перед отправкой.";
+  } catch (error) {
+    reportMessage.textContent = "Не удалось сформировать отчёт: " + (error.message || String(error));
+  } finally {
+    reportExportButton.disabled = false;
+  }
+}
+
+async function copyDiagnosticReport() {
+  reportCopyButton.disabled = true;
+  reportMessage.textContent = "Формируем отчёт…";
+  try {
+    const report = await buildDiagnosticReport();
+    await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
+    reportMessage.textContent = "Отчёт скопирован. Проверь его перед отправкой.";
+  } catch (error) {
+    reportMessage.textContent = "Не удалось скопировать отчёт: " + (error.message || String(error));
+  } finally {
+    reportCopyButton.disabled = false;
+  }
+}
+
+reportExportButton.addEventListener("click", exportDiagnosticReport);
+reportCopyButton.addEventListener("click", copyDiagnosticReport);
