@@ -53,7 +53,7 @@ node --test
 
 Current automated suite: 14 tests. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js and ip-classification.js. These checks do not replace the manual browser/network scenarios below.
 
-Latest verified automated run: **14 passed, 0 failed** (commit 5629d09; [GitHub Actions run 43507977368](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43507977368)). Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
+Latest verified automated run: **14 passed, 0 failed** (commit b5fb2fb; [GitHub Actions run 43508083859](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43508083859)). Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
 
 ## Result log
 
