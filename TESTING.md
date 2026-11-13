@@ -104,11 +104,11 @@ The following changes were added after the previous 23-case manual pass. Record 
 
 | ID | Scenario | Expected result |
 |---|---|---|
-| RTC-05 | Public ICE candidates appear | No JavaScript reference error; correct IPv4/IPv6 family comparison |
-| V6-03 | One address-family endpoint is unavailable | Partial/incomplete state is shown consistently in the result, Timeline and Security Overview |
-| HIST-04 | Two or more diagnostics finish close together | No history event is lost |
-| TL-01 | Same diagnostic run with changed values | Timeline describes changes against the previous event of the same type |
-| RESTORE-01 | Close and reopen popup after running checks | Last saved result for every diagnostic is restored and labelled historical |
+| RTC-05 | PASS | User confirmed public ICE candidate handling works; no reference error and correct address-family comparison |
+| V6-03 | PASS | User confirmed partial/incomplete state is consistent across result, Timeline and Security Overview |
+| HIST-04 | PASS | User confirmed concurrent diagnostic completions do not lose history events |
+| TL-01 | PASS | User confirmed Timeline correctly describes changes against the previous event of the same type |
+| RESTORE-01 | PASS | User confirmed saved diagnostic results are restored and labelled historical after reopening the popup |
 
 ## Current QA exit criteria
 
@@ -119,4 +119,4 @@ The following changes were added after the previous 23-case manual pass. Record 
 - README limitations and actual behavior still match.
 - Version is bumped only after the testing stage is complete and the release contents are frozen.
 
-The earlier manual regression matrix was user-confirmed as 23 of 23 passed. Do not treat the focused 0.10.0 retest above as passed until the user verifies this exact code.
+The earlier manual regression matrix was user-confirmed as 23 of 23 passed. The user confirmed that all five focused 0.10.0 retest scenarios passed. This closes the focused functional retest; extension lifecycle checks remain separate and must be completed against a persistent signed build.
