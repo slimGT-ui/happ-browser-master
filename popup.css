@@ -1,131 +1,42 @@
-:root {
-  color-scheme: dark;
-  font-family: Inter, "Segoe UI", sans-serif;
-  background: #0b0a10;
-  color: #f3f0fa;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  width: 340px;
-  min-height: 270px;
-  margin: 0;
-  background:
-    radial-gradient(ellipse at 8% 0%, rgba(126, 77, 210, 0.19), transparent 58%),
-    #0b0a10;
-}
-
-.popup {
-  display: flex;
-  min-height: 270px;
-  flex-direction: column;
-  padding: 22px;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.brand-mark {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border: 1px solid rgba(178, 137, 255, 0.35);
-  border-radius: 13px;
-  background: linear-gradient(145deg, #8252d6, #49258c);
-  box-shadow: 0 5px 22px rgba(111, 64, 190, 0.25);
-  color: #fff;
-  font-size: 22px;
-  font-weight: 750;
-}
-
-.brand-copy h1 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.brand-copy h1 span {
-  color: #b99aef;
-  font-weight: 500;
-}
-
-.brand-copy p {
-  margin: 4px 0 0;
-  color: #8e899a;
-  font-size: 11px;
-}
-
-.welcome {
-  margin-top: 32px;
-  padding: 18px;
-  border: 1px solid rgba(177, 145, 226, 0.13);
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.025);
-}
-
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #b99aef;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.status-dot,
-.footer-indicator {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #a77bea;
-  box-shadow: 0 0 10px rgba(167, 123, 234, 0.55);
-}
-
-.welcome h2 {
-  margin: 17px 0 8px;
-  font-size: 19px;
-  font-weight: 650;
-  letter-spacing: -0.035em;
-}
-
-.welcome p {
-  margin: 0;
-  color: #a39dad;
-  font-size: 12px;
-  line-height: 1.65;
-}
-
-.footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 18px;
-  color: #8e899a;
-  font-size: 10px;
-}
-
-.footer-indicator {
-  width: 6px;
-  height: 6px;
-  background: #8c79b5;
-  box-shadow: none;
-}
-
-.version {
-  margin-left: auto;
-  color: #696473;
-  font-variant-numeric: tabular-nums;
-}
+:root{color-scheme:dark;font-family:Inter,"Segoe UI",sans-serif;background:#09090d;color:#f3f0fa;font-synthesis:none;text-rendering:optimizeLegibility}
+*{box-sizing:border-box}
+body{width:380px;min-height:520px;margin:0;background:radial-gradient(ellipse at 8% 0%,rgba(126,77,210,.2),transparent 55%),#09090d}
+.app{display:flex;min-height:520px;flex-direction:column;padding:20px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand-mark{display:grid;width:40px;height:40px;place-items:center;border:1px solid rgba(178,137,255,.35);border-radius:12px;background:linear-gradient(145deg,#8252d6,#49258c);color:#fff;font-size:21px;font-weight:750}
+.brand h1{margin:0;font-size:15px;letter-spacing:.02em}.brand h1 span{color:#b99aef;font-weight:500}
+.brand p{margin:4px 0 0;color:#777181;font-size:8px;letter-spacing:.14em}
+.version{color:#716b7c;font-size:9px;white-space:nowrap}
+.hero{margin-top:22px;padding:17px;border:1px solid rgba(177,145,226,.17);border-radius:15px;background:rgba(255,255,255,.035)}
+.section-top,.card-head{display:flex;align-items:center;justify-content:space-between}
+.eyebrow{color:#b99aef;font-size:9px;font-weight:700;letter-spacing:.13em}
+.status-pill{padding:5px 7px;border:1px solid #51465f;border-radius:20px;color:#aaa1b8;font-size:8px;letter-spacing:.06em}
+.status-pill[data-state=success]{border-color:#286b4b;color:#83dfaa}.status-pill[data-state=error]{border-color:#793b45;color:#f08b96}
+.hero h2{margin:14px 0 6px;font-size:18px;letter-spacing:-.03em}
+.muted,.message{color:#928b9d;font-size:10px;line-height:1.55}
+.muted{margin:0}
+.primary{width:100%;height:39px;margin-top:15px;border:0;border-radius:9px;background:linear-gradient(100deg,#8150cb,#6338a5);color:#fff;font-size:11px;font-weight:700;cursor:pointer}
+.primary:hover:not(:disabled){filter:brightness(1.12)}.primary:disabled{opacity:.55;cursor:wait}
+.message{min-height:16px;margin:10px 0 0}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}
+.result-card{min-width:0;padding:13px;border:1px solid rgba(177,145,226,.14);border-radius:12px;background:rgba(255,255,255,.025)}
+.dot{width:7px;height:7px;border-radius:50%;background:#77717f}.dot[data-state=success]{background:#69d69b;box-shadow:0 0 9px #3cae75}.dot[data-state=error]{background:#e36d78}
+.value{display:block;overflow-wrap:anywhere;margin-top:13px;color:#f4efff;font-size:15px;font-weight:650;font-variant-numeric:tabular-nums}
+.subvalue{display:block;min-height:22px;margin-top:5px;color:#827c8c;font-size:9px;line-height:1.4}
+.planned{margin-top:14px;padding:14px;border:1px solid rgba(177,145,226,.14);border-radius:12px;background:rgba(255,255,255,.02)}
+.soon{color:#827c8c;font-size:8px;letter-spacing:.08em}
+.check-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0 0;color:#d8d2e1;font-size:10px}
+.pending{color:#77717f;font-size:9px}
+.footer{display:flex;justify-content:space-between;gap:10px;margin-top:auto;padding-top:17px;color:#716b7c;font-size:9px}
+.footer a{color:#b99aef;text-decoration:none}.footer a:hover{text-decoration:underline}
+.dns-note{margin:9px 0 0;color:#827c8c;font-size:9px;line-height:1.5}.secondary{display:flex;align-items:center;justify-content:center;width:100%;height:34px;margin-top:10px;border:1px solid rgba(185,154,239,.35);border-radius:8px;color:#cbb4f2;font-size:10px;font-weight:650;text-decoration:none}.secondary:hover{background:rgba(129,80,203,.12);border-color:#9c75d6}
+.dns-message{min-height:14px;margin:9px 0 0;color:#928b9d;font-size:9px;line-height:1.5}
+.dns-results{margin-top:9px}
+.dns-summary{margin-bottom:7px;color:#d8d2e1;font-size:10px;font-weight:650}
+.resolver-row{display:flex;flex-direction:column;gap:3px;padding:8px 9px;margin-top:6px;border:1px solid rgba(177,145,226,.13);border-radius:8px;background:rgba(255,255,255,.025)}
+.resolver-row strong{color:#eee8fa;font-size:10px;font-variant-numeric:tabular-nums}
+.resolver-row span{color:#8e8799;font-size:9px}
+.dns-disclaimer{margin:9px 0 0;color:#827c8c;font-size:9px;line-height:1.5}
+.secondary{background:transparent;cursor:pointer}
+.secondary:disabled{opacity:.55;cursor:wait}
