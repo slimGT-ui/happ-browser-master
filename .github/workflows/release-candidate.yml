@@ -1,9 +1,12 @@
-name: Stable Firefox package
+name: HAPP Browser stable package
 
 on:
   push:
     branches:
       - release/1.0.0-stable
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -21,8 +24,12 @@ jobs:
           node-version: 20
       - name: Validate source
         run: npm run validate
-      - name: Build unsigned Firefox package
-        run: git archive --format=zip --output=happ-browser-1.0.0.zip HEAD
+      - name: Build Firefox extension package
+        run: |
+          zip -j happ-browser-1.0.0.zip \
+            manifest.json popup.html popup.css popup.js advanced.js \
+            ip-validation.js ip-classification.js timeline.js
+          unzip -l happ-browser-1.0.0.zip
       - name: Upload stable package
         uses: actions/upload-artifact@v4
         with:
