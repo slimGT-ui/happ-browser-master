@@ -347,3 +347,114 @@ compareProfileButton.addEventListener("click", compareConnectionProfile);
 browser.storage.local.get(PROFILE_KEY).then(({ [PROFILE_KEY]: profile }) => {
   if (profile) profileMessage.textContent = `Сохранён снимок «${profile.label}» от ${new Date(profile.capturedAt).toLocaleString()}.`;
 }).catch(() => {});
+
+
+// 0.9.0 — transparent diagnostic coverage and findings summary.
+const securityRefreshButton = document.querySelector("#refresh-security");
+const securityCoverageValue = document.querySelector("#security-coverage-value");
+const securityMeter = document.querySelector(".security-meter");
+const securityMeterFill = document.querySelector("#security-meter-fill");
+const securityMessage = document.querySelector("#security-summary-message");
+const securityResults = document.querySelector("#security-summary-results");
+
+function securityRow(label, status, detail) {
+  return { label, status, detail };
+}
+
+function renderSecuritySummary(rows) {
+  securityResults.replaceChildren();
+  for (const item of rows) {
+    const row = document.createElement("div");
+    row.className = "security-result-row";
+    const title = document.createElement("strong");
+    title.textContent = item.label;
+    const badge = document.createElement("em");
+    badge.dataset.state = item.status;
+    badge.textContent = ({
+      pass: "ПОЛУЧЕНЫ ДАННЫЕ",
+      review: "НУЖНА ПРОВЕРКА",
+      warning: "ЕСТЬ НЕСОВПАДЕНИЕ",
+      incomplete: "НЕДОСТАТОЧНО ДАННЫХ",
+      error: "ОШИБКА",
+      missing: "НЕ ЗАПУСКАЛАСЬ"
+    })[item.status] || "НЕИЗВЕСТНО";
+    const detail = document.createElement("span");
+    detail.textContent = item.detail;
+    row.append(title, badge, detail);
+    securityResults.append(row);
+  }
+}
+
+async function refreshSecuritySummary() {
+  securityRefreshButton.disabled = true;
+  securityMessage.textContent = "Собираем последние результаты…";
+  try {
+    const stored = await browser.storage.local.get([
+      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", HISTORY_KEY
+    ]);
+    const history = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
+    const latest = type => history.find(item => item.type === type) || null;
+    const ip = stored.lastIpCheck || latest("IP");
+    const dns = stored.lastDnsCheck || null;
+    const rtc = stored.lastWebRtcCheck || null;
+    const ipv6 = latest("IPv6");
+
+    const rows = [];
+    rows.push(ip?.status === "success"
+      ? securityRow("Public IP", "pass", `${ip.ip || "IP получен"} · ${ip.country || "страна не определена"}`)
+      : ip?.status === "error"
+        ? securityRow("Public IP", "error", ip.message || "Не удалось получить внешний IP.")
+        : securityRow("Public IP", "missing", "Запусти базовую проверку подключения."));
+
+    rows.push(dns?.verdict === "observed"
+      ? securityRow("DNS", "review", `${dns.resolvers?.length || 0} резолверов обнаружено. Сверь их с DNS-провайдером VPN.`)
+      : dns?.verdict === "insufficient-data"
+        ? securityRow("DNS", "incomplete", "Тест завершился без достаточных наблюдений.")
+        : latest("DNS")?.status === "error"
+          ? securityRow("DNS", "error", latest("DNS").message || "DNS-тест завершился ошибкой.")
+          : securityRow("DNS", "missing", "Запусти DNS-тест."));
+
+    rows.push(rtc?.verdict === "possible-leak"
+      ? securityRow("WebRTC", "warning", `${rtc.mismatches || 0} публичных ICE-адресов не совпали с контрольными IP.`)
+      : rtc?.verdict === "no-mismatch"
+        ? securityRow("WebRTC", "pass", "Среди сопоставленных публичных ICE-адресов несовпадений нет.")
+        : rtc?.verdict === "inconclusive"
+          ? securityRow("WebRTC", "incomplete", "Недостаточно данных для надёжного сравнения.")
+          : latest("WebRTC")?.status === "error"
+            ? securityRow("WebRTC", "error", latest("WebRTC").message || "WebRTC-тест завершился ошибкой.")
+            : securityRow("WebRTC", "missing", "Запусти WebRTC-тест."));
+
+    rows.push(ipv6?.status === "observed"
+      ? securityRow("IPv4 / IPv6", "review", `IPv4: ${ipv6.ipv4 || "недоступен"} · IPv6: ${ipv6.ipv6 || "недоступен"}. Наличие IPv6 само по себе не является утечкой.`)
+      : ipv6?.status === "inconclusive"
+        ? securityRow("IPv4 / IPv6", "incomplete", "Не удалось определить доступность протоколов.")
+        : ipv6?.status === "error"
+          ? securityRow("IPv4 / IPv6", "error", ipv6.message || "IPv6-тест завершился ошибкой.")
+          : securityRow("IPv4 / IPv6", "missing", "Запусти проверку IPv4 / IPv6."));
+
+    const completed = rows.filter(item => !["missing", "error"].includes(item.status)).length;
+    const coverage = Math.round(completed / rows.length * 100);
+    securityCoverageValue.textContent = coverage + "%";
+    securityMeter.setAttribute("aria-valuenow", String(coverage));
+    securityMeterFill.style.width = coverage + "%";
+    renderSecuritySummary(rows);
+
+    const warnings = rows.filter(item => item.status === "warning").length;
+    const reviews = rows.filter(item => item.status === "review").length;
+    const incomplete = rows.filter(item => ["missing", "incomplete", "error"].includes(item.status)).length;
+    securityMessage.textContent = warnings
+      ? `Есть ${warnings} результат(а) с несовпадениями. Изучи подробности ниже.`
+      : reviews
+        ? `Автоматических несовпадений WebRTC не отмечено, но ${reviews} проверк(а/и) требуют ручной интерпретации.`
+        : incomplete
+          ? "Часть проверок ещё не запускалась или не дала достаточно данных."
+          : "Проверки имеют результаты. Это не является гарантией отсутствия утечек.";
+  } catch (error) {
+    securityMessage.textContent = "Не удалось собрать сводку: " + (error.message || String(error));
+  } finally {
+    securityRefreshButton.disabled = false;
+  }
+}
+
+securityRefreshButton.addEventListener("click", refreshSecuritySummary);
+refreshSecuritySummary();
