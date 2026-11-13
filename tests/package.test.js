@@ -32,7 +32,9 @@ test("application version is consistent across release metadata", () => {
   const popup = read("popup.html");
   const readme = read("README.md");
   const advanced = read("advanced.js");
+  const packageJson = JSON.parse(read("package.json"));
   const version = manifest.version;
+  assert.equal(packageJson.version, version, "package.json version must match manifest.json");
 
   assert.match(popup, new RegExp(`<span class="version">${version.replace(/\\./g, "\\\\.")}\\s*·\\s*PREVIEW</span>`),
     "popup version label must match manifest.json");
@@ -84,4 +86,25 @@ test("popup IDs are unique and every interactive script loads after its dependen
   assert.ok(scripts.indexOf("ip-validation.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("ip-classification.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("timeline.js") < scripts.indexOf("advanced.js"));
+});
+
+test("history writes are serialized and the security overview refreshes after results", () => {
+  const advanced = read("advanced.js");
+  assert.match(advanced, /let historyWriteQueue = Promise\.resolve\(\)/);
+  assert.match(advanced, /historyWriteQueue\.then\(async \(\) =>/);
+  assert.match(advanced, /await refreshSecuritySummary\(\)/);
+});
+
+test("last IP result is restored as historical data, not presented as a live check", () => {
+  const popup = read("popup.js");
+  assert.match(popup, /async function restoreIpCheck\(\)/);
+  assert.match(popup, /Последний сохранённый результат/);
+});
+
+test("release docs describe the current preview and stable-release gates", () => {
+  const changelog = read("CHANGELOG.md");
+  const checklist = read("RELEASE_CHECKLIST.md");
+  assert.match(changelog, /\[0\.10\.0\]/);
+  assert.match(checklist, /не создавать.*1\.0\.0/is);
+  assert.match(checklist, /HAPP Desktop profile enumeration/is);
 });
