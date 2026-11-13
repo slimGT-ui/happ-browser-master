@@ -14,20 +14,40 @@
       <div class="brand-mark" aria-hidden="true">H</div>
       <div class="brand-copy">
         <h1>HAPP <span>Browser</span></h1>
-        <p>Управление подключением из браузера</p>
+        <p>VPN только внутри Firefox</p>
       </div>
+      <span class="version">0.1.0</span>
     </header>
 
-    <section class="welcome" aria-labelledby="welcome-title">
-      <div class="eyebrow"><span class="status-dot"></span> ОСНОВА РАСШИРЕНИЯ</div>
-      <h2 id="welcome-title">Всё начинается здесь.</h2>
-      <p>Интерфейс HAPP Browser готов. Подключение к HAPP Desktop появится на следующих этапах разработки.</p>
+    <section class="connection-card" aria-labelledby="connection-title">
+      <div class="card-heading">
+        <div>
+          <p class="eyebrow">ПОДКЛЮЧЕНИЕ</p>
+          <h2 id="connection-title">HAPP Desktop</h2>
+        </div>
+        <span id="status-indicator" class="status-indicator" aria-hidden="true"></span>
+      </div>
+      <p id="connection-status" class="connection-status" role="status" aria-live="polite">Проверяем настройки Firefox…</p>
+
+      <div class="fields">
+        <label for="proxy-host">Адрес SOCKS5</label>
+        <input id="proxy-host" type="text" value="127.0.0.1" autocomplete="off" spellcheck="false" placeholder="127.0.0.1">
+        <label for="proxy-port">Порт SOCKS5</label>
+        <input id="proxy-port" type="number" min="1" max="65535" inputmode="numeric" placeholder="Укажем после проверки HAPP">
+      </div>
+
+      <button id="toggle-proxy" class="primary-button" type="button" disabled>Подключить Firefox</button>
+      <p id="detail-message" class="detail-message">Пока не подключено. Остальные приложения Windows не затрагиваются.</p>
+    </section>
+
+    <section class="notice" aria-label="Важно">
+      <span class="notice-mark" aria-hidden="true">!</span>
+      <p><strong>Важно:</strong> не включай «Allow LAN Connections» и не указывай сетевой IP, пока мы не проверим, где HAPP слушает прокси. Сейчас используем только localhost.</p>
     </section>
 
     <footer class="footer">
-      <span class="footer-indicator" aria-hidden="true"></span>
-      <span id="runtime-status" role="status">Расширение загружено</span>
-      <span class="version">v0.1.0</span>
+      <span>HAPP Desktop · SOCKS5 · DNS через прокси</span>
+      <a href="https://github.com/slimGT-ui/happ-browser-master" target="_blank" rel="noreferrer">GitHub</a>
     </footer>
   </main>
 </body>
