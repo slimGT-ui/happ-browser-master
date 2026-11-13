@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "HAPP Browser",
+  "version": "0.1.0",
+  "description": "Управление HAPP VPN через Firefox.",
+  "permissions": [
+    "proxy",
+    "storage"
+  ],
+  "action": {
+    "default_title": "HAPP Browser",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "happ-browser@example.com"
+    }
+  }
+}
