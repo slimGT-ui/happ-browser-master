@@ -22,5 +22,6 @@ jobs:
           node --check advanced.js
           node --check ip-validation.js
           node --check ip-classification.js
+          node --check timeline.js
       - name: Run regression and package tests
         run: node --test
