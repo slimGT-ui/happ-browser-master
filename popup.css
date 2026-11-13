@@ -62,3 +62,10 @@ input:focus{border-color:#9c75d6}
 .history-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .history-top strong{color:#d8d2e1;font-size:9px}.history-top time{color:#77717f;font-size:8px}
 .history-item p{margin:5px 0 0;color:#8e8799;font-size:9px;line-height:1.4;overflow-wrap:anywhere}
+
+/* 0.5.0 diagnostic verdicts */
+.webrtc-summary[data-verdict="possible-leak"]{color:#f08b96}
+.webrtc-summary[data-verdict="no-mismatch"]{color:#83dfaa}
+.webrtc-summary[data-verdict="inconclusive"]{color:#e0bd7d}
+.dns-summary{line-height:1.5}
+.resolver-row strong{overflow-wrap:anywhere}
