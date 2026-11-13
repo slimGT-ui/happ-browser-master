@@ -1,3 +1,5 @@
+> **Historical research only — not part of the current HAPP Browser release.** The current `main` branch is a standalone Firefox diagnostic extension. It does not control HAPP Desktop, configure Firefox proxy settings, or synchronize subscriptions. The proof-of-concept described below belongs to a separate research branch and must not be treated as a supported feature of the current product.
+
 # HAPP Desktop integration research
 
 Status: Firefox SOCKS5 proof of concept implemented on the research branch. HAPP endpoint and Windows routing behavior remain unverified.
