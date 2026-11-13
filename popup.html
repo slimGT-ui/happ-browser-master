@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="popup.css">
   <script src="ip-validation.js" defer></script>
   <script src="ip-classification.js" defer></script>
+  <script src="timeline.js" defer></script>
   <script src="popup.js" defer></script>
   <script src="advanced.js" defer></script>
 </head>
@@ -95,8 +96,23 @@
         <p class="dns-note">Проверки используют сторонние сервисы: ipwho.is, ipify, dnsleak.dev и Google STUN. Они могут видеть ваш сетевой IP и данные, необходимые для теста. Результаты и история хранятся локально в Firefox; автоматической отправки истории нет.</p>
         <p class="report-warning">JSON-отчёт содержит диагностические данные и создаётся только по запросу. Проверь его перед отправкой. Проверка сайта обращается к выбранному адресу после отдельного разрешения Firefox.</p>
       </section>
-      <div class="history-heading"><span class="eyebrow">HISTORY</span><button id="clear-history" class="text-button" type="button">Очистить</button></div>
-      <div id="history-list" class="history-list" aria-live="polite"></div>
+      <section class="report-panel timeline-panel" aria-label="История и временная шкала диагностики">
+        <div class="history-heading"><span class="eyebrow">DIAGNOSTIC TIMELINE</span><button id="clear-history" class="text-button" type="button">Очистить</button></div>
+        <p class="dns-note">Хронология последних 50 проверок. События сгруппированы по дате; фильтр помогает отследить изменения отдельного типа диагностики.</p>
+        <div id="timeline-summary" class="timeline-summary" aria-label="Сводка истории"></div>
+        <div class="timeline-controls">
+          <label for="history-filter">Показать</label>
+          <select id="history-filter">
+            <option value="all">Все проверки</option>
+            <option value="IP">Public IP</option>
+            <option value="DNS">DNS</option>
+            <option value="WebRTC">WebRTC</option>
+            <option value="IPv6">IPv4 / IPv6</option>
+            <option value="Сайт">Website</option>
+          </select>
+        </div>
+        <div id="history-list" class="history-list" aria-live="polite"></div>
+      </section>
     </section>
 
     <footer class="footer">
