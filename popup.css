@@ -129,3 +129,9 @@ input:focus{border-color:#9c75d6}
 .timeline-event-body p{margin:5px 0;color:#9991a5;font-size:9px;line-height:1.45;overflow-wrap:anywhere}
 .timeline-event-body time{color:#716b7c;font-size:8px;font-variant-numeric:tabular-nums}
 .timeline-panel .history-heading{margin-top:0}
+
+
+.timeline-change{margin:5px 0 4px!important;padding-left:7px;border-left:2px solid rgba(150,145,165,.35);color:#898292!important;font-size:8px!important}
+.timeline-change[data-state="changed"]{border-left-color:#d9b36f;color:#e2c58f!important}
+.timeline-change[data-state="same"]{border-left-color:#69b88b;color:#8ec8a5!important}
+.timeline-change[data-state="unknown"]{border-left-color:#827c8c;color:#827c8c!important}
