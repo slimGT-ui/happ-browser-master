@@ -169,8 +169,35 @@ async function runDnsCheck() {
   }
 }
 
+async function restoreIpCheck() {
+  try {
+    const { lastIpCheck } = await browser.storage.local.get("lastIpCheck");
+    if (!lastIpCheck) return;
+    if (lastIpCheck.status === "success" && validIp(lastIpCheck.ip)) {
+      ipValue.textContent = lastIpCheck.ip;
+      ipDetail.textContent = "Последний сохранённый внешний IP";
+      countryValue.textContent = lastIpCheck.country || "Страна неизвестна";
+      countryDetail.textContent = lastIpCheck.countryCode ? `Код страны: ${lastIpCheck.countryCode}` : "Последняя сохранённая страна";
+      overall.textContent = "ПОСЛЕДНИЙ РЕЗУЛЬТАТ";
+      setResultState("success");
+      message.textContent = "Показан последний сохранённый результат. Запусти проверку заново для актуальных данных.";
+    } else if (lastIpCheck.status === "error") {
+      ipValue.textContent = "Недоступно";
+      countryValue.textContent = "Недоступно";
+      ipDetail.textContent = "Последняя проверка завершилась ошибкой";
+      countryDetail.textContent = "Проверка не выполнена";
+      overall.textContent = "ПОСЛЕДНИЙ РЕЗУЛЬТАТ: ОШИБКА";
+      setResultState("error");
+      message.textContent = lastIpCheck.message || "Последняя проверка IP завершилась ошибкой.";
+    }
+  } catch (error) {
+    console.warn("HAPP Browser: не удалось восстановить последнюю IP-проверку", error);
+  }
+}
+
 button.addEventListener("click", checkPublicIp);
 dnsButton.addEventListener("click", runDnsCheck);
+restoreIpCheck();
 browser.storage.local.get("lastDnsCheck").then(({ lastDnsCheck }) => {
   if (!lastDnsCheck || !Array.isArray(lastDnsCheck.resolvers)) return;
   renderDnsResults(lastDnsCheck);
