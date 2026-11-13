@@ -2,12 +2,15 @@
 
 All notable project changes are documented here.
 
-## [0.10.1] - Release Candidate 1 for 1.0.0
+## [1.0.0] - Stable
 
-### Release preparation
-- Prepared a candidate build for persistent-installation and update-lifecycle verification.
-- No diagnostic behavior or permissions were intentionally changed from the manually verified 0.10.0 preview.
-- This candidate is not the stable 1.0.0 release. Stable publication depends on signed-installation, update-preservation and permission-lifecycle checks.
+### Release
+- First stable release of HAPP Browser for Firefox.
+- Includes Public IP, DNS observations, WebRTC ICE diagnostics, IPv4/IPv6 reachability and Website Reachability.
+- Adds Security Overview, VPN profile comparison, JSON diagnostic export and a persistent 50-event Diagnostic Timeline.
+- Keeps diagnostic history and saved profiles in local Firefox storage; no first-party telemetry or automatic report upload.
+- Verified through 23 core manual scenarios, 5 focused regression scenarios, 4 persistent-installation lifecycle scenarios and 30 automated tests.
+- DNS, WebRTC and IPv6 findings remain diagnostic observations, not an absolute guarantee that a VPN is leak-free.
 
 
 ## [0.10.0] - Preview
