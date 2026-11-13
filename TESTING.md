@@ -42,6 +42,18 @@ Use the same device and network for paired VPN-off / VPN-on comparisons. Do not 
 | UI-02 | Simultaneous checks | Start different checks in succession | Each check reports its own result; popup remains responsive |
 | PERM-01 | Fresh installation | Install temporary extension in a clean Firefox profile | Only declared permissions are requested initially; website permission is requested per origin |
 
+## Automated regression tests
+
+Run from the repository root with Node.js 18 or newer:
+
+```bash
+node --test
+```
+
+Current automated suite: 5 tests covering valid and invalid IPv4, full/compressed/IPv4-mapped IPv6, malformed IPv6 group counts and compression, and the combined IP validator. These tests do not replace the manual browser/network scenarios below.
+
+Latest local run: **5 passed, 0 failed**.
+
 ## Result log
 
 Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases have not been tested and must not be counted as passed.
