@@ -108,3 +108,11 @@ test("release docs describe the current preview and stable-release gates", () =>
   assert.match(checklist, /Do not create.*1\.0\.0/is);
   assert.match(checklist, /HAPP Desktop profile enumeration/is);
 });
+
+test("diagnostic persistence failures do not turn successful network checks into errors", () => {
+  const popup = read("popup.js");
+  assert.match(popup, /async function saveLocalResult\(key, value\)/);
+  assert.match(popup, /await saveLocalResult\("lastIpCheck"/);
+  assert.match(popup, /await saveLocalResult\("lastDnsCheck"/);
+  assert.match(popup, /await saveLocalResult\("lastWebRtcCheck"/);
+});
