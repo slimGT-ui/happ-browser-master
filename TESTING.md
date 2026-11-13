@@ -50,7 +50,7 @@ For each case, record one of: **PASS**, **FAIL**, **BLOCKED**, or **NOT RUN**. I
 |---|---|---|
 | IP-01 | PASS | User confirmed normal public IP lookup works |
 | IP-02 | PASS | User confirmed unavailable-IP-service behavior matches expected error handling |
-| DNS-01 | NOT RUN | |
+| DNS-01 | PASS | User confirmed DNS test with VPN disabled works |
 | DNS-02 | NOT RUN | |
 | DNS-03 | NOT RUN | |
 | DNS-04 | NOT RUN | |
