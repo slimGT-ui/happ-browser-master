@@ -125,7 +125,39 @@ function renderHistory(items) {
 }
 async function loadHistory() {
   const stored = await browser.storage.local.get(HISTORY_KEY);
-  renderHistory(Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY].slice(0, HISTORY_LIMIT) : []);
+  const items = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY].slice(0, HISTORY_LIMIT) : [];
+  renderHistory(items);
+
+  const latest = type => window.HappTimeline.sortHistory(items).find(item => item.type === type);
+  const ipv6 = latest("IPv6");
+  if (ipv6) {
+    ipv6Results.replaceChildren();
+    addRow(ipv6Results, "IPv4", ipv6.ipv4 || "Недоступен");
+    addRow(ipv6Results, "IPv6", ipv6.ipv6 || "Недоступен");
+    const note = document.createElement("p");
+    note.className = "advanced-note";
+    note.textContent = ipv6.status === "error"
+      ? "Последняя IPv4/IPv6-проверка завершилась ошибкой: " + (ipv6.message || "неизвестная ошибка")
+      : ipv6.status === "partial"
+        ? "Последний результат частичный: доступен только один протокол. Запусти тест повторно для актуальных данных."
+        : "Показан последний сохранённый результат. Доступность протокола не подтверждает VPN-маршрут.";
+    ipv6Results.append(note);
+    ipv6Message.textContent = "Последний сохранённый результат. Запусти проверку заново для актуальных данных.";
+  }
+
+  const website = latest("Сайт");
+  if (website) {
+    siteResults.replaceChildren();
+    addRow(siteResults, "Адрес", website.url || "Не указан");
+    addRow(siteResults, "Результат", website.status === "reachable" ? "Сетевой ответ получен" : "Проверка не пройдена");
+    const note = document.createElement("p");
+    note.className = "advanced-note";
+    note.textContent = website.status === "error"
+      ? "Последняя проверка завершилась ошибкой: " + (website.message || "неизвестная ошибка")
+      : "Firefox не раскрывает расширению HTTP-статус и содержимое ответа. Показан последний сохранённый результат.";
+    siteResults.append(note);
+    siteMessage.textContent = "Показан последний результат. Запусти проверку заново для актуальных данных.";
+  }
 }
 async function runIpv6Check() {
   ipv6Button.disabled = true;
