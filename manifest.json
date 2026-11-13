@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "HAPP Browser",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "description": "Диагностика VPN-подключения и сетевых утечек в Firefox.",
   "permissions": [
     "storage",
