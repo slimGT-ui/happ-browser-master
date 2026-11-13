@@ -1,4 +1,3 @@
-
 const ipv6Button = document.querySelector("#run-ipv6-check");
 const ipv6Message = document.querySelector("#ipv6-message");
 const ipv6Results = document.querySelector("#ipv6-results");
@@ -13,12 +12,16 @@ const HISTORY_LIMIT = 50;
 
 window.HappHistory = {
   async add(type, details) {
-    const stored = await browser.storage.local.get(HISTORY_KEY);
-    const items = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
-    items.unshift({ id: crypto.randomUUID(), type, checkedAt: new Date().toISOString(), ...details });
-    const limited = items.slice(0, HISTORY_LIMIT);
-    await browser.storage.local.set({ [HISTORY_KEY]: limited });
-    renderHistory(limited);
+    try {
+      const stored = await browser.storage.local.get(HISTORY_KEY);
+      const items = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
+      items.unshift({ id: crypto.randomUUID(), type, checkedAt: new Date().toISOString(), ...details });
+      const limited = items.slice(0, HISTORY_LIMIT);
+      await browser.storage.local.set({ [HISTORY_KEY]: limited });
+      renderHistory(limited);
+    } catch (error) {
+      console.warn("HAPP Browser: не удалось сохранить историю", error);
+    }
   }
 };
 
@@ -32,7 +35,6 @@ function addRow(container, label, value) {
   row.append(left, right);
   container.append(row);
 }
-
 function renderHistory(items) {
   historyList.replaceChildren();
   if (!items.length) {
@@ -48,49 +50,52 @@ function renderHistory(items) {
     const heading = document.createElement("div");
     heading.className = "history-top";
     const title = document.createElement("strong");
-    title.textContent = item.type;
+    title.textContent = item.type || "Проверка";
     const date = document.createElement("time");
-    date.dateTime = item.checkedAt;
-    date.textContent = new Date(item.checkedAt).toLocaleString();
+    date.dateTime = item.checkedAt || "";
+    const parsedDate = new Date(item.checkedAt);
+    date.textContent = Number.isNaN(parsedDate.getTime()) ? "Дата неизвестна" : parsedDate.toLocaleString();
     heading.append(title, date);
     const detail = document.createElement("p");
     if (item.status === "error") detail.textContent = "Ошибка: " + (item.message || "неизвестно");
     else if (item.type === "IP") detail.textContent = (item.ip || "IP не получен") + " · " + (item.country || "страна неизвестна");
-    else if (item.type === "DNS") detail.textContent = item.resolvers + " резолверов · " + item.lookups + " наблюдений";
-    else if (item.type === "WebRTC") detail.textContent = "Статус: " + item.status + " · ICE-кандидатов: " + (item.candidates ?? 0);
+    else if (item.type === "DNS") detail.textContent = item.status === "observed" ? item.resolvers + " резолверов · " + item.lookups + " наблюдений" : "Недостаточно DNS-данных";
+    else if (item.type === "WebRTC") detail.textContent = "Вердикт: " + item.status + " · ICE: " + (item.candidates ?? 0) + " · сравнено: " + (item.compared ?? 0);
     else if (item.type === "IPv6") detail.textContent = "IPv4: " + (item.ipv4 || "нет") + " · IPv6: " + (item.ipv6 || "нет");
     else detail.textContent = (item.url || "") + " · " + item.status;
     card.append(heading, detail);
     historyList.append(card);
   }
 }
-
 async function loadHistory() {
   const stored = await browser.storage.local.get(HISTORY_KEY);
-  renderHistory(Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : []);
+  renderHistory(Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY].slice(0, HISTORY_LIMIT) : []);
 }
-
 async function runIpv6Check() {
   ipv6Button.disabled = true;
   ipv6Button.textContent = "Проверяем IPv6…";
   ipv6Results.replaceChildren();
-  ipv6Message.textContent = "Проверяем IPv4 и IPv6 отдельно.";
+  ipv6Message.textContent = "Проверяем IPv4 и IPv6 независимо.";
   try {
-    const [v4, v6] = await Promise.all([
-      fetchJson("https://api4.ipify.org?format=json", {}, 8000).then(x => x.ip).catch(() => ""),
-      fetchJson("https://api6.ipify.org?format=json", {}, 8000).then(x => x.ip).catch(() => "")
+    const [v4Result, v6Result] = await Promise.all([
+      fetchJson("https://api4.ipify.org?format=json", {}, 9000).then(x => x.ip).catch(() => ""),
+      fetchJson("https://api6.ipify.org?format=json", {}, 9000).then(x => x.ip).catch(() => "")
     ]);
+    const v4 = typeof v4Result === "string" && /^\d{1,3}(?:\.\d{1,3}){3}$/.test(v4Result) ? v4Result : "";
+    const v6 = typeof v6Result === "string" && v6Result.includes(":") ? v6Result : "";
     addRow(ipv6Results, "IPv4", v4 || "Недоступен");
     addRow(ipv6Results, "IPv6", v6 || "Недоступен");
     const note = document.createElement("p");
     note.className = "advanced-note";
-    note.textContent = v6
-      ? "IPv6 доступен из Firefox. Сам факт доступности не доказывает утечку: сравни адрес с ожидаемым VPN-выходом."
-      : v4 ? "IPv6 endpoint недоступен, IPv4 работает. Возможно, IPv6-маршрут отсутствует или тестовый сервис недоступен."
-      : "Оба endpoint недоступны. Результат неопределённый.";
+    note.textContent = v4 && v6
+      ? "Оба протокола доступны. Это не доказывает утечку: сравни адреса с ожидаемыми VPN-выходами для IPv4 и IPv6."
+      : v4 ? "IPv4 доступен, IPv6 endpoint не ответил. Это может означать отсутствие маршрута IPv6 или недоступность тестового сервиса."
+      : v6 ? "IPv6 доступен, IPv4 endpoint не ответил. Результат IPv4 неопределённый."
+      : "Ни один endpoint не ответил. Невозможно сделать вывод о доступности протоколов.";
     ipv6Results.append(note);
-    ipv6Message.textContent = "Проверка завершена.";
-    await window.HappHistory.add("IPv6", { status: v6 ? "available" : v4 ? "no-ipv6" : "inconclusive", ipv4: v4, ipv6: v6 });
+    const status = v4 || v6 ? "observed" : "inconclusive";
+    ipv6Message.textContent = status === "observed" ? "Проверка завершена; смотри доступность каждого протокола отдельно." : "Недостаточно данных.";
+    await window.HappHistory.add("IPv6", { status, ipv4: v4, ipv6: v6 });
   } catch (error) {
     ipv6Message.textContent = "Ошибка IPv6-проверки: " + (error.message || String(error));
     await window.HappHistory.add("IPv6", { status: "error", message: error.message || String(error) });
@@ -99,14 +104,15 @@ async function runIpv6Check() {
     ipv6Button.textContent = "Повторить IPv6-тест";
   }
 }
-
 function normalizeSiteUrl(value) {
-  const url = new URL(/^https?:\/\//i.test(value.trim()) ? value.trim() : "https://" + value.trim());
+  const trimmed = value.trim();
+  if (!trimmed) throw new Error("Введи адрес сайта.");
+  const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : "https://" + trimmed);
   if (!["http:", "https:"].includes(url.protocol)) throw new Error("Поддерживаются только HTTP и HTTPS.");
   if (url.username || url.password) throw new Error("URL с логином или паролем не поддерживается.");
+  if (!url.hostname.includes(".") && url.hostname !== "localhost") throw new Error("Укажи полное доменное имя или localhost.");
   return url;
 }
-
 async function runSiteCheck() {
   siteButton.disabled = true;
   siteButton.textContent = "Проверяем сайт…";
@@ -128,9 +134,9 @@ async function runSiteCheck() {
     addRow(siteResults, "Результат", "Сетевой ответ получен");
     const note = document.createElement("p");
     note.className = "advanced-note";
-    note.textContent = "Браузер скрывает HTTP-статус и содержимое ответа от расширения. Проверка подтверждает сетевой ответ, но не оценивает содержимое страницы.";
+    note.textContent = "Firefox скрывает HTTP-статус и содержимое ответа от расширения. Проверка подтверждает только сетевой ответ, а не доступность содержимого страницы.";
     siteResults.append(note);
-    siteMessage.textContent = "Сайт ответил на запрос.";
+    siteMessage.textContent = "Сетевой ответ получен.";
     await window.HappHistory.add("Сайт", { status: "reachable", url: url.href });
   } catch (error) {
     const message = error.name === "AbortError" ? "Таймаут 10 секунд." : error.message || String(error);
@@ -141,11 +147,15 @@ async function runSiteCheck() {
     siteButton.textContent = "Проверить сайт";
   }
 }
-
 ipv6Button.addEventListener("click", runIpv6Check);
 siteButton.addEventListener("click", runSiteCheck);
 historyClear.addEventListener("click", async () => {
-  await browser.storage.local.remove(HISTORY_KEY);
-  renderHistory([]);
+  historyClear.disabled = true;
+  try {
+    await browser.storage.local.remove(HISTORY_KEY);
+    renderHistory([]);
+  } finally {
+    historyClear.disabled = false;
+  }
 });
 loadHistory().catch(() => renderHistory([]));
