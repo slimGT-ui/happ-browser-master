@@ -2,6 +2,14 @@
 
 All notable project changes are documented here.
 
+## [0.10.1] - Release Candidate 1 for 1.0.0
+
+### Release preparation
+- Prepared a candidate build for persistent-installation and update-lifecycle verification.
+- No diagnostic behavior or permissions were intentionally changed from the manually verified 0.10.0 preview.
+- This candidate is not the stable 1.0.0 release. Stable publication depends on signed-installation, update-preservation and permission-lifecycle checks.
+
+
 ## [0.10.0] - Preview
 
 ### Added

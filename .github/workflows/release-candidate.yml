@@ -1,0 +1,32 @@
+name: Release candidate package
+
+on:
+  push:
+    branches:
+      - release/1.0.0-rc1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate source
+        run: npm run validate
+      - name: Build unsigned Firefox package
+        run: git archive --format=zip --output=happ-browser-0.10.1-rc1.zip HEAD
+      - name: Upload candidate package
+        uses: actions/upload-artifact@v4
+        with:
+          name: happ-browser-0.10.1-rc1
+          path: happ-browser-0.10.1-rc1.zip
+          if-no-files-found: error
+          retention-days: 30

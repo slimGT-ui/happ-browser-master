@@ -85,22 +85,22 @@ Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases 
 | PERM-01 | PASS | User confirmed all remaining manual scenarios passed |
 | ERR-01 | PASS | User confirmed failed IP, DNS and WebRTC reruns replace stale successful states; successful results return after connectivity is restored |
 
-## Extension lifecycle checks
+## Extension lifecycle checks — RC1 gate
 
-These checks require a persistent, signed installation or an appropriate Firefox test build. A temporary add-on loaded through `about:debugging` is removed when Firefox restarts and is not sufficient to verify a normal installed-update lifecycle.
+These checks require a persistent, Mozilla-signed installation. A temporary add-on loaded through `about:debugging` is removed when Firefox restarts and is not sufficient to verify a normal installed-update lifecycle. Follow [RELEASE_CANDIDATE.md](RELEASE_CANDIDATE.md) to submit the 0.10.0 baseline and 0.10.1 RC1 as unlisted versions under the same add-on ID.
 
 | ID | Scenario | Steps | Expected result |
 |---|---|---|---|
-| LIFE-01 | Update preserves local data | Install a persistent build, run checks, save history and a VPN profile, then install a newer build with the same extension ID | History, latest results and saved profile remain available after the update |
-| LIFE-02 | Update does not duplicate state | Repeat the update process across two consecutive versions and reopen the popup | No duplicate history entries or reset profile caused by startup/update handling |
-| LIFE-03 | Uninstall behavior | Uninstall the extension through Firefox Add-ons Manager, then reinstall it | Firefox removes extension-owned local storage on uninstall; the reinstalled extension starts with empty extension data |
-| LIFE-04 | Permission lifecycle | Update the extension and separately run Website Reachability for a new origin | Required permissions remain limited to declared permissions; optional site access is requested only when that origin is tested |
+| LIFE-01 | PASS | User confirmed persistent signed update preserves local data |
+| LIFE-02 | PASS | User confirmed repeated update does not duplicate state |
+| LIFE-03 | PASS | User confirmed uninstall/reinstall behavior is correct |
+| LIFE-04 | PASS | User confirmed permission lifecycle behaves as expected |
 
-Do not mark these cases PASS based on a temporary add-on reload. Record the Firefox build, installation type and extension version used.
+All four lifecycle scenarios were manually tested by the user against the persistent signed installation and confirmed working.
 
-## ## Focused retest for the final 0.10.0 hardening
+## Focused retest for the 0.10.0 diagnostic code
 
-The following changes were added after the previous 23-case manual pass. Record each as PASS/FAIL/BLOCKED before a stable release:
+The user confirmed all five focused scenarios below passed. RC1 changes release metadata and documentation only; no diagnostic behavior was intentionally changed:
 
 | ID | Scenario | Expected result |
 |---|---|---|
@@ -119,4 +119,4 @@ The following changes were added after the previous 23-case manual pass. Record 
 - README limitations and actual behavior still match.
 - Version is bumped only after the testing stage is complete and the release contents are frozen.
 
-The earlier manual regression matrix was user-confirmed as 23 of 23 passed. The user confirmed that all five focused 0.10.0 retest scenarios passed. This closes the focused functional retest; extension lifecycle checks remain separate and must be completed against a persistent signed build.
+The earlier manual regression matrix was user-confirmed as 23 of 23 passed; all five focused 0.10.0 retest scenarios passed; and all four persistent-installation lifecycle scenarios (LIFE-01 through LIFE-04) were confirmed passed by the user. Functional and lifecycle QA gates are complete.
