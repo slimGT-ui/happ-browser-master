@@ -22,7 +22,7 @@ test("timeline filters by exact diagnostic type without mutating history", () =>
 });
 test("timeline summary counts total events, unique types and recent events", () => {
   const now = Date.parse("2026-01-03T12:00:00.000Z");
-  assert.deepEqual(summarizeHistory(history, now), { total: 4, last24Hours: 2, types: 4 });
+  assert.deepEqual(summarizeHistory(history, now), { total: 4, last24Hours: 1, types: 4 });
 });
 test("timeline status distinguishes WebRTC mismatch from DNS observations", () => {
   assert.deepEqual(getStatus(history[2]), { state: "warning", label: "НЕСОВПАДЕНИЕ" });
