@@ -1,6 +1,6 @@
 {
   "name": "happ-browser",
-  "version": "0.10.1",
+  "version": "1.0.0",
   "private": true,
   "description": "Firefox extension for VPN and network diagnostics",
   "scripts": {
