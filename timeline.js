@@ -58,6 +58,7 @@
       if (item.status === "observed" || item.verdict === "observed") return { state: "review", label: "НАБЛЮДЕНИЯ ПОЛУЧЕНЫ" };
       return { state: "incomplete", label: "НЕДОСТАТОЧНО ДАННЫХ" };
     }
+    if (item.type === "IPv6" && item.status === "partial") return { state: "incomplete", label: "ЧАСТИЧНЫЙ РЕЗУЛЬТАТ" };
     if (item.type === "Сайт" && item.status === "reachable") return { state: "success", label: "ОТВЕТ ПОЛУЧЕН" };
     if (item.status === "success" || item.status === "reachable" || item.status === "observed") return { state: "success", label: "ДАННЫЕ ПОЛУЧЕНЫ" };
     if (item.status === "inconclusive") return { state: "incomplete", label: "НЕОПРЕДЕЛЁННО" };
