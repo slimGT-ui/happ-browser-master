@@ -1,10 +1,10 @@
 # HAPP Browser — QA plan (0.6.0)
 
-This document is the manual regression plan for the 0.6.0 testing stage. It is not a claim that every scenario has already passed. Record the actual Firefox version, OS, VPN state and result before marking a case as passed.
+This document tracks manual regression testing for the 0.6.0 testing stage. **DEFERRED** means the case has not been executed and is not a pass. Revisit deferred cases before a stable release.
 
 ## Test environment
 
-Record before testing:
+Record before additional testing:
 - Date and time:
 - OS:
 - Firefox version:
@@ -44,7 +44,7 @@ Use the same device and network for paired VPN-off / VPN-on comparisons. Do not 
 
 ## Result log
 
-For each case, record one of: **PASS**, **FAIL**, **BLOCKED**, or **NOT RUN**. Include a short note and the browser console error when relevant. A blocked external service is not a pass.
+Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases have not been tested and must not be counted as passed.
 
 | ID | Result | Notes |
 |---|---|---|
@@ -53,23 +53,23 @@ For each case, record one of: **PASS**, **FAIL**, **BLOCKED**, or **NOT RUN**. I
 | DNS-01 | PASS | User confirmed DNS test with VPN disabled works |
 | DNS-02 | PASS | User confirmed DNS test with VPN enabled works |
 | DNS-03 | PASS | User confirmed the DNS test handles an unavailable DNS service as expected |
-| DNS-04 | NOT RUN | |
-| RTC-01 | NOT RUN | |
-| RTC-02 | NOT RUN | |
-| RTC-03 | NOT RUN | |
-| RTC-04 | NOT RUN | |
-| V6-01 | NOT RUN | |
-| V6-02 | NOT RUN | |
-| SITE-01 | NOT RUN | |
-| SITE-02 | NOT RUN | |
-| SITE-03 | NOT RUN | |
-| SITE-04 | NOT RUN | |
-| HIST-01 | NOT RUN | |
-| HIST-02 | NOT RUN | |
-| HIST-03 | NOT RUN | |
-| UI-01 | NOT RUN | |
-| UI-02 | NOT RUN | |
-| PERM-01 | NOT RUN | |
+| DNS-04 | DEFERRED | User postponed remaining manual tests |
+| RTC-01 | DEFERRED | User postponed remaining manual tests |
+| RTC-02 | DEFERRED | User postponed remaining manual tests |
+| RTC-03 | DEFERRED | User postponed remaining manual tests |
+| RTC-04 | DEFERRED | User postponed remaining manual tests |
+| V6-01 | DEFERRED | User postponed remaining manual tests |
+| V6-02 | DEFERRED | User postponed remaining manual tests |
+| SITE-01 | DEFERRED | User postponed remaining manual tests |
+| SITE-02 | DEFERRED | User postponed remaining manual tests |
+| SITE-03 | DEFERRED | User postponed remaining manual tests |
+| SITE-04 | DEFERRED | User postponed remaining manual tests |
+| HIST-01 | DEFERRED | User postponed remaining manual tests |
+| HIST-02 | DEFERRED | User postponed remaining manual tests |
+| HIST-03 | DEFERRED | User postponed remaining manual tests |
+| UI-01 | DEFERRED | User postponed remaining manual tests |
+| UI-02 | DEFERRED | User postponed remaining manual tests |
+| PERM-01 | DEFERRED | User postponed remaining manual tests |
 
 ## Exit criteria for 0.6.0
 
@@ -79,3 +79,5 @@ For each case, record one of: **PASS**, **FAIL**, **BLOCKED**, or **NOT RUN**. I
 - VPN-on and VPN-off results have been compared on the same network.
 - README limitations and actual behavior still match.
 - Version is bumped only after the testing stage is complete and the release contents are frozen.
+
+The current manual test stage is **partially verified**: 5 of 22 cases passed; 17 are deferred.
