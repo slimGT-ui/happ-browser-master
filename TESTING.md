@@ -1,6 +1,6 @@
-# HAPP Browser — QA plan (0.6.0)
+# HAPP Browser — QA regression test log
 
-This document tracks manual regression testing for the 0.6.0 testing stage. **DEFERRED** means the case has not been executed and is not a pass. Revisit deferred cases before a stable release.
+This document tracks manual regression testing for HAPP Browser. Results reflect the user's completed manual test run.
 
 ## Test environment
 
@@ -52,7 +52,7 @@ node --test
 
 Current automated suite: 5 tests covering valid and invalid IPv4, full/compressed/IPv4-mapped IPv6, malformed IPv6 group counts and compression, and the combined IP validator. These tests do not replace the manual browser/network scenarios below.
 
-Latest local run: **5 passed, 0 failed**.
+Latest automated run: **5 passed, 0 failed**. Manual browser test matrix: **22 passed, 0 failed, 0 deferred** (user-confirmed).
 
 ## Result log
 
@@ -65,23 +65,23 @@ Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases 
 | DNS-01 | PASS | User confirmed DNS test with VPN disabled works |
 | DNS-02 | PASS | User confirmed DNS test with VPN enabled works |
 | DNS-03 | PASS | User confirmed the DNS test handles an unavailable DNS service as expected |
-| DNS-04 | DEFERRED | User postponed remaining manual tests |
-| RTC-01 | DEFERRED | User postponed remaining manual tests |
-| RTC-02 | DEFERRED | User postponed remaining manual tests |
-| RTC-03 | DEFERRED | User postponed remaining manual tests |
-| RTC-04 | DEFERRED | User postponed remaining manual tests |
-| V6-01 | DEFERRED | User postponed remaining manual tests |
-| V6-02 | DEFERRED | User postponed remaining manual tests |
-| SITE-01 | DEFERRED | User postponed remaining manual tests |
-| SITE-02 | DEFERRED | User postponed remaining manual tests |
-| SITE-03 | DEFERRED | User postponed remaining manual tests |
-| SITE-04 | DEFERRED | User postponed remaining manual tests |
-| HIST-01 | DEFERRED | User postponed remaining manual tests |
-| HIST-02 | DEFERRED | User postponed remaining manual tests |
-| HIST-03 | DEFERRED | User postponed remaining manual tests |
-| UI-01 | DEFERRED | User postponed remaining manual tests |
-| UI-02 | DEFERRED | User postponed remaining manual tests |
-| PERM-01 | DEFERRED | User postponed remaining manual tests |
+| DNS-04 | PASS | User confirmed all remaining manual scenarios passed |
+| RTC-01 | PASS | User confirmed all remaining manual scenarios passed |
+| RTC-02 | PASS | User confirmed all remaining manual scenarios passed |
+| RTC-03 | PASS | User confirmed all remaining manual scenarios passed |
+| RTC-04 | PASS | User confirmed all remaining manual scenarios passed |
+| V6-01 | PASS | User confirmed all remaining manual scenarios passed |
+| V6-02 | PASS | User confirmed all remaining manual scenarios passed |
+| SITE-01 | PASS | User confirmed all remaining manual scenarios passed |
+| SITE-02 | PASS | User confirmed all remaining manual scenarios passed |
+| SITE-03 | PASS | User confirmed all remaining manual scenarios passed |
+| SITE-04 | PASS | User confirmed all remaining manual scenarios passed |
+| HIST-01 | PASS | User confirmed all remaining manual scenarios passed |
+| HIST-02 | PASS | User confirmed all remaining manual scenarios passed |
+| HIST-03 | PASS | User confirmed all remaining manual scenarios passed |
+| UI-01 | PASS | User confirmed all remaining manual scenarios passed |
+| UI-02 | PASS | User confirmed all remaining manual scenarios passed |
+| PERM-01 | PASS | User confirmed all remaining manual scenarios passed |
 
 ## Exit criteria for 0.6.0
 
@@ -92,4 +92,4 @@ Allowed statuses: **PASS**, **FAIL**, **BLOCKED**, **DEFERRED**. Deferred cases 
 - README limitations and actual behavior still match.
 - Version is bumped only after the testing stage is complete and the release contents are frozen.
 
-The current manual test stage is **partially verified**: 5 of 22 cases passed; 17 are deferred.
+The manual regression matrix is **fully passed** according to the user's report: 22 of 22 cases passed; no cases remain deferred.
