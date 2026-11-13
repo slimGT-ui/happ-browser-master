@@ -51,9 +51,9 @@ Run from the repository root with Node.js 20 (the version used by GitHub Actions
 node --test
 ```
 
-Current automated suite: 20 tests, including timeline sorting, filtering, summaries, status interpretation, descriptions and date grouping. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js and ip-classification.js and timeline.js. These checks do not replace the manual browser/network scenarios below.
+Current automated suite: 29 tests, including timeline sorting, filtering, summaries, status interpretation, descriptions, date grouping, change detection, previous-event lookup, popup wiring, WebRTC validator references, serialized history and release metadata. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js and ip-classification.js and timeline.js. These checks do not replace the manual browser/network scenarios below.
 
-Latest verified automated run: **20 passed, 0 failed** (commit 7456fd2; [GitHub Actions run 43508757199](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43508757199)). Manual browser test matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed).
+Previous automated baseline: **20 passed, 0 failed** (commit 7456fd2; [GitHub Actions run 43508757199](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43508757199)). Previous manual matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed before the latest pre-release hardening). The additional 0.10.0 changes below require a focused manual retest before release.
 
 ## Result log
 
@@ -98,6 +98,18 @@ These checks require a persistent, signed installation or an appropriate Firefox
 
 Do not mark these cases PASS based on a temporary add-on reload. Record the Firefox build, installation type and extension version used.
 
+## ## Focused retest for the final 0.10.0 hardening
+
+The following changes were added after the previous 23-case manual pass. Record each as PASS/FAIL/BLOCKED before a stable release:
+
+| ID | Scenario | Expected result |
+|---|---|---|
+| RTC-05 | Public ICE candidates appear | No JavaScript reference error; correct IPv4/IPv6 family comparison |
+| V6-03 | One address-family endpoint is unavailable | Partial/incomplete state is shown consistently in the result, Timeline and Security Overview |
+| HIST-04 | Two or more diagnostics finish close together | No history event is lost |
+| TL-01 | Same diagnostic run with changed values | Timeline describes changes against the previous event of the same type |
+| RESTORE-01 | Close and reopen popup after running checks | Last saved result for every diagnostic is restored and labelled historical |
+
 ## Current QA exit criteria
 
 - Every applicable case has a recorded result.
@@ -107,4 +119,4 @@ Do not mark these cases PASS based on a temporary add-on reload. Record the Fire
 - README limitations and actual behavior still match.
 - Version is bumped only after the testing stage is complete and the release contents are frozen.
 
-The manual regression matrix is **fully passed** according to the user's report: 23 of 23 cases passed; no cases remain deferred.
+The earlier manual regression matrix was user-confirmed as 23 of 23 passed. Do not treat the focused 0.10.0 retest above as passed until the user verifies this exact code.
