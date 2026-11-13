@@ -7,6 +7,7 @@
   <title>HAPP Browser</title>
   <link rel="stylesheet" href="popup.css">
   <script src="popup.js" defer></script>
+  <script src="advanced.js" defer></script>
 </head>
 <body>
   <main class="app">
@@ -48,8 +49,18 @@
       <button id="run-webrtc-check" class="secondary" type="button">Проверить WebRTC</button>
       <p id="webrtc-message" class="dns-message" role="status" aria-live="polite">Тест ещё не запускался.</p>
       <div id="webrtc-results" class="webrtc-results" aria-live="polite"></div>
-      <div class="check-row"><span>IPv6 exposure</span><span class="pending">В разработке</span></div>
-      <div class="check-row"><span>Website reachability</span><span class="pending">В разработке</span></div>
+      <div class="check-row"><span>IPv6 exposure</span><span class="pending">IPv4 / IPv6</span></div>
+      <p class="dns-note">Проверяет доступность IPv4 и IPv6 из Firefox. Наличие IPv6 само по себе не означает утечку.</p>
+      <button id="run-ipv6-check" class="secondary" type="button">Проверить IPv6</button>
+      <p id="ipv6-message" class="dns-message" role="status" aria-live="polite">Тест ещё не запускался.</p>
+      <div id="ipv6-results" class="advanced-results" aria-live="polite"></div>
+      <div class="check-row"><span>Website reachability</span><span class="pending">HTTP / HTTPS</span></div>
+      <p class="dns-note">Проверка сетевой доступности сайта. Firefox запросит отдельное разрешение для введённого домена.</p>
+      <div class="site-check-form"><input id="site-url" type="url" placeholder="example.com" autocomplete="url" aria-label="Адрес сайта"><button id="run-site-check" class="secondary" type="button">Проверить сайт</button></div>
+      <p id="site-message" class="dns-message" role="status" aria-live="polite">Введи адрес сайта для проверки.</p>
+      <div id="site-results" class="advanced-results" aria-live="polite"></div>
+      <div class="history-heading"><span class="eyebrow">HISTORY</span><button id="clear-history" class="text-button" type="button">Очистить</button></div>
+      <div id="history-list" class="history-list" aria-live="polite"></div>
     </section>
 
     <footer class="footer">
