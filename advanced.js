@@ -410,8 +410,8 @@ async function refreshSecuritySummary() {
       ? securityRow("DNS", "review", `${dns.resolvers?.length || 0} резолверов обнаружено. Сверь их с DNS-провайдером VPN.`)
       : dns?.verdict === "insufficient-data"
         ? securityRow("DNS", "incomplete", "Тест завершился без достаточных наблюдений.")
-        : latest("DNS")?.status === "error"
-          ? securityRow("DNS", "error", latest("DNS").message || "DNS-тест завершился ошибкой.")
+        : dns?.verdict === "error" || latest("DNS")?.status === "error"
+          ? securityRow("DNS", "error", dns?.message || latest("DNS")?.message || "DNS-тест завершился ошибкой.")
           : securityRow("DNS", "missing", "Запусти DNS-тест."));
 
     rows.push(rtc?.verdict === "possible-leak"
@@ -420,8 +420,8 @@ async function refreshSecuritySummary() {
         ? securityRow("WebRTC", "pass", "Среди сопоставленных публичных ICE-адресов несовпадений нет.")
         : rtc?.verdict === "inconclusive"
           ? securityRow("WebRTC", "incomplete", "Недостаточно данных для надёжного сравнения.")
-          : latest("WebRTC")?.status === "error"
-            ? securityRow("WebRTC", "error", latest("WebRTC").message || "WebRTC-тест завершился ошибкой.")
+          : rtc?.verdict === "error" || latest("WebRTC")?.status === "error"
+            ? securityRow("WebRTC", "error", rtc?.message || latest("WebRTC")?.message || "WebRTC-тест завершился ошибкой.")
             : securityRow("WebRTC", "missing", "Запусти WebRTC-тест."));
 
     rows.push(ipv6?.status === "observed"
