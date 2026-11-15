@@ -6,10 +6,10 @@
   "use strict";
 
   const PROVIDERS = [
-    { name: "Cloudflare", pattern: /cloudflare|1\.1\.1\.1|one\.one\.one\.one/i, doh: "https://cloudflare-dns.com/dns-query" },
-    { name: "Google Public DNS", pattern: /google|google llc|8\.8\.8\.8/i, doh: "https://dns.google/dns-query" },
-    { name: "Quad9", pattern: /quad9|9\.9\.9\.9|pCH/i, doh: "https://dns.quad9.net/dns-query" },
-    { name: "Cisco OpenDNS", pattern: /opendns|cisco umbrella|208\.67\.222\.222/i, doh: "https://doh.opendns.com/dns-query" },
+    { name: "Cloudflare", ips: ["1.1.1.1", "1.0.0.1"], pattern: /cloudflare|one\.one\.one\.one/i, doh: "https://cloudflare-dns.com/dns-query" },
+    { name: "Google Public DNS", ips: ["8.8.8.8", "8.8.4.4"], pattern: /google|google llc/i, doh: "https://dns.google/dns-query" },
+    { name: "Quad9", ips: ["9.9.9.9", "149.112.112.112"], pattern: /quad9|pCH/i, doh: "https://dns.quad9.net/dns-query" },
+    { name: "Cisco OpenDNS", ips: ["208.67.222.222", "208.67.220.220"], pattern: /opendns|cisco umbrella/i, doh: "https://doh.opendns.com/dns-query" },
     { name: "AdGuard DNS", pattern: /adguard/i, doh: "https://dns.adguard-dns.com/dns-query" },
     { name: "NextDNS", pattern: /nextdns/i, doh: "https://dns.nextdns.io/dns-query" },
     { name: "Control D", pattern: /control d|controld/i, doh: "https://freedns.controld.com/p0" },
@@ -17,8 +17,9 @@
   ];
 
   function analyzeResolver(resolver) {
-    const source = [resolver?.ip, resolver?.asnName, resolver?.network, resolver?.asn].filter(Boolean).join(" ");
-    const provider = PROVIDERS.find(item => item.pattern.test(source)) || null;
+    const source = [resolver?.asnName, resolver?.network, resolver?.asn].filter(Boolean).join(" ");
+    const ip = typeof resolver?.ip === "string" ? resolver.ip.trim() : "";
+    const provider = PROVIDERS.find(item => item.ips?.includes(ip) || item.pattern.test(source)) || null;
     const hasOrganization = Boolean(resolver?.asnName || resolver?.network || resolver?.asn);
     return {
       ...resolver,
