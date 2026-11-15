@@ -159,3 +159,6 @@ Automated coverage is provided by tests/dns-intelligence.test.js.
 | DNSI-07 | Resolver country differs from a recent public-IP exit country | Show a manual-review hint; do not label it a leak |
 | DNSI-08 | No recent public-IP country is available | Do not infer a geographic mismatch |
 | DNSI-09 | Resolvers are observed in multiple countries | Report geographic diversity without treating it as proof of a leak |
+| DNSI-10 | Resolver set is unchanged between successful tests | Show no change; duplicate observations and lookup ordering do not affect comparison |
+| DNSI-11 | Resolver IP or ASN/provider metadata changes | Show added/removed/changed metadata and explain that VPN/DNS rotation may be normal |
+| DNSI-12 | First successful test or failed/empty rerun | No baseline warning on the first test; failed/empty runs must not replace the last successful comparison baseline |
