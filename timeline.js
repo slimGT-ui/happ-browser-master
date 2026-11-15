@@ -79,7 +79,8 @@
       return item.status === "observed" || item.verdict === "observed"
         ? (item.resolvers ?? 0) + " резолверов · " + (item.lookups ?? 0) + " наблюдений" +
           (Array.isArray(item.providers) && item.providers.length ? " · " + item.providers.join(", ") : "") +
-          (item.geoMismatches ? " · географических отличий: " + item.geoMismatches : "")
+          (item.geoMismatches ? " · географических отличий: " + item.geoMismatches : "") +
+          (item.resolverSetChanged ? " · набор резолверов изменился" : "")
         : "Недостаточно DNS-наблюдений";
     }
     if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
@@ -116,7 +117,11 @@
         ["Страна", previous.country, current.country]
       ];
     } else if (current.type === "DNS") {
-      fields = [["Количество резолверов", previous.resolvers, current.resolvers]];
+      fields = [
+        ["Количество резолверов", previous.resolvers, current.resolvers],
+        ["Добавлено резолверов", previous.resolverAdded, current.resolverAdded],
+        ["Исчезло резолверов", previous.resolverRemoved, current.resolverRemoved]
+      ];
     } else if (current.type === "Quality") {
       fields = [
         ["Медианная задержка", previous.stats?.medianMs, current.stats?.medianMs],
