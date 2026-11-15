@@ -80,7 +80,10 @@
         ? (item.resolvers ?? 0) + " резолверов · " + (item.lookups ?? 0) + " наблюдений" +
           (Array.isArray(item.providers) && item.providers.length ? " · " + item.providers.join(", ") : "") +
           (item.geoMismatches ? " · географических отличий: " + item.geoMismatches : "") +
-          (item.resolverSetChanged ? " · набор резолверов изменился" : "")
+          (item.resolverSetChanged === true
+            ? " · состав изменился: +" + (item.resolverAdded ?? 0) + " / −" + (item.resolverRemoved ?? 0) +
+              " · метаданные: " + (item.resolverMetadataChanges ?? 0)
+            : item.resolverSetChanged === false ? " · состав резолверов без изменений" : "")
         : "Недостаточно DNS-наблюдений";
     }
     if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
@@ -119,8 +122,10 @@
     } else if (current.type === "DNS") {
       fields = [
         ["Количество резолверов", previous.resolvers, current.resolvers],
+        ["Состав резолверов изменился", previous.resolverSetChanged, current.resolverSetChanged],
         ["Добавлено резолверов", previous.resolverAdded, current.resolverAdded],
-        ["Исчезло резолверов", previous.resolverRemoved, current.resolverRemoved]
+        ["Исчезло резолверов", previous.resolverRemoved, current.resolverRemoved],
+        ["Изменились метаданные резолверов", previous.resolverMetadataChanges, current.resolverMetadataChanges]
       ];
     } else if (current.type === "Quality") {
       fields = [
