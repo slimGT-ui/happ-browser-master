@@ -1,0 +1,3 @@
+.quality-chart{display:flex;align-items:end;gap:7px;height:68px;padding:8px 10px;margin-top:9px;border:1px solid rgba(177,145,226,.13);border-radius:8px;background:rgba(255,255,255,.025)}
+.quality-bar{flex:1;min-width:8px;border-radius:4px 4px 1px 1px;background:#69d69b;transition:height .2s ease}
+.quality-bar[data-state=failed]{background:#e36d78}

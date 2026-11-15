@@ -6,11 +6,13 @@
   <meta name="theme-color" content="#09090d">
   <title>HAPP Browser</title>
   <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="quality-monitor.css">
   <script src="ip-validation.js" defer></script>
   <script src="ip-classification.js" defer></script>
   <script src="timeline.js" defer></script>
   <script src="popup.js" defer></script>
   <script src="advanced.js" defer></script>
+  <script src="quality-monitor.js" defer></script>
 </head>
 <body>
   <main class="app">
@@ -41,6 +43,12 @@
     </section>
 
     <section class="planned">
+      <div class="section-top"><span class="eyebrow">CONNECTION QUALITY</span><span class="soon">ЭТАП 1</span></div>
+      <p class="dns-note">Измеряет задержку HTTPS-запросов до Google и Cloudflare, jitter и долю неудачных проб. Запусти тест повторно с VPN и без него, чтобы сравнить результаты.</p>
+      <button id="run-quality-check" class="secondary" type="button">Проверить качество соединения</button>
+      <p id="quality-message" class="dns-message" role="status" aria-live="polite">Тест ещё не запускался.</p>
+      <div id="quality-results" class="advanced-results" aria-live="polite"></div>
+
       <div class="section-top"><span class="eyebrow">SECURITY CHECKS</span><span class="soon">ДИАГНОСТИКА</span></div>
       <div class="check-row"><span>DNS leak</span><span class="pending">DNS observations</span></div>
       <p class="dns-note">Проверка создаёт уникальные DNS-запросы и показывает резолверы, которые увидел авторитетный DNS-сервер.</p>
@@ -109,6 +117,7 @@
             <option value="WebRTC">WebRTC</option>
             <option value="IPv6">IPv4 / IPv6</option>
             <option value="Сайт">Website</option>
+            <option value="Quality">Connection Quality</option>
           </select>
         </div>
         <div id="history-list" class="history-list" aria-live="polite"></div>

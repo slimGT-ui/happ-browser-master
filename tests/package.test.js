@@ -63,7 +63,9 @@ test("manifest keeps arbitrary website access optional", () => {
     "https://api4.ipify.org/*",
     "https://api6.ipify.org/*",
     "https://dnsleak.dev/*",
-    "https://ipwho.is/*"
+    "https://ipwho.is/*",
+    "https://www.cloudflare.com/*",
+    "https://www.google.com/*"
   ].sort(), "required access must stay limited to diagnostic services");
   assert.deepEqual(optionalHosts.slice().sort(), ["http://*/*", "https://*/*"]);
   assert.equal(manifest.browser_specific_settings?.gecko?.id, "happ-browser@slimgt-ui",
@@ -86,6 +88,7 @@ test("popup IDs are unique and every interactive script loads after its dependen
   assert.ok(scripts.indexOf("ip-validation.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("ip-classification.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("timeline.js") < scripts.indexOf("advanced.js"));
+  assert.ok(scripts.indexOf("advanced.js") < scripts.indexOf("quality-monitor.js"));
 });
 
 test("history writes are serialized and the security overview refreshes after results", () => {
