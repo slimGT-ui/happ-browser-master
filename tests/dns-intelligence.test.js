@@ -70,3 +70,42 @@ test("reports multiple resolver countries without treating them as proof of a le
   assert.equal(result.multipleResolverCountries, true);
   assert.equal(result.exitCountryMismatches.length, 0);
 });
+
+test("resolver set comparison reports an unchanged baseline", () => {
+  const resolvers = [{ ip: "1.1.1.1", asnName: "Cloudflare, Inc.", countryCode: "US" }];
+  const result = dns.compareResolverSets(resolvers, resolvers);
+  assert.equal(result.state, "same");
+  assert.equal(result.changed, false);
+  assert.deepEqual(result.added, []);
+  assert.deepEqual(result.removed, []);
+});
+
+test("resolver set comparison detects added and removed addresses", () => {
+  const result = dns.compareResolverSets(
+    [{ ip: "1.1.1.1", asnName: "Cloudflare" }, { ip: "8.8.8.8", asnName: "Google" }],
+    [{ ip: "1.1.1.1", asnName: "Cloudflare" }, { ip: "9.9.9.9", asnName: "Quad9" }]
+  );
+  assert.equal(result.state, "changed");
+  assert.deepEqual(result.added.map(item => item.ip), ["9.9.9.9"]);
+  assert.deepEqual(result.removed.map(item => item.ip), ["8.8.8.8"]);
+});
+
+test("resolver set comparison detects ASN, provider and country metadata changes", () => {
+  const result = dns.compareResolverSets(
+    [{ ip: "203.0.113.20", asn: "AS64500", asnName: "Example ISP", countryCode: "DE" }],
+    [{ ip: "203.0.113.20", asn: "AS64501", asnName: "Quad9", countryCode: "NL" }]
+  );
+  assert.equal(result.state, "changed");
+  assert.equal(result.metadataChanges.length, 1);
+});
+
+test("resolver set comparison does not compare missing baselines or empty observations", () => {
+  assert.equal(dns.compareResolverSets([], [{ ip: "1.1.1.1" }]).state, "unknown");
+  assert.equal(dns.compareResolverSets([{ ip: "1.1.1.1" }], []).state, "unknown");
+});
+
+test("resolver set comparison deduplicates IPs and ignores lookup ordering", () => {
+  const previous = [{ ip: "1.1.1.1" }, { ip: "8.8.8.8" }];
+  const current = [{ ip: "8.8.8.8" }, { ip: "1.1.1.1" }, { ip: "1.1.1.1" }];
+  assert.equal(dns.compareResolverSets(previous, current).state, "same");
+});
