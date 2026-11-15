@@ -176,7 +176,7 @@ async function runDnsCheck() {
     dnsMessage.textContent = verdict === "observed"
       ? `Получены DNS-наблюдения: ${lookups} запросов, ${resolvers.length} уникальных резолверов.`
       : `Недостаточно данных: ${lookups} наблюдений, ${sent}/${hostnames.length} проб отправлено.`;
-    await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, lookups, probesSent: sent });
+    await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, providers: window.HappDnsIntelligence.summarize(resolvers).providers, lookups, probesSent: sent });
   } catch (error) {
     const errorMessage = error.message || String(error);
     dnsMessage.textContent = `DNS-тест не завершён: ${errorMessage}`;
