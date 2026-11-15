@@ -141,3 +141,6 @@ Resolver metadata is supplied by dnsleak.dev. Provider matching is best-effort a
 
 
 Resolver geography is compared with the country of a successful public-IP check only when that check is no more than 30 minutes old. A country difference is a review hint, not a leak verdict: VPN providers may intentionally operate DNS resolvers outside the VPN exit country, and resolver geolocation can be imprecise. Multiple resolver countries are also reported as context rather than treated as suspicious by themselves.
+
+
+Resolver-set comparison uses the previous successful DNS observation as a local baseline. It compares normalized resolver IPs and available ASN, provider and country metadata, ignoring lookup order and duplicate observations. Added, removed or reclassified resolvers are shown as a review hint in the DNS results and Timeline. Failed or empty DNS runs do not become a comparison baseline; the last successful snapshot is retained separately when an error replaces the latest result. Resolver rotation, VPN server changes and DNS routing changes can be expected, so a changed set is never an automatic leak verdict.
