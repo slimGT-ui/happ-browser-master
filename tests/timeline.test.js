@@ -71,3 +71,28 @@ test("timeline marks partial IPv6 observations as incomplete", () => {
     state: "incomplete", label: "ЧАСТИЧНЫЙ РЕЗУЛЬТАТ"
   });
 });
+
+test("timeline DNS descriptions include resolver set change counts", () => {
+  const changed = {
+    type: "DNS", status: "observed", resolvers: 3, lookups: 12,
+    resolverSetChanged: true, resolverAdded: 1, resolverRemoved: 2,
+    resolverMetadataChanges: 1
+  };
+  assert.match(describe(changed), /состав изменился: \+1 \/ −2 · метаданные: 1/);
+  assert.match(describe({ ...changed, resolverSetChanged: false }), /состав резолверов без изменений/);
+  assert.doesNotMatch(describe({ ...changed, resolverSetChanged: null }), /состав резолверов/);
+});
+
+test("timeline DNS event comparison includes resolver metadata changes", () => {
+  const before = {
+    type: "DNS", resolvers: 2, resolverSetChanged: false,
+    resolverAdded: 0, resolverRemoved: 0, resolverMetadataChanges: 0
+  };
+  const after = {
+    type: "DNS", resolvers: 2, resolverSetChanged: true,
+    resolverAdded: 0, resolverRemoved: 0, resolverMetadataChanges: 1
+  };
+  const comparison = compareEvents(after, before);
+  assert.equal(comparison.state, "changed");
+  assert.match(comparison.detail, /Изменились метаданные резолверов: 0 → 1/);
+});
