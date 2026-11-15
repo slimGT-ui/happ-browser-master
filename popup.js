@@ -213,25 +213,31 @@ async function runDnsCheck() {
       lookups, requestedLookups: hostnames.length, probesSent: sent,
       resolvers, anomalies, resolverChanges, verdict
     };
-    if (verdict === "observed" && lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers)) {
-      await saveLocalResult("previousDnsCheck", lastDnsCheck);
+    const hasSuccessfulBaseline = lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers);
+    const baselinePreserved = !hasSuccessfulBaseline || await saveLocalResult("previousDnsCheck", lastDnsCheck);
+    if (baselinePreserved) {
+      await saveLocalResult("lastDnsCheck", testResult);
+    } else {
+      console.warn("HAPP Browser: сохранённый DNS baseline не заменён, потому что не удалось сохранить предыдущий успешный результат.");
     }
-    await saveLocalResult("lastDnsCheck", testResult);
     renderDnsResults(testResult);
     dnsMessage.textContent = verdict === "observed"
       ? `Получены DNS-наблюдения: ${lookups} запросов, ${resolvers.length} уникальных резолверов.`
       : `Недостаточно данных: ${lookups} наблюдений, ${sent}/${hostnames.length} проб отправлено.`;
-    await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, providers: window.HappDnsIntelligence.summarize(resolvers).providers, geoMismatches: anomalies.exitCountryMismatches.length, resolverCountries: anomalies.resolverCountries, resolverSetChanged: resolverChanges.state === "changed", resolverAdded: resolverChanges.added.length, resolverRemoved: resolverChanges.removed.length, resolverMetadataChanges: resolverChanges.metadataChanges.length, lookups, probesSent: sent });
+    await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, providers: window.HappDnsIntelligence.summarize(resolvers).providers, geoMismatches: anomalies.exitCountryMismatches.length, resolverCountries: anomalies.resolverCountries, resolverSetChanged: resolverChanges.state === "changed" ? true : resolverChanges.state === "same" ? false : null, resolverAdded: resolverChanges.added.length, resolverRemoved: resolverChanges.removed.length, resolverMetadataChanges: resolverChanges.metadataChanges.length, lookups, probesSent: sent });
   } catch (error) {
     const errorMessage = error.message || String(error);
     dnsMessage.textContent = `DNS-тест не завершён: ${errorMessage}`;
     const { lastDnsCheck } = await browser.storage.local.get("lastDnsCheck").catch(() => ({}));
-    if (lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers)) {
-      await saveLocalResult("previousDnsCheck", lastDnsCheck);
+    const hasSuccessfulBaseline = lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers);
+    const baselinePreserved = !hasSuccessfulBaseline || await saveLocalResult("previousDnsCheck", lastDnsCheck);
+    if (baselinePreserved) {
+      await browser.storage.local.set({
+        lastDnsCheck: { verdict: "error", message: errorMessage, checkedAt: new Date().toISOString() }
+      }).catch(storageError => console.warn("HAPP Browser: не удалось сохранить ошибку DNS-проверки", storageError));
+    } else {
+      console.warn("HAPP Browser: ошибка DNS-проверки не записана поверх последнего успешного результата — baseline не удалось сохранить.");
     }
-    await browser.storage.local.set({
-      lastDnsCheck: { verdict: "error", message: errorMessage, checkedAt: new Date().toISOString() }
-    }).catch(storageError => console.warn("HAPP Browser: не удалось сохранить ошибку DNS-проверки", storageError));
     await window.HappHistory?.add("DNS", { status: "error", message: errorMessage });
   } finally {
     dnsButton.disabled = false;
