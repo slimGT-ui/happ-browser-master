@@ -10,7 +10,8 @@
     DNS: "DNS",
     WebRTC: "WebRTC",
     IPv6: "IPv4 / IPv6",
-    "Сайт": "Website"
+    "Сайт": "Website",
+    Quality: "Connection Quality"
   });
 
   function timestamp(item) {
@@ -49,6 +50,11 @@
 
   function getStatus(item) {
     if (!item || item.status === "error" || item.verdict === "error") return { state: "error", label: "ОШИБКА" };
+    if (item.type === "Quality") {
+      if (item.status === "measured") return { state: "success", label: "ИЗМЕРЕНО" };
+      if (item.status === "partial") return { state: "incomplete", label: "ЧАСТИЧНЫЙ РЕЗУЛЬТАТ" };
+      return { state: "error", label: "ПРОБЫ НЕ ПРОШЛИ" };
+    }
     if (item.type === "WebRTC") {
       if (item.status === "possible-leak" || item.verdict === "possible-leak") return { state: "warning", label: "НЕСОВПАДЕНИЕ" };
       if (item.status === "no-mismatch" || item.verdict === "no-mismatch") return { state: "success", label: "СОВПАДЕНИЙ НЕТ" };
@@ -74,6 +80,9 @@
         ? (item.resolvers ?? 0) + " резолверов · " + (item.lookups ?? 0) + " наблюдений"
         : "Недостаточно DNS-наблюдений";
     }
+    if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
+      " · jitter: " + (item.stats?.jitterMs == null ? "н/д" : item.stats.jitterMs + " ms") +
+      " · неудачные пробы: " + (item.stats?.failed ?? 0) + "/" + (item.stats?.sent ?? 0);
     if (item.type === "WebRTC") return "Вердикт: " + (item.status || item.verdict || "неизвестен") +
       " · ICE: " + (item.candidates ?? 0) + " · сравнено: " + (item.compared ?? 0);
     if (item.type === "IPv6") return "IPv4: " + (item.ipv4 || "недоступен") + " · IPv6: " + (item.ipv6 || "недоступен");
@@ -106,6 +115,12 @@
       ];
     } else if (current.type === "DNS") {
       fields = [["Количество резолверов", previous.resolvers, current.resolvers]];
+    } else if (current.type === "Quality") {
+      fields = [
+        ["Медианная задержка", previous.stats?.medianMs, current.stats?.medianMs],
+        ["Jitter", previous.stats?.jitterMs, current.stats?.jitterMs],
+        ["Неудачные пробы", previous.stats?.failed, current.stats?.failed]
+      ];
     } else if (current.type === "WebRTC") {
       fields = [
         ["Вердикт", previous.status || previous.verdict, current.status || current.verdict],
