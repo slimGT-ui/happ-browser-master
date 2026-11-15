@@ -91,27 +91,38 @@ async function checkPublicIp() {
 
 function renderDnsResults(data) {
   dnsResults.replaceChildren();
+  const resolvers = window.HappDnsIntelligence.analyzeResolvers(data.resolvers);
+  const summary = window.HappDnsIntelligence.summarize(data.resolvers);
   const heading = document.createElement("div");
   heading.className = "dns-summary";
-  heading.textContent = data.resolvers.length
-    ? `Обнаружено DNS-резолверов: ${data.resolvers.length}`
+  heading.textContent = resolvers.length
+    ? `Обнаружено DNS-резолверов: ${resolvers.length}`
     : "DNS-резолверы не обнаружены";
   dnsResults.append(heading);
-  for (const resolver of data.resolvers) {
+  for (const resolver of resolvers) {
     const row = document.createElement("div");
     row.className = "resolver-row";
     const address = document.createElement("strong");
     address.textContent = resolver.ip;
     const details = document.createElement("span");
     const network = resolver.asnName || resolver.network || resolver.asn || "Организация не определена";
-    details.textContent = [resolver.countryCode || "Страна не определена", network, resolver.asn ? `ASN ${resolver.asn}` : ""].filter(Boolean).join(" · ");
+    const doh = resolver.dohSupport === "provider-supports-doh"
+      ? "Провайдер поддерживает DoH"
+      : "Поддержка DoH не определена";
+    details.textContent = [resolver.provider, resolver.countryCode || "Страна не определена", network, resolver.asn ? `ASN ${resolver.asn}` : "", doh].filter(Boolean).join(" · ");
     row.append(address, details);
     dnsResults.append(row);
   }
+  const dohNote = document.createElement("p");
+  dohNote.className = "dns-disclaimer";
+  dohNote.textContent = summary.dohCapable
+    ? `${summary.dohCapable} из ${summary.count} обнаруженных резолверов связаны с провайдерами, поддерживающими DoH. По DNS-наблюдениям нельзя определить, использует ли Firefox DoH прямо сейчас.`
+    : "Транспорт DNS определить не удалось. Сам факт обнаружения резолвера не показывает, используется ли обычный DNS, DoT или DoH.";
+  dnsResults.append(dohNote);
   const verdict = document.createElement("p");
   verdict.className = "dns-disclaimer";
   verdict.textContent = data.verdict === "observed"
-    ? "DNS-наблюдения получены. Это не автоматический признак утечки: сравни IP/ASN резолверов с DNS-инфраструктурой твоего VPN."
+    ? "DNS-наблюдения получены. Это не автоматический признак утечки: сравни IP/ASN резолверов с ожидаемой DNS-инфраструктурой VPN."
     : "Недостаточно DNS-наблюдений для вывода. Повтори тест или проверь соединение позже.";
   dnsResults.append(verdict);
 }
