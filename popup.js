@@ -130,6 +130,19 @@ function renderDnsResults(data) {
     geographyNote.textContent = "Географическое сравнение недоступно: сначала запусти проверку внешнего IP, затем DNS-тест.";
   }
   dnsResults.append(geographyNote);
+  if (data.resolverChanges?.state && data.resolverChanges.state !== "unknown") {
+    const changeNote = document.createElement("p");
+    changeNote.className = "dns-disclaimer";
+    changeNote.textContent = data.resolverChanges.state === "changed"
+      ? `Набор DNS-резолверов изменился: добавлено ${data.resolverChanges.added.length}, исчезло ${data.resolverChanges.removed.length}, изменились метаданные ${data.resolverChanges.metadataChanges.length}. ${data.resolverChanges.detail} Это сигнал для проверки, а не признак утечки.`
+      : "Набор DNS-резолверов не изменился относительно предыдущего успешного теста.";
+    dnsResults.append(changeNote);
+  } else {
+    const changeNote = document.createElement("p");
+    changeNote.className = "dns-disclaimer";
+    changeNote.textContent = "Сравнение состава резолверов появится после второго успешного DNS-теста.";
+    dnsResults.append(changeNote);
+  }
   const verdict = document.createElement("p");
   verdict.className = "dns-disclaimer";
   verdict.textContent = data.verdict === "observed"
@@ -185,21 +198,37 @@ async function runDnsCheck() {
       ? lastIpCheck.countryCode
       : "";
     const anomalies = window.HappDnsIntelligence.analyzeAnomalies(resolvers, exitCountryCode);
+    const { lastDnsCheck, previousDnsCheck } = await browser.storage.local.get(["lastDnsCheck", "previousDnsCheck"]);
+    const baseline = lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers)
+      ? lastDnsCheck
+      : previousDnsCheck?.verdict === "observed" && Array.isArray(previousDnsCheck.resolvers)
+        ? previousDnsCheck
+        : null;
+    const resolverChanges = verdict === "observed" && baseline
+      ? window.HappDnsIntelligence.compareResolverSets(baseline.resolvers, resolvers)
+      : { state: "unknown", changed: false, added: [], removed: [], metadataChanges: [], detail: "Нет предыдущего успешного DNS-теста." };
     const testResult = {
       testId, checkedAt,
       clientIp: validIp(result?.client?.ip) ? result.client.ip : "",
       lookups, requestedLookups: hostnames.length, probesSent: sent,
-      resolvers, anomalies, verdict
+      resolvers, anomalies, resolverChanges, verdict
     };
+    if (verdict === "observed" && lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers)) {
+      await saveLocalResult("previousDnsCheck", lastDnsCheck);
+    }
     await saveLocalResult("lastDnsCheck", testResult);
     renderDnsResults(testResult);
     dnsMessage.textContent = verdict === "observed"
       ? `Получены DNS-наблюдения: ${lookups} запросов, ${resolvers.length} уникальных резолверов.`
       : `Недостаточно данных: ${lookups} наблюдений, ${sent}/${hostnames.length} проб отправлено.`;
-    await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, providers: window.HappDnsIntelligence.summarize(resolvers).providers, geoMismatches: anomalies.exitCountryMismatches.length, resolverCountries: anomalies.resolverCountries, lookups, probesSent: sent });
+    await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, providers: window.HappDnsIntelligence.summarize(resolvers).providers, geoMismatches: anomalies.exitCountryMismatches.length, resolverCountries: anomalies.resolverCountries, resolverSetChanged: resolverChanges.state === "changed", resolverAdded: resolverChanges.added.length, resolverRemoved: resolverChanges.removed.length, resolverMetadataChanges: resolverChanges.metadataChanges.length, lookups, probesSent: sent });
   } catch (error) {
     const errorMessage = error.message || String(error);
     dnsMessage.textContent = `DNS-тест не завершён: ${errorMessage}`;
+    const { lastDnsCheck } = await browser.storage.local.get("lastDnsCheck").catch(() => ({}));
+    if (lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers)) {
+      await saveLocalResult("previousDnsCheck", lastDnsCheck);
+    }
     await browser.storage.local.set({
       lastDnsCheck: { verdict: "error", message: errorMessage, checkedAt: new Date().toISOString() }
     }).catch(storageError => console.warn("HAPP Browser: не удалось сохранить ошибку DNS-проверки", storageError));
