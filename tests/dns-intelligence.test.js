@@ -42,3 +42,31 @@ test("handles empty and malformed resolver collections", () => {
   assert.deepEqual(dns.analyzeResolvers(null), []);
   assert.equal(dns.summarize([]).dohStatus, "no-observations");
 });
+
+test("flags resolver country differences from a recent VPN exit country for review", () => {
+  const result = dns.analyzeAnomalies([
+    { ip: "203.0.113.10", countryCode: "DE", asnName: "Example ISP" },
+    { ip: "203.0.113.11", countryCode: "NL", asnName: "Another ISP" }
+  ], "DE");
+  assert.equal(result.exitCountryMismatches.length, 1);
+  assert.equal(result.exitCountryMismatches[0].ip, "203.0.113.11");
+  assert.equal(result.hasGeographicDifferences, true);
+});
+
+test("does not claim a geographic anomaly when no exit country is available", () => {
+  const result = dns.analyzeAnomalies([
+    { ip: "203.0.113.10", countryCode: "DE" }
+  ]);
+  assert.equal(result.exitCountry, null);
+  assert.deepEqual(result.exitCountryMismatches, []);
+  assert.equal(result.hasGeographicDifferences, false);
+});
+
+test("reports multiple resolver countries without treating them as proof of a leak", () => {
+  const result = dns.analyzeAnomalies([
+    { ip: "203.0.113.10", countryCode: "DE" },
+    { ip: "203.0.113.11", countryCode: "NL" }
+  ]);
+  assert.equal(result.multipleResolverCountries, true);
+  assert.equal(result.exitCountryMismatches.length, 0);
+});
