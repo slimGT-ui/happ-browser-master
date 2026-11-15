@@ -137,7 +137,7 @@ DNS results are enriched with provider identification based on resolver ASN and 
 
 The extension indicates when an identified provider offers DNS over HTTPS (DoH). This is provider capability information, not proof that Firefox is currently using DoH. A DNS leak test observes the resolver that handled test queries; it cannot reliably identify whether the transport was classic DNS, DNS-over-TLS or DNS-over-HTTPS. Firefox's active DoH configuration is not exposed through the WebExtension APIs used by this project.
 
-Resolver metadata is supplied by dnsleak.dev. Provider matching is best-effort and may be incomplete or outdated. Compare observed resolver IP/ASN values with the DNS infrastructure expected from your VPN provider; a resolver mismatch is a prompt for investigation, not an automatic leak verdict.
+Resolver metadata is supplied by dnsleak.dev. Provider matching is best-effort and uses exact known public-resolver IP addresses plus observed ASN/network metadata; unknown networks remain unidentified. Matching may be incomplete or outdated. Compare observed resolver IP/ASN values with the DNS infrastructure expected from your VPN provider; a resolver mismatch is a prompt for investigation, not an automatic leak verdict.
 
 
 Resolver geography is compared with the country of a successful public-IP check only when that check is no more than 30 minutes old. A country difference is a review hint, not a leak verdict: VPN providers may intentionally operate DNS resolvers outside the VPN exit country, and resolver geolocation can be imprecise. Multiple resolver countries are also reported as context rather than treated as suspicious by themselves.
