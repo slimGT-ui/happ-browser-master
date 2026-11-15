@@ -154,3 +154,8 @@ Automated coverage is provided by tests/dns-intelligence.test.js.
 | DNSI-04 | Provider supports DoH | UI says the provider supports DoH, but does not claim Firefox currently uses it |
 | DNSI-05 | DNS results are restored after reopening popup | Provider intelligence is recomputed from saved resolver metadata |
 | DNSI-06 | DNS results appear in Timeline and Security Overview | Provider context is shown without turning resolver observations into an automatic leak verdict |
+
+
+| DNSI-07 | Resolver country differs from a recent public-IP exit country | Show a manual-review hint; do not label it a leak |
+| DNSI-08 | No recent public-IP country is available | Do not infer a geographic mismatch |
+| DNSI-09 | Resolvers are observed in multiple countries | Report geographic diversity without treating it as proof of a leak |
