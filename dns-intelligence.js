@@ -85,6 +85,9 @@
             countryCode: String(item.countryCode || "").trim().toUpperCase()
           };
         });
+      entries.sort((a, b) =>
+        a.ip.localeCompare(b.ip) || JSON.stringify(a).localeCompare(JSON.stringify(b))
+      );
       return [...new Map(entries.map(item => [item.ip, item])).values()]
         .sort((a, b) => a.ip.localeCompare(b.ip));
     };
