@@ -17,7 +17,7 @@
   ];
 
   function analyzeResolver(resolver) {
-    const source = [resolver?.asnName, resolver?.network, resolver?.asn].filter(Boolean).join(" ");
+    const source = [resolver?.ip, resolver?.asnName, resolver?.network, resolver?.asn].filter(Boolean).join(" ");
     const provider = PROVIDERS.find(item => item.pattern.test(source)) || null;
     const hasOrganization = Boolean(resolver?.asnName || resolver?.network || resolver?.asn);
     return {
@@ -78,6 +78,8 @@
           return {
             ip: item.ip.trim().toLowerCase(),
             asn: String(item.asn || "").trim().toUpperCase(),
+            asnName: String(item.asnName || "").trim().toLowerCase(),
+            network: String(item.network || "").trim().toLowerCase(),
             provider: analyzed.provider,
             countryCode: String(item.countryCode || "").trim().toUpperCase()
           };
@@ -104,7 +106,8 @@
     const removed = previous.filter(item => !currentByIp.has(item.ip));
     const metadataChanges = current.filter(item => {
       const before = previousByIp.get(item.ip);
-      return before && (before.asn !== item.asn || before.provider !== item.provider ||
+      return before && (before.asn !== item.asn || before.asnName !== item.asnName ||
+        before.network !== item.network || before.provider !== item.provider ||
         before.countryCode !== item.countryCode);
     }).map(item => ({ ip: item.ip, before: previousByIp.get(item.ip), after: item }));
 
