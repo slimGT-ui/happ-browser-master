@@ -77,7 +77,8 @@
     if (item.type === "IP") return [item.ip || "IP не получен", item.country || "страна неизвестна"].join(" · ");
     if (item.type === "DNS") {
       return item.status === "observed" || item.verdict === "observed"
-        ? (item.resolvers ?? 0) + " резолверов · " + (item.lookups ?? 0) + " наблюдений"
+        ? (item.resolvers ?? 0) + " резолверов · " + (item.lookups ?? 0) + " наблюдений" +
+          (Array.isArray(item.providers) && item.providers.length ? " · " + item.providers.join(", ") : "")
         : "Недостаточно DNS-наблюдений";
     }
     if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
