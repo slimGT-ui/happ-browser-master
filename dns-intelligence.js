@@ -69,5 +69,59 @@
     };
   }
 
-  return Object.freeze({ analyzeResolver, analyzeResolvers, summarize, analyzeAnomalies });
+  function compareResolverSets(previousResolvers, currentResolvers) {
+    const normalize = resolvers => {
+      const entries = (Array.isArray(resolvers) ? resolvers : [])
+        .filter(item => item && typeof item.ip === "string" && item.ip.trim())
+        .map(item => {
+          const analyzed = analyzeResolver(item);
+          return {
+            ip: item.ip.trim().toLowerCase(),
+            asn: String(item.asn || "").trim().toUpperCase(),
+            provider: analyzed.provider,
+            countryCode: String(item.countryCode || "").trim().toUpperCase()
+          };
+        });
+      return [...new Map(entries.map(item => [item.ip, item])).values()]
+        .sort((a, b) => a.ip.localeCompare(b.ip));
+    };
+
+    const previous = normalize(previousResolvers);
+    const current = normalize(currentResolvers);
+    if (!previous.length || !current.length) {
+      return {
+        state: "unknown",
+        changed: false,
+        added: [],
+        removed: [],
+        detail: "Для сравнения нужны два успешных DNS-теста с обнаруженными резолверами."
+      };
+    }
+
+    const previousByIp = new Map(previous.map(item => [item.ip, item]));
+    const currentByIp = new Map(current.map(item => [item.ip, item]));
+    const added = current.filter(item => !previousByIp.has(item.ip));
+    const removed = previous.filter(item => !currentByIp.has(item.ip));
+    const metadataChanges = current.filter(item => {
+      const before = previousByIp.get(item.ip);
+      return before && (before.asn !== item.asn || before.provider !== item.provider ||
+        before.countryCode !== item.countryCode);
+    }).map(item => ({ ip: item.ip, before: previousByIp.get(item.ip), after: item }));
+
+    const changed = added.length > 0 || removed.length > 0 || metadataChanges.length > 0;
+    return {
+      state: changed ? "changed" : "same",
+      changed,
+      added,
+      removed,
+      metadataChanges,
+      detail: changed
+        ? `Добавлено: ${added.length}, исчезло: ${removed.length}, изменились метаданные: ${metadataChanges.length}. Смена VPN-сервера, DNS-маршрута или ротация резолверов может быть нормальной причиной.`
+        : "Набор наблюдаемых DNS-резолверов и их метаданные не изменились.",
+      previousCount: previous.length,
+      currentCount: current.length
+    };
+  }
+
+  return Object.freeze({ analyzeResolver, analyzeResolvers, summarize, analyzeAnomalies, compareResolverSets });
 });
