@@ -93,6 +93,7 @@ function renderDnsResults(data) {
   dnsResults.replaceChildren();
   const resolvers = window.HappDnsIntelligence.analyzeResolvers(data.resolvers);
   const summary = window.HappDnsIntelligence.summarize(data.resolvers);
+  const anomalies = data.anomalies || window.HappDnsIntelligence.analyzeAnomalies(data.resolvers);
   const heading = document.createElement("div");
   heading.className = "dns-summary";
   heading.textContent = resolvers.length
@@ -119,6 +120,16 @@ function renderDnsResults(data) {
     ? `${summary.dohCapable} из ${summary.count} обнаруженных резолверов связаны с провайдерами, поддерживающими DoH. По DNS-наблюдениям нельзя определить, использует ли Firefox DoH прямо сейчас.`
     : "Транспорт DNS определить не удалось. Сам факт обнаружения резолвера не показывает, используется ли обычный DNS, DoT или DoH.";
   dnsResults.append(dohNote);
+  const geographyNote = document.createElement("p");
+  geographyNote.className = "dns-disclaimer";
+  if (anomalies.exitCountry) {
+    geographyNote.textContent = anomalies.exitCountryMismatches.length
+      ? `География для ручной проверки: ${anomalies.exitCountryMismatches.length} резолвер(а/ов) находятся не в стране IP выхода (${anomalies.exitCountry}). Это может быть нормальной архитектурой VPN/DNS и само по себе не доказывает утечку.`
+      : `Страны обнаруженных DNS-резолверов совпадают со страной контрольного IP выхода (${anomalies.exitCountry}). Это не гарантирует отсутствие DNS-утечек.`;
+  } else {
+    geographyNote.textContent = "Географическое сравнение недоступно: сначала запусти проверку внешнего IP, затем DNS-тест.";
+  }
+  dnsResults.append(geographyNote);
   const verdict = document.createElement("p");
   verdict.className = "dns-disclaimer";
   verdict.textContent = data.verdict === "observed"
@@ -165,11 +176,20 @@ async function runDnsCheck() {
       })) : [];
     const lookups = Number.isFinite(Number(result?.lookups)) ? Number(result.lookups) : 0;
     const verdict = resolvers.length && lookups > 0 ? "observed" : "insufficient-data";
+    const checkedAt = new Date().toISOString();
+    const { lastIpCheck } = await browser.storage.local.get("lastIpCheck");
+    const ipAge = lastIpCheck?.checkedAt ? Date.now() - Date.parse(lastIpCheck.checkedAt) : Infinity;
+    const exitCountryCode = lastIpCheck?.status === "success" &&
+      typeof lastIpCheck.countryCode === "string" &&
+      ipAge >= 0 && ipAge <= 30 * 60 * 1000
+      ? lastIpCheck.countryCode
+      : "";
+    const anomalies = window.HappDnsIntelligence.analyzeAnomalies(resolvers, exitCountryCode);
     const testResult = {
-      testId, checkedAt: new Date().toISOString(),
+      testId, checkedAt,
       clientIp: validIp(result?.client?.ip) ? result.client.ip : "",
       lookups, requestedLookups: hostnames.length, probesSent: sent,
-      resolvers, verdict
+      resolvers, anomalies, verdict
     };
     await saveLocalResult("lastDnsCheck", testResult);
     renderDnsResults(testResult);
