@@ -21,6 +21,11 @@ test("identifies supported DNS providers from resolver IP addresses alone", () =
   assert.equal(dns.analyzeResolver({ ip: "9.9.9.9" }).provider, "Quad9");
 });
 
+test("does not identify a provider from an IP substring", () => {
+  assert.equal(dns.analyzeResolver({ ip: "101.1.1.10" }).provider, "Не определён");
+  assert.equal(dns.analyzeResolver({ ip: "8.8.8.80" }).provider, "Не определён");
+});
+
 test("does not infer a provider or DoH support from an unknown network", () => {
   const [result] = dns.analyzeResolvers([{ ip: "203.0.113.8", asnName: "Example Network" }]);
   assert.equal(result.provider, "Неизвестная организация");
@@ -103,6 +108,18 @@ test("resolver set comparison detects ASN, provider and country metadata changes
   );
   assert.equal(result.state, "changed");
   assert.equal(result.metadataChanges.length, 1);
+});
+
+test("resolver set comparison is stable when duplicate IP metadata conflicts", () => {
+  const first = [
+    { ip: "1.1.1.1", asn: "AS13335", asnName: "Cloudflare, Inc." },
+    { ip: "1.1.1.1", asn: "AS13335", asnName: "Cloudflare" }
+  ];
+  const reversed = first.slice().reverse();
+  const baseline = [{ ip: "1.1.1.1", asn: "AS13335", asnName: "Cloudflare" }];
+  const a = dns.compareResolverSets(baseline, first);
+  const b = dns.compareResolverSets(baseline, reversed);
+  assert.deepEqual(a, b);
 });
 
 test("resolver set comparison detects organization and network name changes", () => {
