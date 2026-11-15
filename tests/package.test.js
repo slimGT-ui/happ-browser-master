@@ -131,4 +131,8 @@ test("DNS baseline is preserved before any rerun replaces the latest successful 
     "a failed baseline write must prevent overwriting the only successful snapshot");
   assert.match(popup, /if \(baselinePreserved\) \{\s+await browser\.storage\.local\.set\(\{\s+lastDnsCheck: \{ verdict: "error"/,
     "a failed baseline write must also prevent an error result from overwriting the successful snapshot");
+  assert.match(popup, /const storedDnsState = await browser\.storage\.local\.get\("lastDnsCheck"\)\.catch\(storageError => \{/,
+    "a failed storage read must be distinguishable from an empty DNS state");
+  assert.match(popup, /if \(storedDnsState === null\) \{[\s\S]*?return;\s+\}/,
+    "a failed storage read must stop the error handler before it can overwrite the baseline");
 });
