@@ -15,6 +15,12 @@ test("identifies common public DNS providers from resolver metadata", () => {
   assert.ok(results.every(item => item.dohSupport === "provider-supports-doh"));
 });
 
+test("identifies supported DNS providers from resolver IP addresses alone", () => {
+  assert.equal(dns.analyzeResolver({ ip: "1.1.1.1" }).provider, "Cloudflare");
+  assert.equal(dns.analyzeResolver({ ip: "8.8.8.8" }).provider, "Google Public DNS");
+  assert.equal(dns.analyzeResolver({ ip: "9.9.9.9" }).provider, "Quad9");
+});
+
 test("does not infer a provider or DoH support from an unknown network", () => {
   const [result] = dns.analyzeResolvers([{ ip: "203.0.113.8", asnName: "Example Network" }]);
   assert.equal(result.provider, "Неизвестная организация");
@@ -97,6 +103,21 @@ test("resolver set comparison detects ASN, provider and country metadata changes
   );
   assert.equal(result.state, "changed");
   assert.equal(result.metadataChanges.length, 1);
+});
+
+test("resolver set comparison detects organization and network name changes", () => {
+  const previous = [{ ip: "203.0.113.30", asn: "AS64500", asnName: "Example ISP", network: "Example Network" }];
+  const organizationChanged = dns.compareResolverSets(previous, [
+    { ip: "203.0.113.30", asn: "AS64500", asnName: "Different ISP", network: "Example Network" }
+  ]);
+  assert.equal(organizationChanged.state, "changed");
+  assert.equal(organizationChanged.metadataChanges.length, 1);
+
+  const networkChanged = dns.compareResolverSets(previous, [
+    { ip: "203.0.113.30", asn: "AS64500", asnName: "Example ISP", network: "Different Network" }
+  ]);
+  assert.equal(networkChanged.state, "changed");
+  assert.equal(networkChanged.metadataChanges.length, 1);
 });
 
 test("resolver set comparison does not compare missing baselines or empty observations", () => {
