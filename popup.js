@@ -228,7 +228,15 @@ async function runDnsCheck() {
   } catch (error) {
     const errorMessage = error.message || String(error);
     dnsMessage.textContent = `DNS-тест не завершён: ${errorMessage}`;
-    const { lastDnsCheck } = await browser.storage.local.get("lastDnsCheck").catch(() => ({}));
+    const storedDnsState = await browser.storage.local.get("lastDnsCheck").catch(storageError => {
+      console.warn("HAPP Browser: не удалось прочитать DNS baseline после ошибки теста", storageError);
+      return null;
+    });
+    if (storedDnsState === null) {
+      await window.HappHistory?.add("DNS", { status: "error", message: errorMessage });
+      return;
+    }
+    const { lastDnsCheck } = storedDnsState;
     const hasSuccessfulBaseline = lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers);
     const baselinePreserved = !hasSuccessfulBaseline || await saveLocalResult("previousDnsCheck", lastDnsCheck);
     if (baselinePreserved) {
