@@ -140,3 +140,17 @@ Manual scenarios required before release:
 | QUALITY-04 | Block both endpoints or disconnect the network | No successful latency metrics; clear failed state, popup remains responsive |
 | QUALITY-05 | Close and reopen the popup | Latest result is restored and the history entry remains in Diagnostic Timeline |
 | QUALITY-06 | Clear diagnostic history | Quality history entry is removed with the rest of the timeline; latest result remains available until overwritten |
+
+
+## DNS Resolver Intelligence — stage 2
+
+Automated coverage is provided by tests/dns-intelligence.test.js.
+
+| ID | Scenario | Expected result |
+|---|---|---|
+| DNSI-01 | Resolver metadata identifies Cloudflare, Google, Quad9 or OpenDNS | Provider is identified and its public DoH support is displayed |
+| DNSI-02 | Resolver belongs to an unknown organization | Organization is shown as unknown; no provider or DoH capability is guessed |
+| DNSI-03 | Resolver metadata is missing | Provider and DoH support remain explicitly unknown |
+| DNSI-04 | Provider supports DoH | UI says the provider supports DoH, but does not claim Firefox currently uses it |
+| DNSI-05 | DNS results are restored after reopening popup | Provider intelligence is recomputed from saved resolver metadata |
+| DNSI-06 | DNS results appear in Timeline and Security Overview | Provider context is shown without turning resolver observations into an automatic leak verdict |
