@@ -129,3 +129,12 @@ HAPP Browser анализирует сетевое поведение самог
 GitHub: https://github.com/slimGT-ui/happ-browser-master
 
 HAPP Browser — независимый проект сообщества, а не официальное приложение HAPP.
+
+
+## DNS Resolver Intelligence
+
+DNS results are enriched with provider identification based on resolver ASN and network metadata. Known public DNS operators include Cloudflare, Google Public DNS, Quad9, Cisco OpenDNS, AdGuard DNS, NextDNS, Control D and Mullvad DNS. Unknown networks remain explicitly unidentified; the extension does not guess a provider from the resolver IP alone.
+
+The extension indicates when an identified provider offers DNS over HTTPS (DoH). This is provider capability information, not proof that Firefox is currently using DoH. A DNS leak test observes the resolver that handled test queries; it cannot reliably identify whether the transport was classic DNS, DNS-over-TLS or DNS-over-HTTPS. Firefox's active DoH configuration is not exposed through the WebExtension APIs used by this project.
+
+Resolver metadata is supplied by dnsleak.dev. Provider matching is best-effort and may be incomplete or outdated. Compare observed resolver IP/ASN values with the DNS infrastructure expected from your VPN provider; a resolver mismatch is a prompt for investigation, not an automatic leak verdict.
