@@ -12,7 +12,9 @@
     "https://api4.ipify.org/*",
     "https://api6.ipify.org/*",
     "https://dnsleak.dev/*",
-    "https://*.t.dnsleak.dev/*"
+    "https://*.t.dnsleak.dev/*",
+    "https://www.google.com/*",
+    "https://www.cloudflare.com/*"
   ],
   "optional_host_permissions": [
     "http://*/*",
