@@ -51,7 +51,7 @@ Run from the repository root with Node.js 20 (the version used by GitHub Actions
 node --test
 ```
 
-Current automated suite: 30 tests, including timeline sorting, filtering, summaries, status interpretation, descriptions, date grouping, change detection, previous-event lookup, popup wiring, WebRTC validator references, serialized history, release metadata and storage-failure handling. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js and ip-classification.js and timeline.js. These checks do not replace the manual browser/network scenarios below.
+Current automated suite before Connection Quality Monitor: 30 tests, including timeline sorting, filtering, summaries, status interpretation, descriptions, date grouping, change detection, previous-event lookup, popup wiring, WebRTC validator references, serialized history, release metadata and storage-failure handling. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. The Connection Quality Monitor adds five unit tests for latency statistics and result classification. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js, ip-classification.js, timeline.js and quality-monitor.js. These checks do not replace the manual browser/network scenarios below.
 
 Latest verified automated run: **30 passed, 0 failed** (commit 2978253; [GitHub Actions run 43510101050](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43510101050)). Previous manual matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed before the latest pre-release hardening). The additional 0.10.0 changes below require a focused manual retest before release.
 
@@ -120,3 +120,23 @@ The user confirmed all five focused scenarios below passed. RC1 changes release 
 - Version is bumped only after the testing stage is complete and the release contents are frozen.
 
 The earlier manual regression matrix was user-confirmed as 23 of 23 passed; all five focused 0.10.0 retest scenarios passed; and all four persistent-installation lifecycle scenarios (LIFE-01 through LIFE-04) were confirmed passed by the user. Functional and lifecycle QA gates are complete.
+
+
+## Connection Quality Monitor — stage 1
+
+Automated coverage:
+- Median, average, minimum and maximum HTTPS probe latency.
+- Jitter calculation from successive successful probes.
+- Failed probe percentage and empty/all-failed sample handling.
+- Complete, partial and failed run classification.
+
+Manual scenarios required before release:
+
+| ID | Scenario | Expected result |
+|---|---|---|
+| QUALITY-01 | Run all six probes on a normal connection | Latency metrics and six chart bars are shown; result is saved locally |
+| QUALITY-02 | Repeat with VPN enabled on the same network | A second result is recorded; compare median latency and jitter without assuming the VPN must be faster |
+| QUALITY-03 | Block one of the two HTTPS endpoints | Partial result is shown and failed probes are counted |
+| QUALITY-04 | Block both endpoints or disconnect the network | No successful latency metrics; clear failed state, popup remains responsive |
+| QUALITY-05 | Close and reopen the popup | Latest result is restored and the history entry remains in Diagnostic Timeline |
+| QUALITY-06 | Clear diagnostic history | Quality history entry is removed with the rest of the timeline; latest result remains available until overwritten |
