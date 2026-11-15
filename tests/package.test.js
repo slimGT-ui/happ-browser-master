@@ -87,6 +87,7 @@ test("popup IDs are unique and every interactive script loads after its dependen
   const scripts = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)].map(match => match[1]);
   assert.ok(scripts.indexOf("ip-validation.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("ip-classification.js") < scripts.indexOf("popup.js"));
+  assert.ok(scripts.indexOf("dns-intelligence.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("timeline.js") < scripts.indexOf("advanced.js"));
   assert.ok(scripts.indexOf("advanced.js") < scripts.indexOf("quality-monitor.js"));
 });
