@@ -47,5 +47,27 @@
     };
   }
 
-  return Object.freeze({ analyzeResolver, analyzeResolvers, summarize });
+
+  function analyzeAnomalies(resolvers, exitCountryCode = "") {
+    const analyzed = analyzeResolvers(resolvers);
+    const exitCountry = typeof exitCountryCode === "string" ? exitCountryCode.trim().toUpperCase() : "";
+    const countries = [...new Set(analyzed
+      .map(item => typeof item.countryCode === "string" ? item.countryCode.trim().toUpperCase() : "")
+      .filter(Boolean))];
+    const mismatches = exitCountry
+      ? analyzed.filter(item => {
+          const country = typeof item.countryCode === "string" ? item.countryCode.trim().toUpperCase() : "";
+          return country && country !== exitCountry;
+        }).map(item => ({ ip: item.ip, resolverCountry: item.countryCode, exitCountry }))
+      : [];
+    return {
+      exitCountry: exitCountry || null,
+      resolverCountries: countries,
+      multipleResolverCountries: countries.length > 1,
+      exitCountryMismatches: mismatches,
+      hasGeographicDifferences: mismatches.length > 0 || countries.length > 1
+    };
+  }
+
+  return Object.freeze({ analyzeResolver, analyzeResolvers, summarize, analyzeAnomalies });
 });
