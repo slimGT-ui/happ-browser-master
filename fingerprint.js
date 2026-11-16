@@ -27,6 +27,8 @@
     const observable = FIELDS.filter(([key]) => {
       const value = values[key];
       if (key === "canvas" || key === "webgl") return value?.status === "available";
+      if (key === "languages") return Array.isArray(value) && value.length > 0;
+      if (key === "screen") return value && Object.values(value).some(Number.isFinite);
       return value !== null && value !== undefined && value !== "";
     }).length;
     return {
@@ -37,13 +39,57 @@
   }
 
   function normalize(data, executionContext = "page") {
-    if (!data || typeof data !== "object") throw new TypeError("Некорректный результат fingerprint-проверки.");
-    const summary = summarize(data);
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+      throw new TypeError("Некорректный результат fingerprint-проверки.");
+    }
+    const text = (value, limit) => typeof value === "string" ? value.slice(0, limit) : null;
+    const numeric = value => Number.isFinite(value) && value >= 0 ? value : null;
+    const sourceScreen = data.screen && typeof data.screen === "object" ? data.screen : {};
+    const sourceCanvas = data.canvas && typeof data.canvas === "object" ? data.canvas : {};
+    const sourceWebgl = data.webgl && typeof data.webgl === "object" ? data.webgl : {};
+    const canvasStatus = ["available", "blocked", "unavailable"].includes(sourceCanvas.status)
+      ? sourceCanvas.status : "unavailable";
+    const webglStatus = ["available", "blocked", "unavailable"].includes(sourceWebgl.status)
+      ? sourceWebgl.status : "unavailable";
+    const safeData = {
+      userAgent: text(data.userAgent, 512),
+      platform: text(data.platform, 128),
+      language: text(data.language, 64),
+      languages: Array.isArray(data.languages)
+        ? data.languages.filter(value => typeof value === "string").slice(0, 10).map(value => value.slice(0, 64))
+        : [],
+      timezone: text(data.timezone, 128),
+      screen: {
+        width: numeric(sourceScreen.width),
+        height: numeric(sourceScreen.height),
+        availWidth: numeric(sourceScreen.availWidth),
+        availHeight: numeric(sourceScreen.availHeight),
+        colorDepth: numeric(sourceScreen.colorDepth),
+        pixelDepth: numeric(sourceScreen.pixelDepth)
+      },
+      pixelRatio: numeric(data.pixelRatio),
+      hardwareConcurrency: numeric(data.hardwareConcurrency),
+      maxTouchPoints: numeric(data.maxTouchPoints),
+      clientHints: { status: "unsupported", detail: "Firefox не предоставляет navigator.userAgentData." },
+      canvas: {
+        status: canvasStatus,
+        hash: canvasStatus === "available" && /^[a-f0-9]{8}$/i.test(sourceCanvas.hash || "")
+          ? sourceCanvas.hash : null
+      },
+      webgl: {
+        status: webglStatus,
+        vendor: text(sourceWebgl.vendor, 160),
+        renderer: text(sourceWebgl.renderer, 240),
+        debugInfo: sourceWebgl.debugInfo === true
+      }
+    };
+    const context = executionContext === "page" ? "page" : "isolated";
+    const summary = summarize(safeData);
     return {
       status: "observed",
       checkedAt: new Date().toISOString(),
-      executionContext,
-      data,
+      executionContext: context,
+      data: safeData,
       summary
     };
   }
