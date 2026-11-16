@@ -162,3 +162,16 @@ Automated coverage is provided by tests/dns-intelligence.test.js.
 | DNSI-10 | Resolver set is unchanged between successful tests | Show no change; duplicate observations and lookup ordering do not affect comparison |
 | DNSI-11 | Resolver IP or ASN/provider metadata changes | Show added/removed/changed metadata and explain that VPN/DNS rotation may be normal |
 | DNSI-12 | First successful test or failed/empty rerun | No baseline warning on the first test; failed/empty runs must not replace the last successful comparison baseline |
+
+
+## DNS Resolver Intelligence manual QA confirmation — 2026-11-16
+
+The user manually checked the Firefox scenarios and confirmed that all three pass:
+
+| ID | Result | Notes |
+|---|---|---|
+| DNSI-10 | PASS | User confirmed repeated successful tests with an unchanged resolver set show no false change. |
+| DNSI-11 | PASS | User confirmed changing the network / resolver environment displays the expected resolver changes. |
+| DNSI-12 | PASS | User confirmed failed or empty reruns do not erase the previous successful comparison baseline. |
+
+These are user-confirmed manual results. Automated CI remains separately tracked on the PR head. Stage 2 is accepted; merge is pending explicit user approval.
