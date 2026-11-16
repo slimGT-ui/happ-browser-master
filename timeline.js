@@ -88,7 +88,7 @@
         : "Недостаточно DNS-наблюдений";
     }
     if (item.type === "Fingerprint") return (item.observable ?? 0) + "/" + (item.total ?? 0) + " наблюдаемых параметров · " + (item.executionContext === "page" ? "контекст страницы" : "изолированный контекст");
-    if (item.type === "Quality") return "Медиана: " (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
+    if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
       " · jitter: " + (item.stats?.jitterMs == null ? "н/д" : item.stats.jitterMs + " ms") +
       " · неудачные пробы: " + (item.stats?.failed ?? 0) + "/" + (item.stats?.sent ?? 0);
     if (item.type === "WebRTC") return "Вердикт: " + (item.status || item.verdict || "неизвестен") +
