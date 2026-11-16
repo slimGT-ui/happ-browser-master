@@ -349,6 +349,7 @@ async function readConnectionSnapshot() {
     ip: stored.lastIpCheck || null,
     dns: stored.lastDnsCheck || null,
     webRtc: stored.lastWebRtcCheck || null,
+    fingerprint: stored.lastFingerprintCheck || null,
     ipv6: latest("IPv6"),
     website: latest("Сайт")
   };
@@ -485,7 +486,7 @@ async function refreshSecuritySummary() {
   securityMessage.textContent = "Собираем последние результаты…";
   try {
     const stored = await browser.storage.local.get([
-      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", HISTORY_KEY
+      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", "lastFingerprintCheck", HISTORY_KEY
     ]);
     const history = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
     const latest = type => history.find(item => item.type === type) || null;
@@ -519,6 +520,10 @@ async function refreshSecuritySummary() {
           : rtc?.verdict === "error" || latest("WebRTC")?.status === "error"
             ? securityRow("WebRTC", "error", rtc?.message || latest("WebRTC")?.message || "WebRTC-тест завершился ошибкой.")
             : securityRow("WebRTC", "missing", "Запусти WebRTC-тест."));
+
+    rows.push(fingerprint?.status === "observed"
+      ? securityRow("Browser Fingerprint", "pass", (fingerprint.summary?.observable ?? 0) + "/" + (fingerprint.summary?.total ?? 0) + " параметров доступны для наблюдения. Это не оценка уникальности или риска.")
+      : securityRow("Browser Fingerprint", "missing", "Запусти проверку fingerprint на активной вкладке."));
 
     rows.push(ipv6?.status === "observed"
       ? securityRow("IPv4 / IPv6", "review", `IPv4: ${ipv6.ipv4 || "недоступен"} · IPv6: ${ipv6.ipv6 || "недоступен"}. Наличие IPv6 само по себе не является утечкой.`)
