@@ -174,4 +174,21 @@ The user manually checked the Firefox scenarios and confirmed that all three pas
 | DNSI-11 | PASS | User confirmed changing the network / resolver environment displays the expected resolver changes. |
 | DNSI-12 | PASS | User confirmed failed or empty reruns do not erase the previous successful comparison baseline. |
 
-These are user-confirmed manual results. Automated CI remains separately tracked on the PR head. Stage 2 is accepted; merge is pending explicit user approval.
+These are user-confirmed manual results. Automated CI passed on the implementation head. Stage 2 was accepted and merged into main through squash PR #6 on 2026-11-16 (merge commit 799d97b27d08c2dff949afdb2d19fff37b60fe11).
+
+
+## Browser Fingerprint Check — stage 3
+
+Planned manual scenarios (final IDs and expected results may be refined during implementation):
+
+| ID | Scenario | Expected result |
+|---|---|---|
+| FINGERPRINT-01 | Run check on a normal HTTPS page | Page-visible UA, language, timezone, screen and supported capability data are displayed; no network request is made by the fingerprint module |
+| FINGERPRINT-02 | Canvas readback is available | Canvas readback is classified as available; only a local derived fingerprint marker is retained if implemented, never uploaded |
+| FINGERPRINT-03 | Canvas readback is blocked or throws | State is shown as blocked/inconclusive, not as a passed privacy test |
+| FINGERPRINT-04 | WebGL is available with debug renderer info | WebGL capability and exposed renderer metadata are displayed with a privacy note |
+| FINGERPRINT-05 | WebGL or debug renderer info is unavailable | Unsupported/blocked/unavailable is distinguished; no renderer is guessed |
+| FINGERPRINT-06 | Run on a restricted browser page (about:, PDF viewer, extension page) | Clear unsupported-page error; popup remains responsive and previous result is not overwritten |
+| FINGERPRINT-07 | Reopen popup after a successful run | Last result is restored as historical data and timeline entry remains |
+
+Firefox-specific: navigator.userAgentData is not supported; report Client Hints as unavailable rather than fabricating values. Any score must describe observable surface only, not global fingerprint uniqueness or entropy.
