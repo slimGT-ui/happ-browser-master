@@ -340,7 +340,7 @@ const PROFILE_KEY = "connectionProfileSnapshot";
 
 async function readConnectionSnapshot() {
   const stored = await browser.storage.local.get([
-    "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", "lastFingerprintCheck", HISTORY_KEY
+    "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", HISTORY_KEY
   ]);
   const history = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
   const latest = type => history.find(item => item.type === type) || null;
@@ -349,7 +349,6 @@ async function readConnectionSnapshot() {
     ip: stored.lastIpCheck || null,
     dns: stored.lastDnsCheck || null,
     webRtc: stored.lastWebRtcCheck || null,
-    fingerprint: stored.lastFingerprintCheck || null,
     ipv6: latest("IPv6"),
     website: latest("Сайт")
   };
