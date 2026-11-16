@@ -295,7 +295,8 @@ function initializeFingerprint(root, api) {
         status: record.status,
         observable: record.summary.observable,
         total: record.summary.total,
-        executionContext
+        executionContext,
+        data: record.data
       });
     } catch (error) {
       message.textContent = "Не удалось проверить эту вкладку: " + (error.message || String(error)) +
