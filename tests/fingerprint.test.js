@@ -38,3 +38,31 @@ test("fingerprint module does not include remote collection endpoints", () => {
   const source = fs.readFileSync(require.resolve("../fingerprint.js"), "utf8");
   assert.doesNotMatch(source, /https?:\/\//);
 });
+
+
+test("normalization bounds page-controlled strings and rejects malformed graphics metadata", () => {
+  const record = fingerprint.normalize({
+    userAgent: "A".repeat(2000),
+    languages: ["B".repeat(200), 7],
+    screen: { width: 1920, height: 1080 },
+    canvas: { status: "available", hash: "not-a-valid-hash" },
+    webgl: { status: "available", vendor: "V".repeat(500), renderer: "R".repeat(500), debugInfo: "yes" }
+  });
+  assert.equal(record.data.userAgent.length, 512);
+  assert.equal(record.data.languages[0].length, 64);
+  assert.equal(record.data.canvas.hash, null);
+  assert.equal(record.data.webgl.vendor.length, 160);
+  assert.equal(record.data.webgl.renderer.length, 240);
+  assert.equal(record.data.webgl.debugInfo, false);
+  assert.equal(record.data.clientHints.status, "unsupported");
+});
+
+test("empty screen and language collections are not counted as observable", () => {
+  const summary = fingerprint.summarize({
+    screen: { width: null, height: null },
+    languages: [],
+    canvas: { status: "unavailable" },
+    webgl: { status: "unavailable" }
+  });
+  assert.equal(summary.observable, 0);
+});
