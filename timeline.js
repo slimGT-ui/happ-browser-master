@@ -11,7 +11,8 @@
     WebRTC: "WebRTC",
     IPv6: "IPv4 / IPv6",
     "Сайт": "Website",
-    Quality: "Connection Quality"
+    Quality: "Connection Quality",
+    Fingerprint: "Browser Fingerprint"
   });
 
   function timestamp(item) {
@@ -86,7 +87,8 @@
             : item.resolverSetChanged === false ? " · состав резолверов без изменений" : "")
         : "Недостаточно DNS-наблюдений";
     }
-    if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
+    if (item.type === "Fingerprint") return (item.observable ?? 0) + "/" + (item.total ?? 0) + " наблюдаемых параметров · " + (item.executionContext === "page" ? "контекст страницы" : "изолированный контекст");
+    if (item.type === "Quality") return "Медиана: " (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
       " · jitter: " + (item.stats?.jitterMs == null ? "н/д" : item.stats.jitterMs + " ms") +
       " · неудачные пробы: " + (item.stats?.failed ?? 0) + "/" + (item.stats?.sent ?? 0);
     if (item.type === "WebRTC") return "Вердикт: " + (item.status || item.verdict || "неизвестен") +
@@ -126,6 +128,16 @@
         ["Добавлено резолверов", previous.resolverAdded, current.resolverAdded],
         ["Исчезло резолверов", previous.resolverRemoved, current.resolverRemoved],
         ["Изменились метаданные резолверов", previous.resolverMetadataChanges, current.resolverMetadataChanges]
+      ];
+    } else if (current.type === "Fingerprint") {
+      fields = [
+        ["User-Agent", previous.data?.userAgent, current.data?.userAgent],
+        ["Платформа", previous.data?.platform, current.data?.platform],
+        ["Язык", previous.data?.language, current.data?.language],
+        ["Часовой пояс", previous.data?.timezone, current.data?.timezone],
+        ["Экран", previous.data?.screen, current.data?.screen],
+        ["Canvas", previous.data?.canvas?.status, current.data?.canvas?.status],
+        ["WebGL renderer", previous.data?.webgl?.renderer, current.data?.webgl?.renderer]
       ];
     } else if (current.type === "Quality") {
       fields = [
