@@ -96,3 +96,24 @@ test("timeline DNS event comparison includes resolver metadata changes", () => {
   assert.equal(comparison.state, "changed");
   assert.match(comparison.detail, /Изменились метаданные резолверов: 0 → 1/);
 });
+
+
+test("fingerprint timeline events are labeled, summarized and compared", () => {
+  const item = {
+    type: "Fingerprint",
+    status: "observed",
+    observable: 9,
+    total: 11,
+    executionContext: "page",
+    checkedAt: "2026-11-16T10:00:00.000Z",
+    data: { userAgent: "Firefox", timezone: "Europe/Stockholm" }
+  };
+  assert.equal(timeline.TYPE_LABELS.Fingerprint, "Browser Fingerprint");
+  assert.match(timeline.describe(item), /9\/11 наблюдаемых параметров/);
+  const previous = {
+    ...item,
+    checkedAt: "2026-11-16T09:00:00.000Z",
+    data: { userAgent: "Firefox", timezone: "UTC" }
+  };
+  assert.equal(timeline.compareEvents(item, previous).state, "changed");
+});
