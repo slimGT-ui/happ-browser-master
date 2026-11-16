@@ -493,7 +493,7 @@ async function refreshSecuritySummary() {
     const ip = stored.lastIpCheck || latest("IP");
     const dns = stored.lastDnsCheck || null;
     const rtc = stored.lastWebRtcCheck || null;
-    const fingerprint = stored.lastFingerprintCheck || null;
+    const fingerprint = stored.lastFingerprintCheck || latest("Fingerprint") || null;
     const ipv6 = latest("IPv6");
 
     const rows = [];
@@ -522,7 +522,7 @@ async function refreshSecuritySummary() {
             : securityRow("WebRTC", "missing", "Запусти WebRTC-тест."));
 
     rows.push(fingerprint?.status === "observed"
-      ? securityRow("Browser Fingerprint", "pass", (fingerprint.summary?.observable ?? 0) + "/" + (fingerprint.summary?.total ?? 0) + " параметров доступны для наблюдения. Это не оценка уникальности или риска.")
+      ? securityRow("Browser Fingerprint", "pass", (fingerprint.summary?.observable ?? fingerprint.observable ?? 0) + "/" + (fingerprint.summary?.total ?? fingerprint.total ?? 0) + " параметров доступны для наблюдения. Это не оценка уникальности или риска.")
       : securityRow("Browser Fingerprint", "missing", "Запусти проверку fingerprint на активной вкладке."));
 
     rows.push(ipv6?.status === "observed"
