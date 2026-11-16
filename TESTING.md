@@ -184,7 +184,7 @@ Planned manual scenarios (final IDs and expected results may be refined during i
 | ID | Scenario | Expected result |
 |---|---|---|
 | FINGERPRINT-01 | Run check on a normal HTTPS page | Page-visible UA, language, timezone, screen and supported capability data are displayed; no network request is made by the fingerprint module |
-| FINGERPRINT-02 | Canvas readback is available | Canvas readback is classified as available; only a local derived fingerprint marker is retained if implemented, never uploaded |
+| FINGERPRINT-02 | Canvas readback is available | Canvas readback is classified as available; a local derived marker is shown and stored only in Firefox local storage, never uploaded |
 | FINGERPRINT-03 | Canvas readback is blocked or throws | State is shown as blocked/inconclusive, not as a passed privacy test |
 | FINGERPRINT-04 | WebGL is available with debug renderer info | WebGL capability and exposed renderer metadata are displayed with a privacy note |
 | FINGERPRINT-05 | WebGL or debug renderer info is unavailable | Unsupported/blocked/unavailable is distinguished; no renderer is guessed |
