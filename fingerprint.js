@@ -280,9 +280,17 @@ function initializeFingerprint(root, api) {
       }
 
       const record = api.normalize(injected[0].result, executionContext);
-      await root.browser.storage.local.set({ lastFingerprintCheck: record });
       render(record);
-      message.textContent = "Проверка завершена. Результат сохранён локально в Firefox.";
+      let saved = true;
+      try {
+        await root.browser.storage.local.set({ lastFingerprintCheck: record });
+      } catch (storageError) {
+        saved = false;
+        console.warn("HAPP Browser: fingerprint измерен, но не удалось сохранить снимок", storageError);
+      }
+      message.textContent = saved
+        ? "Проверка завершена. Результат сохранён локально в Firefox."
+        : "Проверка завершена, но сохранить снимок не удалось. Предыдущий сохранённый результат не изменён.";
       await root.window?.HappHistory?.add("Fingerprint", {
         status: record.status,
         observable: record.summary.observable,
