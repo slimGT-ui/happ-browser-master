@@ -158,8 +158,17 @@ test("fingerprint diagnostics are integrated with history, security overview and
   assert.match(timeline, /Fingerprint: "Browser Fingerprint"/);
   assert.match(timeline, /current\.type === "Fingerprint"/);
   assert.match(advanced, /lastFingerprintCheck/);
+  assert.match(advanced, /stored\.lastFingerprintCheck \|\| latest\("Fingerprint"\)/);
   assert.match(advanced, /securityRow\("Browser Fingerprint"/);
   assert.match(advanced, /fingerprint: stored\.lastFingerprintCheck/);
   assert.ok(html.indexOf('src="advanced.js"') < html.indexOf('src="fingerprint.js"'),
     "fingerprint UI must load after the history/security module");
+});
+
+
+test("fingerprint measurements render even if local persistence fails", () => {
+  const source = read("fingerprint.js");
+  assert.ok(source.indexOf("render(record)") < source.indexOf("storage.local.set({ lastFingerprintCheck: record })"),
+    "successful measurements must be rendered before attempting storage");
+  assert.match(source, /Предыдущий сохранённый результат не изменён/);
 });
