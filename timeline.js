@@ -134,10 +134,17 @@
         ["User-Agent", previous.data?.userAgent, current.data?.userAgent],
         ["Платформа", previous.data?.platform, current.data?.platform],
         ["Язык", previous.data?.language, current.data?.language],
+        ["Список языков", previous.data?.languages, current.data?.languages],
         ["Часовой пояс", previous.data?.timezone, current.data?.timezone],
         ["Экран", previous.data?.screen, current.data?.screen],
-        ["Canvas", previous.data?.canvas?.status, current.data?.canvas?.status],
-        ["WebGL renderer", previous.data?.webgl?.renderer, current.data?.webgl?.renderer]
+        ["Pixel ratio", previous.data?.pixelRatio, current.data?.pixelRatio],
+        ["Логические потоки CPU", previous.data?.hardwareConcurrency, current.data?.hardwareConcurrency],
+        ["Сенсорные точки", previous.data?.maxTouchPoints, current.data?.maxTouchPoints],
+        ["Canvas readback", previous.data?.canvas?.status, current.data?.canvas?.status],
+        ["Canvas marker", previous.data?.canvas?.hash, current.data?.canvas?.hash],
+        ["WebGL vendor", previous.data?.webgl?.vendor, current.data?.webgl?.vendor],
+        ["WebGL renderer", previous.data?.webgl?.renderer, current.data?.webgl?.renderer],
+        ["WebGL debug info", previous.data?.webgl?.debugInfo, current.data?.webgl?.debugInfo]
       ];
     } else if (current.type === "Quality") {
       fields = [
