@@ -66,3 +66,9 @@ test("empty screen and language collections are not counted as observable", () =
   });
   assert.equal(summary.observable, 0);
 });
+
+
+test("normalization counts a screen only when numeric screen values exist", () => {
+  const summary = fingerprint.summarize({ screen: { width: null, height: null } });
+  assert.equal(summary.observable, 0);
+});
