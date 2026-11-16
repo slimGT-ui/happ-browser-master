@@ -77,7 +77,13 @@
     if (item.type === "IP") return [item.ip || "IP не получен", item.country || "страна неизвестна"].join(" · ");
     if (item.type === "DNS") {
       return item.status === "observed" || item.verdict === "observed"
-        ? (item.resolvers ?? 0) + " резолверов · " + (item.lookups ?? 0) + " наблюдений"
+        ? (item.resolvers ?? 0) + " резолверов · " + (item.lookups ?? 0) + " наблюдений" +
+          (Array.isArray(item.providers) && item.providers.length ? " · " + item.providers.join(", ") : "") +
+          (item.geoMismatches ? " · географических отличий: " + item.geoMismatches : "") +
+          (item.resolverSetChanged === true
+            ? " · состав изменился: +" + (item.resolverAdded ?? 0) + " / −" + (item.resolverRemoved ?? 0) +
+              " · метаданные: " + (item.resolverMetadataChanges ?? 0)
+            : item.resolverSetChanged === false ? " · состав резолверов без изменений" : "")
         : "Недостаточно DNS-наблюдений";
     }
     if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
@@ -114,7 +120,13 @@
         ["Страна", previous.country, current.country]
       ];
     } else if (current.type === "DNS") {
-      fields = [["Количество резолверов", previous.resolvers, current.resolvers]];
+      fields = [
+        ["Количество резолверов", previous.resolvers, current.resolvers],
+        ["Состав резолверов изменился", previous.resolverSetChanged, current.resolverSetChanged],
+        ["Добавлено резолверов", previous.resolverAdded, current.resolverAdded],
+        ["Исчезло резолверов", previous.resolverRemoved, current.resolverRemoved],
+        ["Изменились метаданные резолверов", previous.resolverMetadataChanges, current.resolverMetadataChanges]
+      ];
     } else if (current.type === "Quality") {
       fields = [
         ["Медианная задержка", previous.stats?.medianMs, current.stats?.medianMs],

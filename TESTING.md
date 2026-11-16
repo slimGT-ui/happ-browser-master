@@ -140,3 +140,38 @@ Manual scenarios required before release:
 | QUALITY-04 | Block both endpoints or disconnect the network | No successful latency metrics; clear failed state, popup remains responsive |
 | QUALITY-05 | Close and reopen the popup | Latest result is restored and the history entry remains in Diagnostic Timeline |
 | QUALITY-06 | Clear diagnostic history | Quality history entry is removed with the rest of the timeline; latest result remains available until overwritten |
+
+
+## DNS Resolver Intelligence — stage 2
+
+Automated coverage is provided by tests/dns-intelligence.test.js.
+
+| ID | Scenario | Expected result |
+|---|---|---|
+| DNSI-01 | Resolver metadata identifies Cloudflare, Google, Quad9 or OpenDNS | Provider is identified and its public DoH support is displayed |
+| DNSI-02 | Resolver belongs to an unknown organization | Organization is shown as unknown; no provider or DoH capability is guessed |
+| DNSI-03 | Resolver metadata is missing | Provider and DoH support remain explicitly unknown |
+| DNSI-04 | Provider supports DoH | UI says the provider supports DoH, but does not claim Firefox currently uses it |
+| DNSI-05 | DNS results are restored after reopening popup | Provider intelligence is recomputed from saved resolver metadata |
+| DNSI-06 | DNS results appear in Timeline and Security Overview | Provider context is shown without turning resolver observations into an automatic leak verdict |
+
+
+| DNSI-07 | Resolver country differs from a recent public-IP exit country | Show a manual-review hint; do not label it a leak |
+| DNSI-08 | No recent public-IP country is available | Do not infer a geographic mismatch |
+| DNSI-09 | Resolvers are observed in multiple countries | Report geographic diversity without treating it as proof of a leak |
+| DNSI-10 | Resolver set is unchanged between successful tests | Show no change; duplicate observations and lookup ordering do not affect comparison |
+| DNSI-11 | Resolver IP or ASN/provider metadata changes | Show added/removed/changed metadata and explain that VPN/DNS rotation may be normal |
+| DNSI-12 | First successful test or failed/empty rerun | No baseline warning on the first test; failed/empty runs must not replace the last successful comparison baseline |
+
+
+## DNS Resolver Intelligence manual QA confirmation — 2026-11-16
+
+The user manually checked the Firefox scenarios and confirmed that all three pass:
+
+| ID | Result | Notes |
+|---|---|---|
+| DNSI-10 | PASS | User confirmed repeated successful tests with an unchanged resolver set show no false change. |
+| DNSI-11 | PASS | User confirmed changing the network / resolver environment displays the expected resolver changes. |
+| DNSI-12 | PASS | User confirmed failed or empty reruns do not erase the previous successful comparison baseline. |
+
+These are user-confirmed manual results. Automated CI remains separately tracked on the PR head. Stage 2 is accepted; merge is pending explicit user approval.

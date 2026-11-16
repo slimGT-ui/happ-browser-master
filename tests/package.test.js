@@ -87,6 +87,7 @@ test("popup IDs are unique and every interactive script loads after its dependen
   const scripts = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)].map(match => match[1]);
   assert.ok(scripts.indexOf("ip-validation.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("ip-classification.js") < scripts.indexOf("popup.js"));
+  assert.ok(scripts.indexOf("dns-intelligence.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("timeline.js") < scripts.indexOf("advanced.js"));
   assert.ok(scripts.indexOf("advanced.js") < scripts.indexOf("quality-monitor.js"));
 });
@@ -118,4 +119,20 @@ test("diagnostic persistence failures do not turn successful network checks into
   assert.match(popup, /await saveLocalResult\("lastIpCheck"/);
   assert.match(popup, /await saveLocalResult\("lastDnsCheck"/);
   assert.match(popup, /await saveLocalResult\("lastWebRtcCheck"/);
+});
+
+test("DNS baseline is preserved before any rerun replaces the latest successful snapshot", () => {
+  const popup = read("popup.js");
+  const preservation = popup.indexOf('await saveLocalResult("previousDnsCheck", lastDnsCheck)');
+  const replacement = popup.indexOf('await saveLocalResult("lastDnsCheck", testResult)');
+  assert.ok(preservation >= 0, "previous successful DNS result must be preserved");
+  assert.ok(replacement > preservation, "baseline must be saved before replacing the latest DNS result");
+  assert.match(popup, /if \(baselinePreserved\) \{\s+await saveLocalResult\("lastDnsCheck", testResult\)/,
+    "a failed baseline write must prevent overwriting the only successful snapshot");
+  assert.match(popup, /if \(baselinePreserved\) \{\s+await browser\.storage\.local\.set\(\{\s+lastDnsCheck: \{ verdict: "error"/,
+    "a failed baseline write must also prevent an error result from overwriting the successful snapshot");
+  assert.match(popup, /const storedDnsState = await browser\.storage\.local\.get\("lastDnsCheck"\)\.catch\(storageError => \{/,
+    "a failed storage read must be distinguishable from an empty DNS state");
+  assert.match(popup, /if \(storedDnsState === null\) \{[\s\S]*?return;\s+\}/,
+    "a failed storage read must stop the error handler before it can overwrite the baseline");
 });

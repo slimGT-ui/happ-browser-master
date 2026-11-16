@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="quality-monitor.css">
   <script src="ip-validation.js" defer></script>
   <script src="ip-classification.js" defer></script>
+  <script src="dns-intelligence.js" defer></script>
   <script src="timeline.js" defer></script>
   <script src="popup.js" defer></script>
   <script src="advanced.js" defer></script>
@@ -50,7 +51,7 @@
       <div id="quality-results" class="advanced-results" aria-live="polite"></div>
 
       <div class="section-top"><span class="eyebrow">SECURITY CHECKS</span><span class="soon">ДИАГНОСТИКА</span></div>
-      <div class="check-row"><span>DNS leak</span><span class="pending">DNS observations</span></div>
+      <div class="check-row"><span>DNS Resolver Intelligence</span><span class="pending">DNS / DoH</span></div>
       <p class="dns-note">Проверка создаёт уникальные DNS-запросы и показывает резолверы, которые увидел авторитетный DNS-сервер.</p>
       <button id="run-dns-check" class="secondary" type="button">Проверить DNS</button>
       <p id="dns-message" class="dns-message" role="status" aria-live="polite">Тест ещё не запускался.</p>

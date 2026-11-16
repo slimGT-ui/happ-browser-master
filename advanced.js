@@ -500,7 +500,7 @@ async function refreshSecuritySummary() {
         : securityRow("Public IP", "missing", "Запусти базовую проверку подключения."));
 
     rows.push(dns?.verdict === "observed"
-      ? securityRow("DNS", "review", `${dns.resolvers?.length || 0} резолверов обнаружено. Сверь их с DNS-провайдером VPN.`)
+      ? securityRow("DNS", "review", `${dns.resolvers?.length || 0} резолверов обнаружено · ${window.HappDnsIntelligence.summarize(dns.resolvers).providers.join(", ") || "провайдеры не определены"}${dns.anomalies?.exitCountryMismatches?.length ? ` · географических отличий: ${dns.anomalies.exitCountryMismatches.length}` : ""}${dns.resolverChanges?.state === "changed" ? ` · состав изменился: +${dns.resolverChanges.added?.length || 0} / −${dns.resolverChanges.removed?.length || 0}, метаданные: ${dns.resolverChanges.metadataChanges?.length || 0}` : dns.resolverChanges?.state === "same" ? " · состав резолверов без изменений" : ""}. Сверь IP/ASN с ожидаемой DNS-инфраструктурой VPN; географическое отличие или смена состава сами по себе не доказывают утечку.`)
       : dns?.verdict === "insufficient-data"
         ? securityRow("DNS", "incomplete", "Тест завершился без достаточных наблюдений.")
         : dns?.verdict === "error" || latest("DNS")?.status === "error"

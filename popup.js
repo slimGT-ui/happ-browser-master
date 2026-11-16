@@ -91,27 +91,62 @@ async function checkPublicIp() {
 
 function renderDnsResults(data) {
   dnsResults.replaceChildren();
+  const resolvers = window.HappDnsIntelligence.analyzeResolvers(data.resolvers);
+  const summary = window.HappDnsIntelligence.summarize(data.resolvers);
+  const anomalies = data.anomalies || window.HappDnsIntelligence.analyzeAnomalies(data.resolvers);
   const heading = document.createElement("div");
   heading.className = "dns-summary";
-  heading.textContent = data.resolvers.length
-    ? `Обнаружено DNS-резолверов: ${data.resolvers.length}`
+  heading.textContent = resolvers.length
+    ? `Обнаружено DNS-резолверов: ${resolvers.length}`
     : "DNS-резолверы не обнаружены";
   dnsResults.append(heading);
-  for (const resolver of data.resolvers) {
+  for (const resolver of resolvers) {
     const row = document.createElement("div");
     row.className = "resolver-row";
     const address = document.createElement("strong");
     address.textContent = resolver.ip;
     const details = document.createElement("span");
     const network = resolver.asnName || resolver.network || resolver.asn || "Организация не определена";
-    details.textContent = [resolver.countryCode || "Страна не определена", network, resolver.asn ? `ASN ${resolver.asn}` : ""].filter(Boolean).join(" · ");
+    const doh = resolver.dohSupport === "provider-supports-doh"
+      ? "Провайдер поддерживает DoH"
+      : "Поддержка DoH не определена";
+    details.textContent = [resolver.provider, resolver.countryCode || "Страна не определена", network, resolver.asn ? `ASN ${resolver.asn}` : "", doh].filter(Boolean).join(" · ");
     row.append(address, details);
     dnsResults.append(row);
+  }
+  const dohNote = document.createElement("p");
+  dohNote.className = "dns-disclaimer";
+  dohNote.textContent = summary.dohCapable
+    ? `${summary.dohCapable} из ${summary.count} обнаруженных резолверов связаны с провайдерами, поддерживающими DoH. По DNS-наблюдениям нельзя определить, использует ли Firefox DoH прямо сейчас.`
+    : "Транспорт DNS определить не удалось. Сам факт обнаружения резолвера не показывает, используется ли обычный DNS, DoT или DoH.";
+  dnsResults.append(dohNote);
+  const geographyNote = document.createElement("p");
+  geographyNote.className = "dns-disclaimer";
+  if (anomalies.exitCountry) {
+    geographyNote.textContent = anomalies.exitCountryMismatches.length
+      ? `География для ручной проверки: ${anomalies.exitCountryMismatches.length} резолвер(а/ов) находятся не в стране IP выхода (${anomalies.exitCountry}). Это может быть нормальной архитектурой VPN/DNS и само по себе не доказывает утечку.`
+      : `Страны обнаруженных DNS-резолверов совпадают со страной контрольного IP выхода (${anomalies.exitCountry}). Это не гарантирует отсутствие DNS-утечек.`;
+  } else {
+    geographyNote.textContent = "Географическое сравнение недоступно: сначала запусти проверку внешнего IP, затем DNS-тест.";
+  }
+  dnsResults.append(geographyNote);
+  if (data.resolverChanges?.state && data.resolverChanges.state !== "unknown") {
+    const changeNote = document.createElement("p");
+    changeNote.className = "dns-disclaimer";
+    changeNote.textContent = data.resolverChanges.state === "changed"
+      ? `Набор DNS-резолверов изменился: добавлено ${data.resolverChanges.added.length}, исчезло ${data.resolverChanges.removed.length}, изменились метаданные ${data.resolverChanges.metadataChanges.length}. ${data.resolverChanges.detail} Это сигнал для проверки, а не признак утечки.`
+      : "Набор DNS-резолверов не изменился относительно предыдущего успешного теста.";
+    dnsResults.append(changeNote);
+  } else {
+    const changeNote = document.createElement("p");
+    changeNote.className = "dns-disclaimer";
+    changeNote.textContent = "Сравнение состава резолверов появится после второго успешного DNS-теста.";
+    dnsResults.append(changeNote);
   }
   const verdict = document.createElement("p");
   verdict.className = "dns-disclaimer";
   verdict.textContent = data.verdict === "observed"
-    ? "DNS-наблюдения получены. Это не автоматический признак утечки: сравни IP/ASN резолверов с DNS-инфраструктурой твоего VPN."
+    ? "DNS-наблюдения получены. Это не автоматический признак утечки: сравни IP/ASN резолверов с ожидаемой DNS-инфраструктурой VPN."
     : "Недостаточно DNS-наблюдений для вывода. Повтори тест или проверь соединение позже.";
   dnsResults.append(verdict);
 }
@@ -154,24 +189,63 @@ async function runDnsCheck() {
       })) : [];
     const lookups = Number.isFinite(Number(result?.lookups)) ? Number(result.lookups) : 0;
     const verdict = resolvers.length && lookups > 0 ? "observed" : "insufficient-data";
+    const checkedAt = new Date().toISOString();
+    const { lastIpCheck } = await browser.storage.local.get("lastIpCheck");
+    const ipAge = lastIpCheck?.checkedAt ? Date.now() - Date.parse(lastIpCheck.checkedAt) : Infinity;
+    const exitCountryCode = lastIpCheck?.status === "success" &&
+      typeof lastIpCheck.countryCode === "string" &&
+      ipAge >= 0 && ipAge <= 30 * 60 * 1000
+      ? lastIpCheck.countryCode
+      : "";
+    const anomalies = window.HappDnsIntelligence.analyzeAnomalies(resolvers, exitCountryCode);
+    const { lastDnsCheck, previousDnsCheck } = await browser.storage.local.get(["lastDnsCheck", "previousDnsCheck"]);
+    const baseline = lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers)
+      ? lastDnsCheck
+      : previousDnsCheck?.verdict === "observed" && Array.isArray(previousDnsCheck.resolvers)
+        ? previousDnsCheck
+        : null;
+    const resolverChanges = verdict === "observed" && baseline
+      ? window.HappDnsIntelligence.compareResolverSets(baseline.resolvers, resolvers)
+      : { state: "unknown", changed: false, added: [], removed: [], metadataChanges: [], detail: "Нет предыдущего успешного DNS-теста." };
     const testResult = {
-      testId, checkedAt: new Date().toISOString(),
+      testId, checkedAt,
       clientIp: validIp(result?.client?.ip) ? result.client.ip : "",
       lookups, requestedLookups: hostnames.length, probesSent: sent,
-      resolvers, verdict
+      resolvers, anomalies, resolverChanges, verdict
     };
-    await saveLocalResult("lastDnsCheck", testResult);
+    const hasSuccessfulBaseline = lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers);
+    const baselinePreserved = !hasSuccessfulBaseline || await saveLocalResult("previousDnsCheck", lastDnsCheck);
+    if (baselinePreserved) {
+      await saveLocalResult("lastDnsCheck", testResult);
+    } else {
+      console.warn("HAPP Browser: сохранённый DNS baseline не заменён, потому что не удалось сохранить предыдущий успешный результат.");
+    }
     renderDnsResults(testResult);
     dnsMessage.textContent = verdict === "observed"
       ? `Получены DNS-наблюдения: ${lookups} запросов, ${resolvers.length} уникальных резолверов.`
       : `Недостаточно данных: ${lookups} наблюдений, ${sent}/${hostnames.length} проб отправлено.`;
-    await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, lookups, probesSent: sent });
+    await window.HappHistory?.add("DNS", { status: verdict, resolvers: resolvers.length, providers: window.HappDnsIntelligence.summarize(resolvers).providers, geoMismatches: anomalies.exitCountryMismatches.length, resolverCountries: anomalies.resolverCountries, resolverSetChanged: resolverChanges.state === "changed" ? true : resolverChanges.state === "same" ? false : null, resolverAdded: resolverChanges.added.length, resolverRemoved: resolverChanges.removed.length, resolverMetadataChanges: resolverChanges.metadataChanges.length, lookups, probesSent: sent });
   } catch (error) {
     const errorMessage = error.message || String(error);
     dnsMessage.textContent = `DNS-тест не завершён: ${errorMessage}`;
-    await browser.storage.local.set({
-      lastDnsCheck: { verdict: "error", message: errorMessage, checkedAt: new Date().toISOString() }
-    }).catch(storageError => console.warn("HAPP Browser: не удалось сохранить ошибку DNS-проверки", storageError));
+    const storedDnsState = await browser.storage.local.get("lastDnsCheck").catch(storageError => {
+      console.warn("HAPP Browser: не удалось прочитать DNS baseline после ошибки теста", storageError);
+      return null;
+    });
+    if (storedDnsState === null) {
+      await window.HappHistory?.add("DNS", { status: "error", message: errorMessage });
+      return;
+    }
+    const { lastDnsCheck } = storedDnsState;
+    const hasSuccessfulBaseline = lastDnsCheck?.verdict === "observed" && Array.isArray(lastDnsCheck.resolvers);
+    const baselinePreserved = !hasSuccessfulBaseline || await saveLocalResult("previousDnsCheck", lastDnsCheck);
+    if (baselinePreserved) {
+      await browser.storage.local.set({
+        lastDnsCheck: { verdict: "error", message: errorMessage, checkedAt: new Date().toISOString() }
+      }).catch(storageError => console.warn("HAPP Browser: не удалось сохранить ошибку DNS-проверки", storageError));
+    } else {
+      console.warn("HAPP Browser: ошибка DNS-проверки не записана поверх последнего успешного результата — baseline не удалось сохранить.");
+    }
     await window.HappHistory?.add("DNS", { status: "error", message: errorMessage });
   } finally {
     dnsButton.disabled = false;
