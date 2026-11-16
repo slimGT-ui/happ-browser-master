@@ -5,7 +5,9 @@
   "description": "Диагностика VPN-подключения и сетевых утечек в Firefox.",
   "permissions": [
     "storage",
-    "clipboardWrite"
+    "clipboardWrite",
+    "activeTab",
+    "scripting"
   ],
   "host_permissions": [
     "https://ipwho.is/*",
