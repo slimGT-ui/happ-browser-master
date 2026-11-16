@@ -149,3 +149,17 @@ test("fingerprint diagnostics use temporary active-tab access without broad host
   assert.match(html, /fingerprint\.js/);
   assert.ok(fs.existsSync(path.join(root, "fingerprint.js")));
 });
+
+
+test("fingerprint diagnostics are integrated with history, security overview and report export", () => {
+  const timeline = read("timeline.js");
+  const advanced = read("advanced.js");
+  const html = read("popup.html");
+  assert.match(timeline, /Fingerprint: "Browser Fingerprint"/);
+  assert.match(timeline, /current\.type === "Fingerprint"/);
+  assert.match(advanced, /lastFingerprintCheck/);
+  assert.match(advanced, /securityRow\("Browser Fingerprint"/);
+  assert.match(advanced, /fingerprint: stored\.lastFingerprintCheck/);
+  assert.ok(html.indexOf('src="advanced.js"') < html.indexOf('src="fingerprint.js"'),
+    "fingerprint UI must load after the history/security module");
+});
