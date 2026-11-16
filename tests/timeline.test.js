@@ -115,5 +115,5 @@ test("fingerprint timeline events are labeled, summarized and compared", () => {
     checkedAt: "2026-11-16T09:00:00.000Z",
     data: { userAgent: "Firefox", timezone: "UTC" }
   };
-  assert.equal(timeline.compareEvents(item, previous).state, "changed");
+  assert.equal(compareEvents(item, previous).state, "changed");
 });
