@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
-  sortHistory, filterHistory, summarizeHistory, getStatus, describe, findPrevious, compareEvents, groupByDay
+  sortHistory, filterHistory, summarizeHistory, getStatus, describe, findPrevious, compareEvents, groupByDay, TYPE_LABELS
 } = require("../timeline.js");
 
 const history = [
@@ -108,8 +108,8 @@ test("fingerprint timeline events are labeled, summarized and compared", () => {
     checkedAt: "2026-11-16T10:00:00.000Z",
     data: { userAgent: "Firefox", timezone: "Europe/Stockholm" }
   };
-  assert.equal(timeline.TYPE_LABELS.Fingerprint, "Browser Fingerprint");
-  assert.match(timeline.describe(item), /9\/11 наблюдаемых параметров/);
+  assert.equal(TYPE_LABELS.Fingerprint, "Browser Fingerprint");
+  assert.match(describe(item), /9\/11 наблюдаемых параметров/);
   const previous = {
     ...item,
     checkedAt: "2026-11-16T09:00:00.000Z",
