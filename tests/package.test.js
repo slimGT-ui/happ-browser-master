@@ -171,4 +171,5 @@ test("fingerprint measurements render even if local persistence fails", () => {
   assert.ok(source.indexOf("render(record)") < source.indexOf("storage.local.set({ lastFingerprintCheck: record })"),
     "successful measurements must be rendered before attempting storage");
   assert.match(source, /Предыдущий сохранённый результат не изменён/);
+  assert.match(source, /data: record\.data/);
 });
