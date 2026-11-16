@@ -106,14 +106,16 @@ test("fingerprint timeline events are labeled, summarized and compared", () => {
     total: 11,
     executionContext: "page",
     checkedAt: "2026-11-16T10:00:00.000Z",
-    data: { userAgent: "Firefox", timezone: "Europe/Stockholm" }
+    data: { userAgent: "Firefox", timezone: "Europe/Stockholm", canvas: { status: "available", hash: "11111111" } }
   };
   assert.equal(TYPE_LABELS.Fingerprint, "Browser Fingerprint");
   assert.match(describe(item), /9\/11 наблюдаемых параметров/);
   const previous = {
     ...item,
     checkedAt: "2026-11-16T09:00:00.000Z",
-    data: { userAgent: "Firefox", timezone: "UTC" }
+    data: { userAgent: "Firefox", timezone: "UTC", canvas: { status: "available", hash: "22222222" } }
   };
-  assert.equal(compareEvents(item, previous).state, "changed");
+  const comparison = compareEvents(item, previous);
+  assert.equal(comparison.state, "changed");
+  assert.match(comparison.detail, /Canvas marker/);
 });
