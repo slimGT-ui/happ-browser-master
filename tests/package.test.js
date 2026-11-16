@@ -136,3 +136,16 @@ test("DNS baseline is preserved before any rerun replaces the latest successful 
   assert.match(popup, /if \(storedDnsState === null\) \{[\s\S]*?return;\s+\}/,
     "a failed storage read must stop the error handler before it can overwrite the baseline");
 });
+
+
+test("fingerprint diagnostics use temporary active-tab access without broad host permissions", () => {
+  const manifest = JSON.parse(read("manifest.json"));
+  assert.ok(manifest.permissions.includes("activeTab"));
+  assert.ok(manifest.permissions.includes("scripting"));
+  assert.ok(!manifest.permissions.includes("<all_urls>"));
+  assert.ok(!manifest.host_permissions.includes("<all_urls>"));
+  const html = read("popup.html");
+  assert.match(html, /id="run-fingerprint-check"/);
+  assert.match(html, /fingerprint\.js/);
+  assert.ok(fs.existsSync(path.join(root, "fingerprint.js")));
+});
