@@ -196,14 +196,14 @@ test("stable package workflow includes every runtime module referenced by popup"
 });
 
 
-test("privacy audit requests only the required privacy API and keeps other extension management out", () => {
+test("privacy audit declares required read-only Firefox settings and extension inventory APIs", () => {
   const manifest = JSON.parse(read("manifest.json"));
   const source = read("privacy-audit.js");
   assert.ok(manifest.permissions.includes("privacy"), "Firefox privacy settings API requires the privacy permission");
   assert.ok(!manifest.optional_permissions?.includes("privacy"), "Firefox does not allow requesting privacy as an optional permission");
   assert.ok(manifest.permissions.includes("management"), "Firefox extension inventory requires the management API permission");
   assert.match(source, /browser\.permissions\.getAll/);
-  assert.match(source, /privacy\\?\\.network/);
+  assert.ok(source.includes("browserApi?.privacy?.network"));
   assert.doesNotMatch(source, /browser\.management/);
   assert.doesNotMatch(source, /setting\.set\s*\(/, "audit must not modify browser privacy settings");
 });
