@@ -150,3 +150,15 @@ input:focus{border-color:#9c75d6}
 .route-summary[data-state="incomplete"]{color:#aaa}
 #route-results .advanced-result-row{align-items:flex-start}
 #route-results .advanced-result-row strong{max-width:68%;text-align:right;overflow-wrap:anywhere}
+
+
+/* Privacy & Permissions Audit */
+.privacy-audit-heading{margin:12px 0 5px;color:#b99aef;font-size:9px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+.privacy-audit-row{display:flex;flex-direction:column;gap:4px;padding:8px 9px;margin-top:5px;border:1px solid rgba(177,145,226,.13);border-radius:8px;background:rgba(255,255,255,.025)}
+.privacy-audit-row strong{color:#e7def5;font-size:9px;overflow-wrap:anywhere}
+.privacy-audit-row span{color:#9991a5;font-size:9px;line-height:1.45;overflow-wrap:anywhere}
+.privacy-audit-row[data-state="review"]{border-color:rgba(229,189,119,.28)}
+.privacy-audit-row[data-state="review"] strong{color:#e5bd77}
+.privacy-audit-row[data-state="error"] strong{color:#f08b96}
+.privacy-audit-row[data-state="muted"]{opacity:.75}
+.privacy-audit-note{margin:10px 0 0;color:#827c8c;font-size:9px;line-height:1.5}
