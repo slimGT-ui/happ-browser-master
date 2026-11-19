@@ -461,6 +461,7 @@
       if (!lastPrivacyAudit) return;
       render(lastPrivacyAudit, results);
       message.textContent = "Показан последний сохранённый аудит от " + new Date(lastPrivacyAudit.checkedAt).toLocaleString() + ". Запусти повторно для актуальных данных.";
+      root.document.querySelector("#refresh-security")?.click();
     }).catch(() => {});
   }
 
