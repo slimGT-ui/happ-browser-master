@@ -28,7 +28,7 @@
     const host = url.hostname.replaceAll("[", "").replaceAll("]", "").toLowerCase();
     const isIp = validation?.validIp
       ? validation.validIp(host)
-      : /^(?:\\d{1,3}\\.){3}\\d{1,3}$/.test(host) || host.includes(":");
+      : host.includes(":") || (host.split(".").length === 4 && host.split(".").every(part => part.length > 0 && Number.isInteger(Number(part)) && Number(part) >= 0 && Number(part) <= 255));
     if (!isIp && !host.includes(".") && host !== "localhost") {
       throw new Error("Укажи полное доменное имя, например example.com.");
     }
