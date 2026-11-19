@@ -25,7 +25,7 @@
     if (!["http:", "https:"].includes(url.protocol)) throw new Error("Поддерживаются только HTTP и HTTPS.");
     if (url.username || url.password) throw new Error("URL с логином или паролем не поддерживается.");
     if (!url.hostname) throw new Error("Не удалось определить имя узла.");
-    const host = url.hostname.replace(/^\\[|\\]$/g, "").toLowerCase();
+    const host = url.hostname.replaceAll("[", "").replaceAll("]", "").toLowerCase();
     const isIp = validation?.validIp
       ? validation.validIp(host)
       : /^(?:\\d{1,3}\\.){3}\\d{1,3}$/.test(host) || host.includes(":");
