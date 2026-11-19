@@ -1,11 +1,12 @@
 (function (root, factory) {
-  const api = factory();
+  const validation = typeof module === "object" && module.exports ? require("./ip-validation.js") : root.HappValidation;
+  const api = factory(validation);
   if (typeof module === "object" && module.exports) module.exports = api;
   else {
     root.HappRoute = api;
     if (root.document) initializeRouteDiagnostics(root, api);
   }
-})(globalThis, function () {
+})(globalThis, function (validation) {
   "use strict";
 
   const CONTROL_ENDPOINTS = Object.freeze([
@@ -25,7 +26,7 @@
     if (url.username || url.password) throw new Error("URL с логином или паролем не поддерживается.");
     if (!url.hostname) throw new Error("Не удалось определить имя узла.");
     const host = url.hostname.replace(/^\\[|\\]$/g, "").toLowerCase();
-    const isIp = root.HappValidation?.validIp
+    const isIp = validation?.validIp
       ? root.HappValidation.validIp(host)
       : /^(?:\\d{1,3}\\.){3}\\d{1,3}$/.test(host) || host.includes(":");
     if (!isIp && !host.includes(".") && host !== "localhost") {
@@ -42,7 +43,7 @@
       return { status: "error", addresses: [], canonicalName: null, isTRR: null, error: "Некорректный DNS-ответ Firefox." };
     }
     const addresses = [...new Set(record.addresses.filter(value =>
-      typeof value === "string" && root.HappValidation?.validIp(value)
+      typeof value === "string" && validation?.validIp(value)
     ))].slice(0, 16);
     if (!addresses.length) {
       return { status: "error", addresses: [], canonicalName: null, isTRR: typeof record.isTRR === "boolean" ? record.isTRR : null, error: "DNS-ответ не содержит корректных IP-адресов." };
