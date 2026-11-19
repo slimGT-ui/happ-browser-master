@@ -13,7 +13,7 @@
     activeTab: "activeTab — временный доступ к активной вкладке",
     scripting: "scripting — запуск fingerprint-проверки в активной вкладке",
     dns: "dns — DNS-разрешение выбранного узла",
-    privacy: "privacy — чтение настроек приватности Firefox"
+    privacy: "privacy — доступ к чтению и изменению настроек приватности Firefox (HAPP использует только чтение)"
   });
 
   const SETTING_DEFINITIONS = Object.freeze([
@@ -241,7 +241,7 @@
     await Promise.all(SETTING_DEFINITIONS.map(async definition => {
       const setting = network?.[definition.key];
       if (!setting || typeof setting.get !== "function") {
-        output[definition.key] = { value: null };
+        output[definition.key] = null;
         return;
       }
       try {
@@ -282,7 +282,7 @@
       addRow(item.label, (item.required ? "Обязательное" : "Опциональное") + " · " + (item.granted ? "выдано" : "не выдано"), item.granted ? "info" : item.required ? "review" : "muted");
     }
     addRow("Обязательные host patterns", (record.permissions?.requiredHosts || []).join(", ") || "Нет", "info");
-    addRow("Опциональные host patterns", (record.permissions?.optionalHosts || []).join(", ") || "Нет", "review");
+    addRow("Опциональные host patterns", (record.permissions?.optionalHosts || []).join(", ") || "Нет", "info");
     addRow("Фактически выданные origins", (record.permissions?.grantedOrigins || []).join(", ") || "Нет дополнительных origins", "info");
 
     addHeading("Настройки Firefox");
