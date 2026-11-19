@@ -363,6 +363,7 @@
         const details = [
           extension.enabled ? "включено" : "отключено",
           extension.version ? "v" + extension.version : "",
+          extension.installType !== "unknown" ? "установка: " + extension.installType : "",
           extension.permissions.length ? "API: " + extension.permissions.join(", ") : "API permissions не указаны",
           extension.hostPermissions.length ? "Hosts: " + extension.hostPermissions.join(", ") : "host permissions не указаны",
           extension.powerfulPermissions.length ? "Мощные API: " + extension.powerfulPermissions.join(", ") : "",
