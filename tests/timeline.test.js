@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
-  sortHistory, filterHistory, summarizeHistory, getStatus, describe, findPrevious, compareEvents, groupByDay
+  sortHistory, filterHistory, summarizeHistory, getStatus, describe, findPrevious, compareEvents, groupByDay, TYPE_LABELS
 } = require("../timeline.js");
 
 const history = [
@@ -95,4 +95,27 @@ test("timeline DNS event comparison includes resolver metadata changes", () => {
   const comparison = compareEvents(after, before);
   assert.equal(comparison.state, "changed");
   assert.match(comparison.detail, /Изменились метаданные резолверов: 0 → 1/);
+});
+
+
+test("fingerprint timeline events are labeled, summarized and compared", () => {
+  const item = {
+    type: "Fingerprint",
+    status: "observed",
+    observable: 9,
+    total: 11,
+    executionContext: "page",
+    checkedAt: "2026-11-16T10:00:00.000Z",
+    data: { userAgent: "Firefox", timezone: "Europe/Stockholm", canvas: { status: "available", hash: "11111111" } }
+  };
+  assert.equal(TYPE_LABELS.Fingerprint, "Browser Fingerprint");
+  assert.match(describe(item), /9\/11 наблюдаемых параметров/);
+  const previous = {
+    ...item,
+    checkedAt: "2026-11-16T09:00:00.000Z",
+    data: { userAgent: "Firefox", timezone: "UTC", canvas: { status: "available", hash: "22222222" } }
+  };
+  const comparison = compareEvents(item, previous);
+  assert.equal(comparison.state, "changed");
+  assert.match(comparison.detail, /Canvas marker/);
 });

@@ -264,6 +264,7 @@ async function buildDiagnosticReport() {
     "lastIpCheck",
     "lastDnsCheck",
     "lastWebRtcCheck",
+    "lastFingerprintCheck",
     HISTORY_KEY
   ]);
   const history = Array.isArray(stored[HISTORY_KEY])
@@ -278,11 +279,12 @@ async function buildDiagnosticReport() {
       platform: "Firefox"
     },
     generatedAt: new Date().toISOString(),
-    privacyNotice: "This report may contain public IP addresses, DNS resolver addresses, WebRTC ICE candidates, and tested URLs. Review it before sharing.",
+    privacyNotice: "This report may contain public IP addresses, DNS resolver addresses, WebRTC ICE candidates, browser fingerprint attributes, Canvas markers, GPU metadata, and tested URLs. Review it before sharing.",
     latestChecks: {
       publicIp: stored.lastIpCheck || null,
       dns: stored.lastDnsCheck || null,
       webRtc: stored.lastWebRtcCheck || null,
+      fingerprint: stored.lastFingerprintCheck || null,
       ipv6: history.find(item => item.type === "IPv6") || null,
       website: history.find(item => item.type === "Сайт") || null
     },
@@ -483,13 +485,14 @@ async function refreshSecuritySummary() {
   securityMessage.textContent = "Собираем последние результаты…";
   try {
     const stored = await browser.storage.local.get([
-      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", HISTORY_KEY
+      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", "lastFingerprintCheck", HISTORY_KEY
     ]);
     const history = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
     const latest = type => history.find(item => item.type === type) || null;
     const ip = stored.lastIpCheck || latest("IP");
     const dns = stored.lastDnsCheck || null;
     const rtc = stored.lastWebRtcCheck || null;
+    const fingerprint = stored.lastFingerprintCheck || latest("Fingerprint") || null;
     const ipv6 = latest("IPv6");
 
     const rows = [];
@@ -516,6 +519,10 @@ async function refreshSecuritySummary() {
           : rtc?.verdict === "error" || latest("WebRTC")?.status === "error"
             ? securityRow("WebRTC", "error", rtc?.message || latest("WebRTC")?.message || "WebRTC-тест завершился ошибкой.")
             : securityRow("WebRTC", "missing", "Запусти WebRTC-тест."));
+
+    rows.push(fingerprint?.status === "observed"
+      ? securityRow("Browser Fingerprint", "pass", (fingerprint.summary?.observable ?? fingerprint.observable ?? 0) + "/" + (fingerprint.summary?.total ?? fingerprint.total ?? 0) + " параметров доступны для наблюдения. Это не оценка уникальности или риска.")
+      : securityRow("Browser Fingerprint", "missing", "Запусти проверку fingerprint на активной вкладке."));
 
     rows.push(ipv6?.status === "observed"
       ? securityRow("IPv4 / IPv6", "review", `IPv4: ${ipv6.ipv4 || "недоступен"} · IPv6: ${ipv6.ipv6 || "недоступен"}. Наличие IPv6 само по себе не является утечкой.`)

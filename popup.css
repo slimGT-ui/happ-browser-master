@@ -135,3 +135,8 @@ input:focus{border-color:#9c75d6}
 .timeline-change[data-state="changed"]{border-left-color:#d9b36f;color:#e2c58f!important}
 .timeline-change[data-state="same"]{border-left-color:#69b88b;color:#8ec8a5!important}
 .timeline-change[data-state="unknown"]{border-left-color:#827c8c;color:#827c8c!important}
+
+.fingerprint-summary{margin:0 0 8px;padding:9px 10px;border:1px solid rgba(185,154,239,.24);border-radius:8px;background:rgba(185,154,239,.07);color:#d9c6f4;font-size:10px;font-weight:700}
+.fingerprint-note{margin:9px 0 0;color:#928b9d;font-size:9px;line-height:1.5}
+#fingerprint-results .advanced-result-row{align-items:flex-start}
+#fingerprint-results .advanced-result-row strong{max-width:68%;text-align:right;overflow-wrap:anywhere}
