@@ -131,7 +131,9 @@ function initializeRouteDiagnostics(root, route) {
     const summary = document.createElement("div");
     summary.className = "route-summary";
     summary.dataset.state = route.getStatus(record);
-    summary.textContent = statusLabels[record.status] || statusLabels.inconclusive;
+    summary.textContent = record.status === "reachable" && record.dns?.status === "error"
+      ? "НАЗНАЧЕНИЕ ДОСТУПНО · DNS НЕ ОПРЕДЕЛЁН"
+      : statusLabels[record.status] || statusLabels.inconclusive;
     results.append(summary);
 
     addRow("Узел назначения", record.host || "Неизвестен");
