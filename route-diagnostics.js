@@ -18,7 +18,7 @@
     if (typeof value !== "string" || !value.trim()) throw new Error("Введи адрес назначения.");
     let url;
     try {
-      url = new URL(/^https?:\\/\\//i.test(value.trim()) ? value.trim() : "https://" + value.trim());
+      url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(value.trim()) ? value.trim() : "https://" + value.trim());
     } catch (_) {
       throw new Error("Некорректный URL назначения.");
     }
