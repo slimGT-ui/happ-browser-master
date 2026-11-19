@@ -27,7 +27,7 @@
     if (!url.hostname) throw new Error("Не удалось определить имя узла.");
     const host = url.hostname.replace(/^\\[|\\]$/g, "").toLowerCase();
     const isIp = validation?.validIp
-      ? root.HappValidation.validIp(host)
+      ? validation.validIp(host)
       : /^(?:\\d{1,3}\\.){3}\\d{1,3}$/.test(host) || host.includes(":");
     if (!isIp && !host.includes(".") && host !== "localhost") {
       throw new Error("Укажи полное доменное имя, например example.com.");
