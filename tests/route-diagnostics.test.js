@@ -62,6 +62,7 @@ test("route diagnosis distinguishes reachable target, target-specific issue and 
 
 test("route status maps diagnostic categories without claiming a VPN leak verdict", () => {
   assert.equal(route.getStatus({ status: "reachable" }), "success");
+  assert.equal(route.getStatus({ status: "reachable", dns: { status: "error" } }), "review");
   assert.equal(route.getStatus({ status: "destination-issue" }), "review");
   assert.equal(route.getStatus({ status: "network-issue" }), "error");
   assert.equal(route.getStatus({ status: "inconclusive" }), "incomplete");
