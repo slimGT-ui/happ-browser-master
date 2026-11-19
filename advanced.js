@@ -530,7 +530,9 @@ async function refreshSecuritySummary() {
       ? securityRow("Browser Fingerprint", "pass", (fingerprint.summary?.observable ?? fingerprint.observable ?? 0) + "/" + (fingerprint.summary?.total ?? fingerprint.total ?? 0) + " параметров доступны для наблюдения. Это не оценка уникальности или риска.")
       : securityRow("Browser Fingerprint", "missing", "Запусти проверку fingerprint на активной вкладке."));
 
-    rows.push(route?.status === "reachable"
+    rows.push(route?.status === "reachable" && route.dns?.status === "error"
+      ? securityRow("Network Path Diagnostics", "review", "Назначение и контрольные узлы доступны, но Firefox DNS API не смог получить DNS-метаданные. При DNS через SOCKS это ограничение API, а не доказательство сбоя DNS.")
+      : route?.status === "reachable"
       ? securityRow("Network Path Diagnostics", "pass", (route.host || "Узел назначения") + " ответил; DNS: " + (route.dns?.addresses?.length || 0) + " адрес(а/ов). Это не traceroute и не подтверждение VPN-маршрута.")
       : route?.status === "partial"
         ? securityRow("Network Path Diagnostics", "review", "Назначение ответило, но часть контрольных HTTPS-узлов недоступна.")
