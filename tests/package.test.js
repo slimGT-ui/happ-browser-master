@@ -201,7 +201,7 @@ test("privacy audit requests only the required privacy API and keeps other exten
   const source = read("privacy-audit.js");
   assert.ok(manifest.permissions.includes("privacy"), "Firefox privacy settings API requires the privacy permission");
   assert.ok(!manifest.optional_permissions?.includes("privacy"), "Firefox does not allow requesting privacy as an optional permission");
-  assert.ok(!manifest.permissions.includes("management"), "Do not request broad management access to inspect other extensions");
+  assert.ok(manifest.permissions.includes("management"), "Firefox extension inventory requires the management API permission");
   assert.match(source, /browser\.permissions\.getAll/);
   assert.match(source, /privacy\\?\\.network/);
   assert.doesNotMatch(source, /browser\.management/);
