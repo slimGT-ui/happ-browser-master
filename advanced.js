@@ -286,7 +286,7 @@ async function buildDiagnosticReport() {
       dns: stored.lastDnsCheck || null,
       webRtc: stored.lastWebRtcCheck || null,
       fingerprint: stored.lastFingerprintCheck || null,
-      route: stored.lastRouteCheck || null,
+      route: stored.lastRouteCheck || history.find(item => item.type === "Route") || null,
       ipv6: history.find(item => item.type === "IPv6") || null,
       website: history.find(item => item.type === "Сайт") || null
     },
