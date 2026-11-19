@@ -8,7 +8,8 @@
     "clipboardWrite",
     "activeTab",
     "scripting",
-    "dns"
+    "dns",
+    "privacy"
   ],
   "host_permissions": [
     "https://ipwho.is/*",
