@@ -148,6 +148,9 @@ test("fingerprint diagnostics use temporary active-tab access without broad host
   assert.match(html, /id="run-fingerprint-check"/);
   assert.match(html, /fingerprint\.js/);
   assert.ok(fs.existsSync(path.join(root, "fingerprint.js")));
+  assert.ok(html.includes('id="run-route-check"'));
+  assert.ok(html.includes("route-diagnostics.js"));
+  assert.ok(JSON.parse(read("manifest.json")).permissions.includes("dns"));
 });
 
 
