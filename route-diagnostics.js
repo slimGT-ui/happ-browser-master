@@ -88,6 +88,7 @@
 
   function getStatus(record) {
     if (!record || record.status === "inconclusive") return "incomplete";
+    if (["reachable", "partial"].includes(record.status) && record.dns?.status === "error") return "review";
     if (record.status === "reachable" || record.status === "partial") return "success";
     if (record.status === "destination-issue") return "review";
     if (record.status === "network-issue") return "error";
