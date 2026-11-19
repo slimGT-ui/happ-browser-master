@@ -98,7 +98,8 @@ test("privacy audit module only reads BrowserSetting values and never changes th
   const source = fs.readFileSync(require.resolve("../privacy-audit.js"), "utf8");
   assert.match(source, /setting\.get\(\{\}\)/);
   assert.doesNotMatch(source, /setting\.set\s*\(/);
-  assert.doesNotMatch(source, /browser\.management/);
+  assert.doesNotMatch(source, /management\.(setEnabled|uninstall|uninstallSelf)\s*\(/);
+  assert.ok(source.includes("browserApi?.management?.getAll"));
 });
 
 
