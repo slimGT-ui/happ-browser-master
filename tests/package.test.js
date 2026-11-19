@@ -205,6 +205,7 @@ test("privacy audit declares required read-only Firefox settings and extension i
   assert.match(source, /browser\.permissions\.getAll/);
   assert.ok(source.includes("browserApi?.privacy?.network"));
   assert.match(source, /api\.init\(root\)/, "privacy audit must initialize its popup controls");
+  assert.match(source, /refresh-security.*click/, "restored audit must refresh Security Overview");
   assert.doesNotMatch(source, /browser\.management/);
   assert.doesNotMatch(source, /setting\.set\s*\(/, "audit must not modify browser privacy settings");
 });
