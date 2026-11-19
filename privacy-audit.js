@@ -13,7 +13,8 @@
     activeTab: "activeTab — временный доступ к активной вкладке",
     scripting: "scripting — запуск fingerprint-проверки в активной вкладке",
     dns: "dns — DNS-разрешение выбранного узла",
-    privacy: "privacy — доступ к чтению и изменению настроек приватности Firefox (HAPP использует только чтение)"
+    privacy: "privacy — доступ к чтению и изменению настроек приватности Firefox (HAPP использует только чтение)",
+    management: "management — просмотр списка установленных расширений и управление ими (HAPP использует только getAll)"
   });
 
   const SETTING_DEFINITIONS = Object.freeze([
@@ -190,7 +191,57 @@
     };
   }
 
-  function createAuditRecord(manifest, granted, settings, checkedAt = new Date().toISOString()) {
+  const POWERFUL_PERMISSIONS = new Set([
+    "proxy", "webRequest", "webRequestBlocking", "webRequestFilterResponse",
+    "cookies", "history", "nativeMessaging", "debugger", "management",
+    "downloads", "tabs", "scripting", "clipboardRead"
+  ]);
+
+  function sanitizeExtensions(items, ownId = "") {
+    if (!Array.isArray(items)) return [];
+    return items
+      .filter(item => item && item.type === "extension" && item.id !== ownId)
+      .slice(0, 100)
+      .map(item => {
+        const permissions = stringArray(item.permissions).slice(0, 50);
+        const hostPermissions = stringArray(item.hostPermissions).slice(0, 50);
+        return {
+          id: typeof item.id === "string" ? item.id.slice(0, 256) : "",
+          name: typeof item.name === "string" ? item.name.slice(0, 128) : "Без названия",
+          version: typeof item.version === "string" ? item.version.slice(0, 40) : "",
+          enabled: item.enabled === true,
+          installType: typeof item.installType === "string" ? item.installType : "unknown",
+          permissions,
+          hostPermissions,
+          powerfulPermissions: permissions.filter(permission => POWERFUL_PERMISSIONS.has(permission)),
+          broadHostAccess: hostPermissions.some(pattern =>
+            ["<all_urls>", "*://*/*", "http://*/*", "https://*/*"].includes(pattern)
+          )
+        };
+      });
+  }
+
+  async function readInstalledExtensions(browserApi) {
+    if (typeof browserApi?.management?.getAll !== "function") {
+      return { status: "unsupported", items: [], message: "Firefox management.getAll() недоступен." };
+    }
+    try {
+      const items = await browserApi.management.getAll();
+      return {
+        status: "observed",
+        items: sanitizeExtensions(items, browserApi.runtime?.id || ""),
+        message: ""
+      };
+    } catch (error) {
+      return {
+        status: "error",
+        items: [],
+        message: String(error?.message || error).slice(0, 240)
+      };
+    }
+  }
+
+  function createAuditRecord(manifest, granted, settings, checkedAt = new Date().toISOString(), extensions = { status: "unsupported", items: [], message: "" }) {
     const permissions = analyzePermissions(manifest, granted);
     const normalizedSettings = SETTING_DEFINITIONS.map(definition => {
       const entry = settings?.[definition.key];
@@ -207,9 +258,10 @@
       privacyPermissionGranted: privacyGranted,
       permissions,
       settings: normalizedSettings,
+      extensions,
       limitations: {
         dnsOverHttps: "Firefox WebExtensions API не раскрывает текущий режим, URL провайдера или fallback-политику DoH. isTRR в DNSRecord относится только к конкретному DNS-разрешению.",
-        otherExtensions: "HAPP Browser не сканирует разрешения других расширений. Firefox management API не предоставляет полный список установленных расширений в поддерживаемом WebExtensions-интерфейсе.",
+        otherExtensions: "Список доступных Firefox расширений получен через management.getAll(). Отображаются только поля, которые Firefox вернул; отключённые/защищённые системные компоненты могут быть недоступны.",
         systemProxy: "Системные proxy/VPN-настройки и полный маршрут трафика недоступны этому аудиту."
       },
       summary: {
@@ -218,7 +270,8 @@
         reviewCount,
         grantedApi: permissions.summary.grantedApi,
         declaredApi: permissions.summary.declaredApi,
-        grantedOrigins: permissions.summary.grantedOriginPatterns
+        grantedOrigins: permissions.summary.grantedOriginPatterns,
+        extensionsFound: extensions.items?.length || 0
       }
     };
   }
@@ -285,6 +338,26 @@
     addRow("Опциональные host patterns", (record.permissions?.optionalHosts || []).join(", ") || "Нет", "info");
     addRow("Фактически выданные origins", (record.permissions?.grantedOrigins || []).join(", ") || "Нет дополнительных origins", "info");
 
+    addHeading("Другие расширения Firefox");
+    if (record.extensions?.status === "observed") {
+      addRow("Найдено расширений", String(record.extensions.items?.length || 0), "info");
+      for (const extension of record.extensions.items || []) {
+        const state = extension.broadHostAccess || extension.powerfulPermissions.length ? "review" : "info";
+        const details = [
+          extension.enabled ? "включено" : "отключено",
+          extension.version ? "v" + extension.version : "",
+          extension.permissions.length ? "API: " + extension.permissions.join(", ") : "API permissions не указаны",
+          extension.hostPermissions.length ? "Hosts: " + extension.hostPermissions.join(", ") : "host permissions не указаны",
+          extension.powerfulPermissions.length ? "Мощные API: " + extension.powerfulPermissions.join(", ") : "",
+          extension.broadHostAccess ? "Обнаружен широкий host pattern" : ""
+        ].filter(Boolean).join(" · ");
+        addRow(extension.name, details, state);
+      }
+      if (!record.extensions.items.length) addRow("Установленные расширения", "Другие расширения не обнаружены в ответе Firefox.", "info");
+    } else {
+      addRow("Инвентаризация расширений", record.extensions?.message || "Недоступна.", "muted");
+    }
+
     addHeading("Настройки Firefox");
     for (const item of record.settings || []) {
       const value = item.value === null ? "Недоступно" : String(item.value);
@@ -322,7 +395,10 @@
         ]);
         const privacyGranted = (granted.permissions || []).includes(PRIVACY_PERMISSION);
         const settings = privacyGranted ? await readBrowserSettings(root.browser) : {};
-        const record = createAuditRecord(manifest, granted, settings);
+        const extensions = (granted.permissions || []).includes("management")
+          ? await readInstalledExtensions(root.browser)
+          : { status: "unsupported", items: [], message: "Разрешение management не выдано." };
+        const record = createAuditRecord(manifest, granted, settings, new Date().toISOString(), extensions);
         render(record, results);
         message.textContent = record.status === "observed"
           ? "Аудит завершён: прочитано " + record.summary.availableSettings + " из " + record.summary.totalSettings + " настроек Firefox."
@@ -373,6 +449,8 @@
     createAuditRecord,
     summarizeRecord,
     readBrowserSettings,
+    sanitizeExtensions,
+    readInstalledExtensions,
     render,
     init
   });
