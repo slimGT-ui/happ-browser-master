@@ -130,6 +130,7 @@ function initializeRouteDiagnostics(root, route) {
     if (record.dns?.addresses?.length) addRow("Разрешённые IP", record.dns.addresses.join(", "));
     if (record.dns?.canonicalName) addRow("Canonical name", record.dns.canonicalName);
     addRow("Firefox TRR", record.dns?.isTRR === true ? "Использован" : record.dns?.isTRR === false ? "Не использован для этого разрешения" : "Не определён");
+    if (record.dns?.error) addRow("Причина DNS-ошибки", record.dns.error);
     addRow("HTTPS/HTTP назначение", record.targetProbe?.status === "reachable"
       ? record.targetProbe.latencyMs + " ms · ответ получен"
       : "Не удалось получить сетевой ответ");
