@@ -265,6 +265,7 @@ async function buildDiagnosticReport() {
     "lastDnsCheck",
     "lastWebRtcCheck",
     "lastFingerprintCheck",
+    "lastRouteCheck",
     HISTORY_KEY
   ]);
   const history = Array.isArray(stored[HISTORY_KEY])
