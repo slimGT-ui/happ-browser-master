@@ -125,3 +125,42 @@ test("extension inventory is bounded and ignores malformed entries", () => {
   assert.equal(items.length, 100);
   assert.equal(items[0].name, "One");
 });
+
+
+test("browser privacy settings are read independently and unsupported properties do not abort the audit", async () => {
+  const browserApi = {
+    privacy: {
+      network: {
+        peerConnectionEnabled: { get: async () => ({ value: true, levelOfControl: "controllable_by_this_extension" }) },
+        networkPredictionEnabled: { get: async () => { throw new Error("blocked"); } }
+      }
+    }
+  };
+  const result = await audit.readBrowserSettings(browserApi);
+  assert.equal(result.peerConnectionEnabled.value.value, true);
+  assert.equal(result.networkPredictionEnabled.error.message, "blocked");
+  assert.equal(result.httpsOnlyMode, null);
+});
+
+test("installed extension inventory uses getAll and excludes HAPP Browser itself", async () => {
+  const browserApi = {
+    runtime: { id: "happ-self" },
+    management: {
+      getAll: async () => [
+        { id: "happ-self", type: "extension", name: "HAPP Browser" },
+        { id: "other", type: "extension", name: "Other", permissions: ["proxy"] }
+      ]
+    }
+  };
+  const result = await audit.readInstalledExtensions(browserApi);
+  assert.equal(result.status, "observed");
+  assert.equal(result.items.length, 1);
+  assert.equal(result.items[0].name, "Other");
+});
+
+test("installed extension inventory errors do not throw away a usable result object", async () => {
+  const result = await audit.readInstalledExtensions({ management: { getAll: async () => { throw new Error("denied"); } } });
+  assert.equal(result.status, "error");
+  assert.match(result.message, /denied/);
+  assert.deepEqual(result.items, []);
+});
