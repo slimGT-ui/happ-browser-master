@@ -100,3 +100,27 @@ test("privacy audit module only reads BrowserSetting values and never changes th
   assert.doesNotMatch(source, /setting\.set\s*\(/);
   assert.doesNotMatch(source, /browser\.management/);
 });
+
+
+test("extension inventory filters the current add-on and identifies broad access", () => {
+  const items = audit.sanitizeExtensions([
+    { id: "self", type: "extension", name: "HAPP Browser", permissions: ["storage"] },
+    { id: "addon-1", type: "extension", name: "Example", enabled: true, version: "2.0",
+      permissions: ["proxy", "storage"], hostPermissions: ["https://*/*"] },
+    { id: "theme-1", type: "theme", name: "Theme" }
+  ], "self");
+  assert.equal(items.length, 1);
+  assert.equal(items[0].name, "Example");
+  assert.deepEqual(items[0].powerfulPermissions, ["proxy"]);
+  assert.equal(items[0].broadHostAccess, true);
+});
+
+test("extension inventory is bounded and ignores malformed entries", () => {
+  const items = audit.sanitizeExtensions([
+    null,
+    { type: "extension", id: "one", name: "One", permissions: ["storage"] },
+    ...Array.from({ length: 120 }, (_, index) => ({ type: "extension", id: "id-" + index, name: "Addon " + index }))
+  ]);
+  assert.equal(items.length, 100);
+  assert.equal(items[0].name, "One");
+});
