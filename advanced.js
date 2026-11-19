@@ -285,6 +285,7 @@ async function buildDiagnosticReport() {
       dns: stored.lastDnsCheck || null,
       webRtc: stored.lastWebRtcCheck || null,
       fingerprint: stored.lastFingerprintCheck || null,
+      route: stored.lastRouteCheck || null,
       ipv6: history.find(item => item.type === "IPv6") || null,
       website: history.find(item => item.type === "Сайт") || null
     },
@@ -340,7 +341,7 @@ const PROFILE_KEY = "connectionProfileSnapshot";
 
 async function readConnectionSnapshot() {
   const stored = await browser.storage.local.get([
-    "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", HISTORY_KEY
+    "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", "lastRouteCheck", HISTORY_KEY
   ]);
   const history = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
   const latest = type => history.find(item => item.type === type) || null;
@@ -350,7 +351,8 @@ async function readConnectionSnapshot() {
     dns: stored.lastDnsCheck || null,
     webRtc: stored.lastWebRtcCheck || null,
     ipv6: latest("IPv6"),
-    website: latest("Сайт")
+    website: latest("Сайт"),
+    route: stored.lastRouteCheck || latest("Route")
   };
 }
 
@@ -389,7 +391,7 @@ async function saveConnectionProfile() {
   profileMessage.textContent = "Сохраняем снимок…";
   try {
     const snapshot = await readConnectionSnapshot();
-    if (!snapshot.ip && !snapshot.dns && !snapshot.webRtc && !snapshot.ipv6 && !snapshot.website) {
+    if (!snapshot.ip && !snapshot.dns && !snapshot.webRtc && !snapshot.ipv6 && !snapshot.website && !snapshot.route) {
       throw new Error("Сначала запусти хотя бы одну диагностику.");
     }
     const label = profileLabelInput.value.trim() || "Профиль подключения";
@@ -423,7 +425,9 @@ async function compareConnectionProfile() {
       compareValues(baseline.webRtc?.verdict, current.webRtc?.verdict, "WebRTC verdict"),
       compareValues(baseline.ipv6?.ipv4, current.ipv6?.ipv4, "IPv4"),
       compareValues(baseline.ipv6?.ipv6, current.ipv6?.ipv6, "IPv6"),
-      compareValues(baseline.website?.status, current.website?.status, "Доступность сайта")
+      compareValues(baseline.website?.status, current.website?.status, "Доступность сайта"),
+      compareValues(baseline.route?.status, current.route?.status, "Диагностика сетевого пути"),
+      compareValues(baseline.route?.dns?.addresses?.slice().sort() || null, current.route?.dns?.addresses?.slice().sort() || null, "DNS-адреса назначения", value => Array.isArray(value) ? value.join(", ") : String(value))
     ];
     renderProfileComparison(rows);
     const changed = rows.filter(item => item.state === "changed").length;
@@ -485,7 +489,7 @@ async function refreshSecuritySummary() {
   securityMessage.textContent = "Собираем последние результаты…";
   try {
     const stored = await browser.storage.local.get([
-      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", "lastFingerprintCheck", HISTORY_KEY
+      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", "lastFingerprintCheck", "lastRouteCheck", HISTORY_KEY
     ]);
     const history = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
     const latest = type => history.find(item => item.type === type) || null;
@@ -493,6 +497,7 @@ async function refreshSecuritySummary() {
     const dns = stored.lastDnsCheck || null;
     const rtc = stored.lastWebRtcCheck || null;
     const fingerprint = stored.lastFingerprintCheck || latest("Fingerprint") || null;
+    const route = stored.lastRouteCheck || latest("Route") || null;
     const ipv6 = latest("IPv6");
 
     const rows = [];
@@ -523,6 +528,18 @@ async function refreshSecuritySummary() {
     rows.push(fingerprint?.status === "observed"
       ? securityRow("Browser Fingerprint", "pass", (fingerprint.summary?.observable ?? fingerprint.observable ?? 0) + "/" + (fingerprint.summary?.total ?? fingerprint.total ?? 0) + " параметров доступны для наблюдения. Это не оценка уникальности или риска.")
       : securityRow("Browser Fingerprint", "missing", "Запусти проверку fingerprint на активной вкладке."));
+
+    rows.push(route?.status === "reachable"
+      ? securityRow("Network Path Diagnostics", "pass", (route.host || "Узел назначения") + " ответил; DNS: " + (route.dns?.addresses?.length || 0) + " адрес(а/ов). Это не traceroute и не подтверждение VPN-маршрута.")
+      : route?.status === "partial"
+        ? securityRow("Network Path Diagnostics", "review", "Назначение ответило, но часть контрольных HTTPS-узлов недоступна.")
+        : route?.status === "destination-issue"
+          ? securityRow("Network Path Diagnostics", "review", "Назначение не ответило, хотя контрольный endpoint доступен. Проверь домен, сервер и сетевые правила.")
+          : route?.status === "network-issue"
+            ? securityRow("Network Path Diagnostics", "error", "Не ответило назначение и контрольные HTTPS-узлы. Возможен общий сбой подключения или фильтрация endpoint.")
+            : route
+              ? securityRow("Network Path Diagnostics", "incomplete", "Недостаточно данных для классификации сетевой доступности.")
+              : securityRow("Network Path Diagnostics", "missing", "Запусти диагностику DNS и доступности выбранного узла."));
 
     rows.push(ipv6?.status === "observed"
       ? securityRow("IPv4 / IPv6", "review", `IPv4: ${ipv6.ipv4 || "недоступен"} · IPv6: ${ipv6.ipv6 || "недоступен"}. Наличие IPv6 само по себе не является утечкой.`)
