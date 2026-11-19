@@ -96,7 +96,7 @@
         : "Недостаточно DNS-наблюдений";
     }
     if (item.type === "Fingerprint") return (item.observable ?? 0) + "/" + (item.total ?? 0) + " наблюдаемых параметров · " + (item.executionContext === "page" ? "контекст страницы" : "изолированный контекст");
-    if (item.type === "Route") return (item.host || "Узел не указан") + " · " + (item.dnsStatus === "resolved" ? (item.resolvedAddresses?.length || 0) + " DNS IP" : "DNS: " + (item.dnsStatus || "н/д")) + " · контрольные узлы: " + (item.controlsReachable ?? 0) + "/" + (item.controlsTotal ?? 0);
+    if (item.type === "Route") return item.message ? "Проверка не завершена: " + item.message : (item.host || "Узел не указан") + " · " + (item.dnsStatus === "resolved" ? (item.resolvedAddresses?.length || 0) + " DNS IP" : "DNS: " + (item.dnsStatus || "н/д")) + " · контрольные узлы: " + (item.controlsReachable ?? 0) + "/" + (item.controlsTotal ?? 0);
     if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
       " · jitter: " + (item.stats?.jitterMs == null ? "н/д" : item.stats.jitterMs + " ms") +
       " · неудачные пробы: " + (item.stats?.failed ?? 0) + "/" + (item.stats?.sent ?? 0);
