@@ -287,6 +287,7 @@ async function buildDiagnosticReport() {
       webRtc: stored.lastWebRtcCheck || null,
       fingerprint: stored.lastFingerprintCheck || null,
       route: stored.lastRouteCheck || history.find(item => item.type === "Route") || null,
+      privacyAudit: stored.lastPrivacyAudit || history.find(item => item.type === "Privacy") || null,
       ipv6: history.find(item => item.type === "IPv6") || null,
       website: history.find(item => item.type === "Сайт") || null
     },
@@ -490,7 +491,7 @@ async function refreshSecuritySummary() {
   securityMessage.textContent = "Собираем последние результаты…";
   try {
     const stored = await browser.storage.local.get([
-      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", "lastFingerprintCheck", "lastRouteCheck", HISTORY_KEY
+      "lastIpCheck", "lastDnsCheck", "lastWebRtcCheck", "lastFingerprintCheck", "lastRouteCheck", "lastPrivacyAudit", HISTORY_KEY
     ]);
     const history = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
     const latest = type => history.find(item => item.type === type) || null;
@@ -499,6 +500,7 @@ async function refreshSecuritySummary() {
     const rtc = stored.lastWebRtcCheck || null;
     const fingerprint = stored.lastFingerprintCheck || latest("Fingerprint") || null;
     const route = stored.lastRouteCheck || latest("Route") || null;
+    const privacyAudit = stored.lastPrivacyAudit || latest("Privacy") || null;
     const ipv6 = latest("IPv6");
 
     const rows = [];
@@ -543,6 +545,17 @@ async function refreshSecuritySummary() {
             : route
               ? securityRow("Network Path Diagnostics", "incomplete", "Недостаточно данных для классификации сетевой доступности.")
               : securityRow("Network Path Diagnostics", "missing", "Запусти диагностику DNS и доступности выбранного узла."));
+
+    const privacySummary = window.HappPrivacyAudit?.summarizeRecord(privacyAudit);
+    rows.push(privacySummary?.status === "pass"
+      ? securityRow("Privacy & Permissions Audit", "pass", privacySummary.detail)
+      : privacySummary?.status === "review"
+        ? securityRow("Privacy & Permissions Audit", "review", privacySummary.detail)
+        : privacySummary?.status === "error"
+          ? securityRow("Privacy & Permissions Audit", "error", privacySummary.detail)
+          : privacySummary?.status === "incomplete"
+            ? securityRow("Privacy & Permissions Audit", "incomplete", privacySummary.detail)
+            : securityRow("Privacy & Permissions Audit", "missing", "Запусти аудит настроек Firefox и разрешений HAPP Browser."));
 
     rows.push(ipv6?.status === "observed"
       ? securityRow("IPv4 / IPv6", "review", `IPv4: ${ipv6.ipv4 || "недоступен"} · IPv6: ${ipv6.ipv6 || "недоступен"}. Наличие IPv6 само по себе не является утечкой.`)
