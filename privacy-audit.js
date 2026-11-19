@@ -271,7 +271,9 @@
         grantedApi: permissions.summary.grantedApi,
         declaredApi: permissions.summary.declaredApi,
         grantedOrigins: permissions.summary.grantedOriginPatterns,
-        extensionsFound: extensions.items?.length || 0
+        extensionsFound: extensions.items?.length || 0,
+        extensionsFlagged: (extensions.items || []).filter(item => item.broadHostAccess || item.powerfulPermissions?.length).length,
+        missingRequiredApi: permissions.summary.missingRequiredApi.length
       }
     };
   }
@@ -284,8 +286,16 @@
       return { status: "incomplete", detail: "Настройки приватности недоступны; проверь разрешение privacy и поддержку Firefox API." };
     }
     const extensions = record.extensions?.items?.length || 0;
-    return summary.reviewCount > 0
-      ? { status: "review", detail: summary.reviewCount + " настроек требуют внимания; " + summary.availableSettings + "/" + summary.totalSettings + " параметров прочитано; расширений просмотрено: " + extensions + "." }
+    const extensionFlags = summary.extensionsFlagged || 0;
+    const missingRequired = summary.missingRequiredApi || 0;
+    const inventoryUnavailable = record.extensions && record.extensions.status !== "observed";
+    const needsReview = summary.reviewCount > 0 || extensionFlags > 0 || missingRequired > 0 || inventoryUnavailable;
+    const detail = summary.reviewCount + " настроек требуют внимания; " + summary.availableSettings + "/" + summary.totalSettings +
+      " параметров прочитано; расширений просмотрено: " + extensions + "; расширений с широкими/мощными правами: " + extensionFlags +
+      "; обязательных API-разрешений не выдано: " + missingRequired +
+      (inventoryUnavailable ? "; инвентаризация расширений: " + (record.extensions.message || record.extensions.status) : "") + ".";
+    return needsReview
+      ? { status: "review", detail }
       : { status: "pass", detail: summary.availableSettings + "/" + summary.totalSettings + " параметров прочитано; расширений просмотрено: " + extensions + ". Это не гарантия отсутствия утечек." };
   }
 
@@ -338,6 +348,12 @@
     addRow("Обязательные host patterns", (record.permissions?.requiredHosts || []).join(", ") || "Нет", "info");
     addRow("Опциональные host patterns", (record.permissions?.optionalHosts || []).join(", ") || "Нет", "info");
     addRow("Фактически выданные origins", (record.permissions?.grantedOrigins || []).join(", ") || "Нет дополнительных origins", "info");
+    if (record.permissions?.summary?.missingRequiredApi?.length) {
+      addRow("Не выданные обязательные API", record.permissions.summary.missingRequiredApi.join(", "), "review");
+    }
+    if (record.permissions?.unrequestedGranted?.length) {
+      addRow("Неожиданные выданные API", record.permissions.unrequestedGranted.join(", "), "review");
+    }
 
     addHeading("Другие расширения Firefox");
     if (record.extensions?.status === "observed") {
