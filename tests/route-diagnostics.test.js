@@ -8,6 +8,7 @@ test("route target normalization accepts HTTP(S), adds HTTPS and removes query s
   assert.equal(target.host, "example.com");
   assert.equal(target.isIp, false);
   assert.equal(route.normalizeTarget("http://example.com").url.protocol, "http:");
+  assert.equal(route.normalizeTarget("https://[2606:4700:4700::1111]/").isIp, true);
 });
 
 test("route target normalization rejects invalid schemes, credentials and malformed URLs", () => {
@@ -26,6 +27,8 @@ test("route DNS normalization validates, deduplicates and limits addresses", () 
   assert.deepEqual(result.addresses, ["1.1.1.1", "2606:4700:4700::1111"]);
   assert.equal(result.canonicalName, "edge.example.com");
   assert.equal(result.isTRR, true);
+  const many = Array.from({ length: 20 }, (_, index) => "192.0.2." + (index + 1));
+  assert.equal(route.normalizeDnsRecord({ addresses: many }).addresses.length, 16);
 });
 
 test("route DNS normalization distinguishes direct IP targets and unavailable DNS", () => {
