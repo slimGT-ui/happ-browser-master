@@ -56,6 +56,16 @@
     };
   }
 
+  function describeDnsError(error) {
+    const message = typeof error === "string" ? error
+      : typeof error?.message === "string" ? error.message
+        : "DNS-разрешение завершилось ошибкой.";
+    if (message.includes("NS_ERROR_UNKNOWN_PROXY_HOST")) {
+      return "Firefox DNS API не может выполнить это разрешение при DNS через SOCKS-прокси.";
+    }
+    return message.slice(0, 240);
+  }
+
   function classifyRoute(targetProbe, controls) {
     const targetOk = targetProbe?.status === "reachable";
     const controlResults = Array.isArray(controls) ? controls : [];
@@ -84,7 +94,7 @@
     return "incomplete";
   }
 
-  return Object.freeze({ CONTROL_ENDPOINTS, normalizeTarget, normalizeDnsRecord, classifyRoute, getStatus });
+  return Object.freeze({ CONTROL_ENDPOINTS, normalizeTarget, normalizeDnsRecord, describeDnsError, classifyRoute, getStatus });
 });
 
 function initializeRouteDiagnostics(root, route) {
@@ -198,7 +208,7 @@ function initializeRouteDiagnostics(root, route) {
         addresses: [],
         canonicalName: null,
         isTRR: null,
-        error: error?.message || "DNS-разрешение завершилось ошибкой."
+        error: route.describeDnsError(error)
       };
     }
   }
