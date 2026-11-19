@@ -134,6 +134,7 @@ test("route diagnostics timeline labels, statuses, descriptions and comparisons"
   assert.equal(TYPE_LABELS.Route, "Network Path Diagnostics");
   assert.deepEqual(getStatus(before), { state: "success", label: "ДОСТУПНОСТЬ ИЗМЕРЕНА" });
   assert.deepEqual(getStatus(after), { state: "review", label: "ПРОБЛЕМА НАЗНАЧЕНИЯ" });
+  assert.deepEqual(getStatus({ ...before, dnsStatus: "error" }), { state: "review", label: "DNS API НЕДОСТУПЕН" });
   assert.match(describe(before), /example.com.*контрольные узлы: 2\/2/);
   assert.equal(compareEvents(after, before).state, "changed");
 });
