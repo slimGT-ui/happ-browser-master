@@ -89,7 +89,7 @@ test("audit records explicitly document unavailable DoH and other-extension inve
   }, "2026-11-19T10:00:00.000Z");
   assert.equal(record.status, "observed");
   assert.match(record.limitations.dnsOverHttps, /не раскрывает текущий режим/);
-  assert.match(record.limitations.otherExtensions, /не сканирует разрешения других расширений/);
+  assert.match(record.limitations.otherExtensions, /management\.getAll/);
   assert.equal(record.settings.length, 5);
 });
 
