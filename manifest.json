@@ -9,7 +9,8 @@
     "activeTab",
     "scripting",
     "dns",
-    "privacy"
+    "privacy",
+    "management"
   ],
   "host_permissions": [
     "https://ipwho.is/*",
