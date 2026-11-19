@@ -261,7 +261,7 @@
       extensions,
       limitations: {
         dnsOverHttps: "Firefox WebExtensions API не раскрывает текущий режим, URL провайдера или fallback-политику DoH. isTRR в DNSRecord относится только к конкретному DNS-разрешению.",
-        otherExtensions: "Список доступных Firefox расширений получен через management.getAll(). Отображаются только поля, которые Firefox вернул; отключённые/защищённые системные компоненты могут быть недоступны.",
+        otherExtensions: "Инвентаризация использует Firefox management.getAll() и требует широкого разрешения management. Отображаются только поля, которые Firefox вернул; HAPP не включает, не отключает и не удаляет расширения.",
         systemProxy: "Системные proxy/VPN-настройки и полный маршрут трафика недоступны этому аудиту."
       },
       summary: {
@@ -283,9 +283,10 @@
     if (record.status !== "observed") {
       return { status: "incomplete", detail: "Настройки приватности недоступны; проверь разрешение privacy и поддержку Firefox API." };
     }
+    const extensions = record.extensions?.items?.length || 0;
     return summary.reviewCount > 0
-      ? { status: "review", detail: summary.reviewCount + " настроек требуют внимания; " + summary.availableSettings + "/" + summary.totalSettings + " параметров прочитано." }
-      : { status: "pass", detail: summary.availableSettings + "/" + summary.totalSettings + " параметров прочитано. Это не гарантия отсутствия утечек." };
+      ? { status: "review", detail: summary.reviewCount + " настроек требуют внимания; " + summary.availableSettings + "/" + summary.totalSettings + " параметров прочитано; расширений просмотрено: " + extensions + "." }
+      : { status: "pass", detail: summary.availableSettings + "/" + summary.totalSettings + " параметров прочитано; расширений просмотрено: " + extensions + ". Это не гарантия отсутствия утечек." };
   }
 
   async function readBrowserSettings(browserApi) {
