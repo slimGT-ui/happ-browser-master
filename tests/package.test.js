@@ -207,3 +207,14 @@ test("privacy audit declares required read-only Firefox settings and extension i
   assert.doesNotMatch(source, /browser\.management/);
   assert.doesNotMatch(source, /setting\.set\s*\(/, "audit must not modify browser privacy settings");
 });
+
+
+test("privacy audit is persisted and included in security overview and JSON export", () => {
+  const advanced = read("advanced.js");
+  const timeline = read("timeline.js");
+  assert.match(advanced, /"lastPrivacyAudit"/);
+  assert.match(advanced, /privacyAudit: stored\.lastPrivacyAudit/);
+  assert.match(advanced, /securityRow\("Privacy & Permissions Audit"/);
+  assert.match(timeline, /Privacy: "Privacy & Permissions Audit"/);
+  assert.match(timeline, /current\.type === "Privacy"/);
+});
