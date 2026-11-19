@@ -36,6 +36,11 @@ test("route DNS normalization distinguishes direct IP targets and unavailable DN
   assert.equal(route.normalizeDnsRecord({ addresses: [] }).status, "error");
 });
 
+test("route DNS errors explain Firefox SOCKS proxy limitation", () => {
+  assert.match(route.describeDnsError("NS_ERROR_UNKNOWN_PROXY_HOST"), /SOCKS-прокси/);
+  assert.match(route.describeDnsError("other failure"), /other failure/);
+});
+
 test("route diagnosis distinguishes reachable target, target-specific issue and broad endpoint failure", () => {
   assert.deepEqual(route.classifyRoute(
     { status: "reachable", latencyMs: 120 },
