@@ -169,7 +169,7 @@ function initializeRouteDiagnostics(root, route) {
         mode: "no-cors",
         cache: "no-store",
         credentials: "omit",
-        redirect: "follow",
+        redirect: "manual",
         signal: controller.signal
       });
       return { name, status: "reachable", latencyMs: Math.round((root.performance.now() - started) * 10) / 10 };
