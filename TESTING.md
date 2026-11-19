@@ -43,13 +43,24 @@ Use the same device and network for paired VPN-off / VPN-on comparisons. Do not 
 | ROUTE-06 | Permission denied | Deny the requested destination origin permission | Diagnostic stops with a clear permission message; no target request is made |
 | ROUTE-07 | Sensitive URL data | Enter a URL with query parameters and a fragment | Query and fragment are stripped before probing, displaying and storing the destination |
 | ROUTE-08 | Timeline and report | Complete a route diagnostic, reopen popup, inspect Timeline, Security Overview, profile comparison and JSON export | Route event persists and is represented consistently in all integrations |
+| PRV-01 | Normal privacy audit | Run Privacy & Permissions Audit after accepting the updated extension permissions | Own API permissions/origins and available Firefox settings are displayed with current values and control level |
+| PRV-02 | Installed extension inventory | Install/enable several extensions with different permissions and run audit | Other extensions are listed; own HAPP Browser entry is excluded; names, enabled state, API and host permissions are shown when Firefox supplies them |
+| PRV-03 | Broad / powerful extension permissions | Include an extension with broad host access or powerful API permissions | Broad host patterns and selected powerful permissions are highlighted for manual review, never labelled malware automatically |
+| PRV-04 | Setting controlled by another extension | Use an extension that controls a supported privacy setting, then run audit | levelOfControl is shown and the setting is marked for review without naming or accusing an extension that cannot be identified |
+| PRV-05 | Unsupported privacy setting | Test a Firefox build where one of the listed BrowserSetting properties is unavailable | Unsupported setting is distinguished from a read error; other settings still appear |
+| PRV-06 | DNS over HTTPS limitation | Compare the audit with Firefox Settings > Privacy & Security > DNS over HTTPS | Audit explicitly says active DoH mode/provider/fallback are not exposed; it does not infer global DoH state from one isTRR result |
+| PRV-07 | Management API failure | Simulate management.getAll rejection or an unavailable API | Browser setting audit still completes; extension inventory reports its own error and does not erase settings |
+| PRV-08 | Persistence and integrations | Complete audit, reopen popup, inspect Timeline, Security Overview and JSON report | Latest audit restores as historical, event is in Timeline, Security Overview uses the latest result, JSON contains the audit |
+| PRV-09 | Read-only behavior | Record privacy settings and extension enabled states, run audit, check them again | No browser setting changes; no extension is enabled, disabled or uninstalled |
+| PRV-10 | Permission increase update | Update an existing signed installation to the build containing privacy and management permissions | Firefox displays the new permission request; after accepting, prior local diagnostic data remains available |
+
 
 | HIST-01 | History persistence | Run several check types, close and reopen popup | Entries remain in local Firefox storage and show the correct type/status |
 | HIST-02 | History limit | Generate more than 50 results | Only the newest 50 entries remain |
 | HIST-03 | Clear history | Clear history and reopen popup | History is empty; clearing does not crash the popup |
 | UI-01 | Repeated runs | Run each check several times in succession | Buttons recover after completion; no permanently disabled controls or duplicate result blocks |
 | UI-02 | Simultaneous checks | Start different checks in succession | Each check reports its own result; popup remains responsive |
-| PERM-01 | Fresh installation | Install temporary extension in a clean Firefox profile | Only declared permissions are requested initially; website permission is requested per origin |
+| PERM-01 | Fresh installation | Install temporary extension in a clean Firefox profile | Declared permissions include privacy and management for the audit; website permission is requested per origin. Review the Firefox permission prompt carefully |
 | ERR-01 | Failed rerun replaces stale result | Complete IP, DNS and WebRTC checks successfully; make the network unavailable and rerun them; open Security Overview; restore network and rerun | Latest failed checks show errors instead of previous successful results; fresh successful results return after connectivity is restored |
 
 ## Automated regression tests

@@ -29,7 +29,7 @@ jobs:
           zip -j happ-browser-1.0.0.zip \
             manifest.json popup.html popup.css popup.js advanced.js \
             ip-validation.js ip-classification.js timeline.js dns-intelligence.js \
-            quality-monitor.js quality-monitor.css fingerprint.js route-diagnostics.js
+            quality-monitor.js quality-monitor.css fingerprint.js route-diagnostics.js privacy-audit.js
           unzip -l happ-browser-1.0.0.zip
       - name: Upload stable package
         uses: actions/upload-artifact@v4
