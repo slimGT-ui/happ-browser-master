@@ -53,7 +53,7 @@
   function getStatus(item) {
     if (!item || item.status === "error" || item.verdict === "error") return { state: "error", label: "ОШИБКА" };
     if (item.type === "Route") {
-      if (item.dnsStatus === "error") return { state: "review", label: "DNS API НЕДОСТУПЕН" };
+      if (["reachable", "partial"].includes(item.status) && item.dnsStatus === "error") return { state: "review", label: "DNS API НЕДОСТУПЕН" };
       if (["reachable", "partial"].includes(item.status)) return { state: "success", label: "ДОСТУПНОСТЬ ИЗМЕРЕНА" };
       if (item.status === "destination-issue") return { state: "review", label: "ПРОБЛЕМА НАЗНАЧЕНИЯ" };
       if (item.status === "network-issue") return { state: "error", label: "КОНТРОЛЬНЫЕ УЗЛЫ НЕДОСТУПНЫ" };
