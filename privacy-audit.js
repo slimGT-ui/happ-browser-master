@@ -431,7 +431,10 @@
           settingsTotal: record.summary.totalSettings,
           reviewCount: record.summary.reviewCount,
           grantedApi: record.summary.grantedApi,
-          declaredApi: record.summary.declaredApi
+          declaredApi: record.summary.declaredApi,
+          extensionsFound: record.summary.extensionsFound,
+          extensionsFlagged: record.summary.extensionsFlagged,
+          missingRequiredApi: record.summary.missingRequiredApi
         });
       } catch (error) {
         const record = {
