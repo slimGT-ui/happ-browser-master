@@ -1,7 +1,10 @@
 (function (root, factory) {
   const api = factory();
   if (typeof module === "object" && module.exports) module.exports = api;
-  else root.HappPrivacyAudit = api;
+  else {
+    root.HappPrivacyAudit = api;
+    api.init(root);
+  }
 })(globalThis, function () {
   "use strict";
 
