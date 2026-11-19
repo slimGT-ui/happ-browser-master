@@ -164,3 +164,20 @@ test("installed extension inventory errors do not throw away a usable result obj
   assert.match(result.message, /denied/);
   assert.deepEqual(result.items, []);
 });
+
+test("audit summary flags broad extension permissions and unavailable inventory", () => {
+  const flagged = audit.summarizeRecord({
+    status: "observed",
+    summary: { reviewCount: 0, availableSettings: 5, totalSettings: 5, extensionsFlagged: 1, missingRequiredApi: 0 },
+    extensions: { status: "observed", items: [{}] }
+  });
+  assert.equal(flagged.status, "review");
+  assert.match(flagged.detail, /расширений с широкими\/мощными правами: 1/);
+  const unavailable = audit.summarizeRecord({
+    status: "observed",
+    summary: { reviewCount: 0, availableSettings: 5, totalSettings: 5 },
+    extensions: { status: "error", message: "blocked" }
+  });
+  assert.equal(unavailable.status, "review");
+  assert.match(unavailable.detail, /blocked/);
+});
