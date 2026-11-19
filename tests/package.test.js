@@ -90,6 +90,7 @@ test("popup IDs are unique and every interactive script loads after its dependen
   assert.ok(scripts.indexOf("dns-intelligence.js") < scripts.indexOf("popup.js"));
   assert.ok(scripts.indexOf("timeline.js") < scripts.indexOf("advanced.js"));
   assert.ok(scripts.indexOf("advanced.js") < scripts.indexOf("quality-monitor.js"));
+  assert.ok(scripts.indexOf("advanced.js") < scripts.indexOf("privacy-audit.js"));
 });
 
 test("history writes are serialized and the security overview refreshes after results", () => {
@@ -151,6 +152,10 @@ test("fingerprint diagnostics use temporary active-tab access without broad host
   assert.ok(html.includes('id="run-route-check"'));
   assert.ok(html.includes("route-diagnostics.js"));
   assert.ok(JSON.parse(read("manifest.json")).permissions.includes("dns"));
+  assert.ok(JSON.parse(read("manifest.json")).permissions.includes("privacy"));
+  assert.ok(html.includes('id="run-privacy-audit"'));
+  assert.ok(html.includes("privacy-audit.js"));
+  assert.ok(fs.existsSync(path.join(root, "privacy-audit.js")));
 });
 
 
@@ -188,4 +193,17 @@ test("stable package workflow includes every runtime module referenced by popup"
   for (const file of referenced) {
     assert.ok(workflow.includes(file), `Stable package must include popup asset: ${file}`);
   }
+});
+
+
+test("privacy audit requests only the required privacy API and keeps other extension management out", () => {
+  const manifest = JSON.parse(read("manifest.json"));
+  const source = read("privacy-audit.js");
+  assert.ok(manifest.permissions.includes("privacy"), "Firefox privacy settings API requires the privacy permission");
+  assert.ok(!manifest.optional_permissions?.includes("privacy"), "Firefox does not allow requesting privacy as an optional permission");
+  assert.ok(!manifest.permissions.includes("management"), "Do not request broad management access to inspect other extensions");
+  assert.match(source, /browser\.permissions\.getAll/);
+  assert.match(source, /browser\.privacy/);
+  assert.doesNotMatch(source, /browser\.management/);
+  assert.doesNotMatch(source, /\.set\s*\(/, "audit must not modify browser privacy settings");
 });
