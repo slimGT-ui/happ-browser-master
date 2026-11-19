@@ -146,11 +146,11 @@ function initializeRouteDiagnostics(root, route) {
     if (record.dns?.error) addRow("Причина DNS-ошибки", record.dns.error);
     addRow("HTTPS/HTTP назначение", record.targetProbe?.status === "reachable"
       ? record.targetProbe.latencyMs + " ms · ответ получен"
-      : "Не удалось получить сетевой ответ");
+      : "Недоступно · " + (record.targetProbe?.error || "network-error"));
     for (const item of record.controls || []) {
       addRow(item.name, item.status === "reachable"
         ? item.latencyMs + " ms · ответ получен"
-        : "Недоступен");
+        : "Недоступен · " + (item.error || "network-error"));
     }
 
     const note = document.createElement("p");
