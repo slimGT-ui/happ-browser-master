@@ -13,7 +13,8 @@
     "Сайт": "Website",
     Quality: "Connection Quality",
     Fingerprint: "Browser Fingerprint",
-    Route: "Network Path Diagnostics"
+    Route: "Network Path Diagnostics",
+    Privacy: "Privacy & Permissions Audit"
   });
 
   function timestamp(item) {
@@ -52,6 +53,11 @@
 
   function getStatus(item) {
     if (!item || item.status === "error" || item.verdict === "error") return { state: "error", label: "ОШИБКА" };
+    if (item.type === "Privacy") {
+      if (item.status === "observed" && (item.reviewCount || 0) > 0) return { state: "review", label: "НАСТРОЙКИ ТРЕБУЮТ ВНИМАНИЯ" };
+      if (item.status === "observed") return { state: "success", label: "АУДИТ ВЫПОЛНЕН" };
+      return { state: "incomplete", label: "ЧАСТИЧНЫЙ АУДИТ" };
+    }
     if (item.type === "Route") {
       if (["reachable", "partial"].includes(item.status) && item.dnsStatus === "error") return { state: "review", label: "DNS API НЕДОСТУПЕН" };
       if (["reachable", "partial"].includes(item.status)) return { state: "success", label: "ДОСТУПНОСТЬ ИЗМЕРЕНА" };
@@ -96,6 +102,7 @@
         : "Недостаточно DNS-наблюдений";
     }
     if (item.type === "Fingerprint") return (item.observable ?? 0) + "/" + (item.total ?? 0) + " наблюдаемых параметров · " + (item.executionContext === "page" ? "контекст страницы" : "изолированный контекст");
+    if (item.type === "Privacy") return (item.settingsAvailable ?? 0) + "/" + (item.settingsTotal ?? 0) + " настроек Firefox · " + (item.reviewCount ?? 0) + " требуют внимания · API permissions: " + (item.grantedApi ?? 0) + "/" + (item.declaredApi ?? 0);
     if (item.type === "Route") return item.message ? "Проверка не завершена: " + item.message : (item.host || "Узел не указан") + " · " + (item.dnsStatus === "resolved" ? (item.resolvedAddresses?.length || 0) + " DNS IP" : "DNS: " + (item.dnsStatus || "н/д")) + " · контрольные узлы: " + (item.controlsReachable ?? 0) + "/" + (item.controlsTotal ?? 0);
     if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
       " · jitter: " + (item.stats?.jitterMs == null ? "н/д" : item.stats.jitterMs + " ms") +
@@ -154,6 +161,12 @@
         ["WebGL vendor", previous.data?.webgl?.vendor, current.data?.webgl?.vendor],
         ["WebGL renderer", previous.data?.webgl?.renderer, current.data?.webgl?.renderer],
         ["WebGL debug info", previous.data?.webgl?.debugInfo, current.data?.webgl?.debugInfo]
+      ];
+    } else if (current.type === "Privacy") {
+      fields = [
+        ["Доступные настройки Firefox", previous.settingsAvailable, current.settingsAvailable],
+        ["Настройки для ручной проверки", previous.reviewCount, current.reviewCount],
+        ["Выданные API permissions", previous.grantedApi, current.grantedApi]
       ];
     } else if (current.type === "Route") {
       fields = [
