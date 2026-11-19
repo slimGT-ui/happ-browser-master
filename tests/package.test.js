@@ -148,6 +148,9 @@ test("fingerprint diagnostics use temporary active-tab access without broad host
   assert.match(html, /id="run-fingerprint-check"/);
   assert.match(html, /fingerprint\.js/);
   assert.ok(fs.existsSync(path.join(root, "fingerprint.js")));
+  assert.ok(html.includes('id="run-route-check"'));
+  assert.ok(html.includes("route-diagnostics.js"));
+  assert.ok(JSON.parse(read("manifest.json")).permissions.includes("dns"));
 });
 
 
@@ -172,4 +175,17 @@ test("fingerprint measurements render even if local persistence fails", () => {
     "successful measurements must be rendered before attempting storage");
   assert.match(source, /Предыдущий сохранённый результат не изменён/);
   assert.match(source, /data: record\.data/);
+});
+
+
+test("stable package workflow includes every runtime module referenced by popup", () => {
+  const workflow = read(".github/workflows/release-candidate.yml");
+  const html = read("popup.html");
+  const referenced = [
+    ...[...html.matchAll(/<script\\b[^>]*\\bsrc=["']([^"']+)["']/gi)].map(match => match[1]),
+    ...[...html.matchAll(/<link\\b[^>]*\\bhref=["']([^"']+\\.css)["']/gi)].map(match => match[1])
+  ];
+  for (const file of referenced) {
+    assert.ok(workflow.includes(file), `Stable package must include popup asset: ${file}`);
+  }
 });

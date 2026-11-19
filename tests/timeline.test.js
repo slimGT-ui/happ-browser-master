@@ -119,3 +119,22 @@ test("fingerprint timeline events are labeled, summarized and compared", () => {
   assert.equal(comparison.state, "changed");
   assert.match(comparison.detail, /Canvas marker/);
 });
+
+
+test("route diagnostics timeline labels, statuses, descriptions and comparisons", () => {
+  const before = {
+    type: "Route", status: "reachable", diagnosis: "destination-reachable",
+    host: "example.com", dnsStatus: "resolved", resolvedAddresses: ["1.1.1.1"],
+    controlsReachable: 2, controlsTotal: 2, checkedAt: "2026-11-19T10:00:00.000Z"
+  };
+  const after = {
+    ...before, status: "destination-issue", diagnosis: "destination-specific-or-policy",
+    controlsReachable: 2, checkedAt: "2026-11-19T11:00:00.000Z"
+  };
+  assert.equal(TYPE_LABELS.Route, "Network Path Diagnostics");
+  assert.deepEqual(getStatus(before), { state: "success", label: "ДОСТУПНОСТЬ ИЗМЕРЕНА" });
+  assert.deepEqual(getStatus(after), { state: "review", label: "ПРОБЛЕМА НАЗНАЧЕНИЯ" });
+  assert.deepEqual(getStatus({ ...before, dnsStatus: "error" }), { state: "review", label: "DNS API НЕДОСТУПЕН" });
+  assert.match(describe(before), /example.com.*контрольные узлы: 2\/2/);
+  assert.equal(compareEvents(after, before).state, "changed");
+});

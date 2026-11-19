@@ -7,7 +7,8 @@
     "storage",
     "clipboardWrite",
     "activeTab",
-    "scripting"
+    "scripting",
+    "dns"
   ],
   "host_permissions": [
     "https://ipwho.is/*",

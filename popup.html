@@ -15,6 +15,7 @@
   <script src="advanced.js" defer></script>
   <script src="quality-monitor.js" defer></script>
   <script src="fingerprint.js" defer></script>
+  <script src="route-diagnostics.js" defer></script>
 </head>
 <body>
   <main class="app">
@@ -50,6 +51,12 @@
       <button id="run-quality-check" class="secondary" type="button">Проверить качество соединения</button>
       <p id="quality-message" class="dns-message" role="status" aria-live="polite">Тест ещё не запускался.</p>
       <div id="quality-results" class="advanced-results" aria-live="polite"></div>
+
+      <div class="section-top"><span class="eyebrow">NETWORK PATH DIAGNOSTICS</span><span class="soon">DNS / HTTPS</span></div>
+      <p class="dns-note">Проверяет DNS-разрешение выбранного узла, его HTTPS-доступность и два независимых контрольных endpoint. Это браузерная диагностика, не системный traceroute.</p>
+      <div class="site-check-form"><input id="route-target-url" type="url" placeholder="example.com" autocomplete="url" aria-label="Узел для диагностики сетевого пути"><button id="run-route-check" class="secondary" type="button">Диагностировать сетевой путь</button></div>
+      <p id="route-message" class="dns-message" role="status" aria-live="polite">Укажи домен или URL назначения.</p>
+      <div id="route-results" class="advanced-results" aria-live="polite"></div>
 
       <div class="section-top"><span class="eyebrow">BROWSER FINGERPRINT</span><span class="soon">ACTIVE TAB</span></div>
       <p class="dns-note">Показывает характеристики, доступные JavaScript-коду активной страницы: User-Agent, язык, часовой пояс, экран, Canvas и WebGL. Проверка запускается только по нажатию и не отправляет данные на сервер.</p>
@@ -125,6 +132,7 @@
             <option value="IPv6">IPv4 / IPv6</option>
             <option value="Сайт">Website</option>
             <option value="Quality">Connection Quality</option>
+            <option value="Route">Network Path Diagnostics</option>
           </select>
         </div>
         <div id="history-list" class="history-list" aria-live="polite"></div>

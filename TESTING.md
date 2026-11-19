@@ -35,6 +35,15 @@ Use the same device and network for paired VPN-off / VPN-on comparisons. Do not 
 | SITE-02 | Permission denied | Deny the requested host permission | Check stops with a clear permission message |
 | SITE-03 | Unreachable site / timeout | Check a deliberately unavailable host | Failure or timeout is shown and recorded |
 | SITE-04 | Invalid URL | Try empty input, malformed URL, credentials in URL, and non-HTTP scheme | Input is rejected with a useful message |
+| ROUTE-01 | Normal destination | Enter a reachable HTTPS domain and run Network Path Diagnostics | DNS addresses and available TRR metadata are shown; target and both controls are probed; result is stored |
+| ROUTE-02 | DNS API unavailable / proxy DNS | Run with DNS API unavailable or SOCKS proxy DNS routing enabled | DNS is marked unavailable without inventing addresses; HTTP probes still run and the limitation is explained |
+| ROUTE-03 | Direct IP destination | Enter a valid IPv4 or IPv6 URL | DNS is marked not applicable; the address is not sent to the DNS resolver |
+| ROUTE-04 | Destination-only failure | Block the chosen destination while at least one control endpoint remains reachable | Result is classified as destination-specific / policy-related, not as a proven routing fault |
+| ROUTE-05 | All endpoints unavailable | Disconnect the network or block destination and both controls | Broad endpoint failure is shown as a possible connectivity issue, not packet loss or a VPN-off verdict |
+| ROUTE-06 | Permission denied | Deny the requested destination origin permission | Diagnostic stops with a clear permission message; no target request is made |
+| ROUTE-07 | Sensitive URL data | Enter a URL with query parameters and a fragment | Query and fragment are stripped before probing, displaying and storing the destination |
+| ROUTE-08 | Timeline and report | Complete a route diagnostic, reopen popup, inspect Timeline, Security Overview, profile comparison and JSON export | Route event persists and is represented consistently in all integrations |
+
 | HIST-01 | History persistence | Run several check types, close and reopen popup | Entries remain in local Firefox storage and show the correct type/status |
 | HIST-02 | History limit | Generate more than 50 results | Only the newest 50 entries remain |
 | HIST-03 | Clear history | Clear history and reopen popup | History is empty; clearing does not crash the popup |
