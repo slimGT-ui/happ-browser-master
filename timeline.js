@@ -12,7 +12,8 @@
     IPv6: "IPv4 / IPv6",
     "Сайт": "Website",
     Quality: "Connection Quality",
-    Fingerprint: "Browser Fingerprint"
+    Fingerprint: "Browser Fingerprint",
+    Route: "Network Path Diagnostics"
   });
 
   function timestamp(item) {
@@ -51,6 +52,12 @@
 
   function getStatus(item) {
     if (!item || item.status === "error" || item.verdict === "error") return { state: "error", label: "ОШИБКА" };
+    if (item.type === "Route") {
+      if (["reachable", "partial"].includes(item.status)) return { state: "success", label: "ДОСТУПНОСТЬ ИЗМЕРЕНА" };
+      if (item.status === "destination-issue") return { state: "review", label: "ПРОБЛЕМА НАЗНАЧЕНИЯ" };
+      if (item.status === "network-issue") return { state: "error", label: "КОНТРОЛЬНЫЕ УЗЛЫ НЕДОСТУПНЫ" };
+      return { state: "incomplete", label: "НЕДОСТАТОЧНО ДАННЫХ" };
+    }
     if (item.type === "Quality") {
       if (item.status === "measured") return { state: "success", label: "ИЗМЕРЕНО" };
       if (item.status === "partial") return { state: "incomplete", label: "ЧАСТИЧНЫЙ РЕЗУЛЬТАТ" };
@@ -88,6 +95,7 @@
         : "Недостаточно DNS-наблюдений";
     }
     if (item.type === "Fingerprint") return (item.observable ?? 0) + "/" + (item.total ?? 0) + " наблюдаемых параметров · " + (item.executionContext === "page" ? "контекст страницы" : "изолированный контекст");
+    if (item.type === "Route") return (item.host || "Узел не указан") + " · " + (item.dnsStatus === "resolved" ? (item.resolvedAddresses?.length || 0) + " DNS IP" : "DNS: " + (item.dnsStatus || "н/д")) + " · контрольные узлы: " + (item.controlsReachable ?? 0) + "/" + (item.controlsTotal ?? 0);
     if (item.type === "Quality") return "Медиана: " + (item.stats?.medianMs == null ? "нет данных" : item.stats.medianMs + " ms") +
       " · jitter: " + (item.stats?.jitterMs == null ? "н/д" : item.stats.jitterMs + " ms") +
       " · неудачные пробы: " + (item.stats?.failed ?? 0) + "/" + (item.stats?.sent ?? 0);
@@ -145,6 +153,14 @@
         ["WebGL vendor", previous.data?.webgl?.vendor, current.data?.webgl?.vendor],
         ["WebGL renderer", previous.data?.webgl?.renderer, current.data?.webgl?.renderer],
         ["WebGL debug info", previous.data?.webgl?.debugInfo, current.data?.webgl?.debugInfo]
+      ];
+    } else if (current.type === "Route") {
+      fields = [
+        ["Диагноз", previous.diagnosis, current.diagnosis],
+        ["DNS", previous.dnsStatus, current.dnsStatus],
+        ["Разрешённые IP", previous.resolvedAddresses, current.resolvedAddresses],
+        ["Доступность назначения", previous.status, current.status],
+        ["Доступные контрольные узлы", previous.controlsReachable, current.controlsReachable]
       ];
     } else if (current.type === "Quality") {
       fields = [
