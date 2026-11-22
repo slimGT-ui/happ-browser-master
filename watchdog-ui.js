@@ -11,8 +11,8 @@
   if (!interval || !startButton || !stopButton || !status || !message || !lastCheck || !lastIp || !events) return;
 
   const labels = {
-    online: "СЕТЕВЫЕ ОТВЕТЫ ПОЛУЧЕНЫ",
-    offline: "КОНТРОЛЬНЫЕ СЕРВИСЫ НЕДОСТУПНЫ",
+    online: "HTTPS-ПРОБЫ ЗАВЕРШЕНЫ",
+    offline: "КОНТРОЛЬНЫЕ HTTPS-ПРОБЫ НЕ ПРОШЛИ",
     uncertain: "НЕДОСТАТОЧНО НАБЛЮДЕНИЙ",
     unknown: "ОЖИДАНИЕ ПЕРВОЙ ПРОВЕРКИ"
   };
@@ -25,8 +25,8 @@
     row.className = "watchdog-event";
     const title = document.createElement("strong");
     title.textContent = item.eventType === "ip-changed" ? "Изменение публичного IP"
-      : item.eventType === "connection-lost" ? "Нет ответов от контрольных сервисов"
-        : "Ответы восстановились";
+      : item.eventType === "connection-lost" ? "Контрольные HTTPS-пробы не прошли"
+        : "HTTPS-пробы восстановились";
     const detail = document.createElement("span");
     detail.textContent = item.eventType === "ip-changed"
       ? (item.previousIp || "—") + " → " + (item.currentIp || "—")
@@ -46,7 +46,7 @@
     status.textContent = enabled ? (labels[state.connectivity] || labels.unknown) : config.enabled ? "ТРЕБУЕТСЯ РАЗРЕШЕНИЕ" : "ОТКЛЮЧЁН";
     status.dataset.state = enabled ? (state.connectivity || "unknown") : "idle";
     message.textContent = enabled
-      ? "Проверка выполняется в фоне примерно каждые " + config.intervalMinutes + " мин. Сигналы отражают доступность контрольных сервисов, а не состояние VPN."
+      ? "Проверка выполняется в фоне примерно каждые " + config.intervalMinutes + " мин. Сигналы отражают завершение сетевых HTTPS-проб, а не состояние VPN."
       : config.enabled ? "Firefox не выдал разрешение alarms. Включи Watchdog повторно и подтверди разрешение." : "Фоновый мониторинг выключен.";
     if (enabled && !hasNotifications) message.textContent += " Desktop-уведомления не разрешены; изменения видны здесь.";
     lastCheck.textContent = formatTime(state.lastCheckAt);
