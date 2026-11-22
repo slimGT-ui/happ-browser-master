@@ -166,8 +166,8 @@ test("watchdog events have distinct labels, statuses, descriptions and compariso
   const restored = { type: "Watchdog", eventType: "connection-restored" };
   assert.equal(TYPE_LABELS.Watchdog, "Connection Watchdog");
   assert.deepEqual(getStatus(changed), { state: "review", label: "ПУБЛИЧНЫЙ IP ИЗМЕНИЛСЯ" });
-  assert.deepEqual(getStatus(lost), { state: "warning", label: "НЕТ ОТВЕТОВ ОТ КОНТРОЛЬНЫХ СЕРВИСОВ" });
-  assert.deepEqual(getStatus(restored), { state: "success", label: "ОТВЕТЫ ВОССТАНОВИЛИСЬ" });
+  assert.deepEqual(getStatus(lost), { state: "warning", label: "КОНТРОЛЬНЫЕ HTTPS-ПРОБЫ НЕ ПРОШЛИ" });
+  assert.deepEqual(getStatus(restored), { state: "success", label: "HTTPS-ПРОБЫ ВОССТАНОВИЛИСЬ" });
   assert.match(describe(changed), /203\.0\.113\.10 → 198\.51\.100\.20/);
   assert.equal(compareEvents(
     { ...changed, currentIp: "198.51.100.30" }, changed
