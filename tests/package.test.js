@@ -91,6 +91,7 @@ test("popup IDs are unique and every interactive script loads after its dependen
   assert.ok(scripts.indexOf("timeline.js") < scripts.indexOf("advanced.js"));
   assert.ok(scripts.indexOf("advanced.js") < scripts.indexOf("quality-monitor.js"));
   assert.ok(scripts.indexOf("advanced.js") < scripts.indexOf("privacy-audit.js"));
+  assert.ok(scripts.indexOf("privacy-audit.js") < scripts.indexOf("watchdog-ui.js"));
 });
 
 test("history writes are serialized and the security overview refreshes after results", () => {
@@ -219,4 +220,29 @@ test("privacy audit is persisted and included in security overview and JSON expo
   assert.match(advanced, /securityRow\("Privacy & Permissions Audit"/);
   assert.match(timeline, /Privacy: "Privacy & Permissions Audit"/);
   assert.match(timeline, /current\.type === "Privacy"/);
+});
+
+
+test("Connection Watchdog uses an optional Firefox MV3 event page and requests runtime permissions", () => {
+  const manifest = JSON.parse(read("manifest.json"));
+  assert.deepEqual(manifest.background.scripts, ["ip-validation.js", "watchdog.js"]);
+  assert.ok(manifest.optional_permissions.includes("alarms"));
+  assert.ok(manifest.optional_permissions.includes("notifications"));
+  assert.ok(!manifest.permissions.includes("alarms"));
+  assert.ok(!manifest.permissions.includes("notifications"));
+  const source = read("watchdog.js");
+  assert.match(source, /browserApi\.runtime\.onStartup\.addListener/);
+  assert.match(source, /browserApi\.alarms\.onAlarm\.addListener/);
+  assert.match(source, /browserApi\.runtime\.onInstalled\.addListener/);
+  assert.match(source, /browserApi\.notifications\.create/);
+  assert.doesNotMatch(source, /browserApi\.proxy\./, "watchdog must not claim to inspect VPN or proxy state");
+});
+
+test("Watchdog UI is present and its permission request is initiated by a user click", () => {
+  const html = read("popup.html");
+  const ui = read("watchdog-ui.js");
+  assert.match(html, /id="watchdog-start"/);
+  assert.match(html, /id="watchdog-stop"/);
+  assert.match(ui, /startButton\.addEventListener\("click"/);
+  assert.match(ui, /browser\.permissions\.request\(\{ permissions: \["alarms", "notifications"\] \}\)/);
 });
