@@ -23,7 +23,9 @@ window.HappHistory = {
       items.unshift({ id: crypto.randomUUID(), type, checkedAt: new Date().toISOString(), ...details });
       const limited = items.slice(0, HISTORY_LIMIT);
       await browser.storage.local.set({ [HISTORY_KEY]: limited });
-      renderHistory(limited);
+      const watchdog = await browser.storage.local.get("watchdogEvents");
+      renderHistory([...limited, ...(Array.isArray(watchdog.watchdogEvents) ? watchdog.watchdogEvents : [])]
+        .sort((a, b) => Date.parse(b.checkedAt || "") - Date.parse(a.checkedAt || "")).slice(0, HISTORY_LIMIT));
       await refreshSecuritySummary();
     });
     historyWriteQueue = write.catch(error => {
@@ -124,8 +126,12 @@ function renderHistory(items) {
   }
 }
 async function loadHistory() {
-  const stored = await browser.storage.local.get(HISTORY_KEY);
-  const items = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY].slice(0, HISTORY_LIMIT) : [];
+  const stored = await browser.storage.local.get([HISTORY_KEY, "watchdogEvents"]);
+  const checks = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
+  const watchdog = Array.isArray(stored.watchdogEvents) ? stored.watchdogEvents : [];
+  const items = [...checks, ...watchdog]
+    .sort((a, b) => Date.parse(b.checkedAt || "") - Date.parse(a.checkedAt || ""))
+    .slice(0, HISTORY_LIMIT);
   renderHistory(items);
 
   const latest = type => window.HappTimeline.sortHistory(items).find(item => item.type === type);
@@ -245,13 +251,24 @@ historyFilter.addEventListener("change", () => renderHistory(historyItems));
 historyClear.addEventListener("click", async () => {
   historyClear.disabled = true;
   try {
-    await browser.storage.local.remove(HISTORY_KEY);
+    await browser.storage.local.remove([HISTORY_KEY, "watchdogEvents"]);
     renderHistory([]);
   } finally {
     historyClear.disabled = false;
   }
 });
 loadHistory().catch(() => renderHistory([]));
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.watchdogEvents) {
+    void browser.storage.local.get([HISTORY_KEY, "watchdogEvents"]).then(stored => {
+      const checks = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
+      const watchdog = Array.isArray(stored.watchdogEvents) ? stored.watchdogEvents : [];
+      renderHistory([...checks, ...watchdog]
+        .sort((a, b) => Date.parse(b.checkedAt || "") - Date.parse(a.checkedAt || ""))
+        .slice(0, HISTORY_LIMIT));
+    }).catch(() => {});
+  }
+});
 
 
 // 0.7.0 — export the latest diagnostic snapshot and recent history.
@@ -266,11 +283,16 @@ async function buildDiagnosticReport() {
     "lastWebRtcCheck",
     "lastFingerprintCheck",
     "lastRouteCheck",
-    HISTORY_KEY
+    HISTORY_KEY,
+    "watchdogConfig",
+    "watchdogState",
+    "watchdogEvents"
   ]);
-  const history = Array.isArray(stored[HISTORY_KEY])
-    ? stored[HISTORY_KEY].slice(0, HISTORY_LIMIT)
-    : [];
+  const checks = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
+  const watchdogEvents = Array.isArray(stored.watchdogEvents) ? stored.watchdogEvents : [];
+  const history = [...checks, ...watchdogEvents]
+    .sort((a, b) => Date.parse(b.checkedAt || "") - Date.parse(a.checkedAt || ""))
+    .slice(0, HISTORY_LIMIT);
 
   return {
     reportVersion: 1,
@@ -280,7 +302,7 @@ async function buildDiagnosticReport() {
       platform: "Firefox"
     },
     generatedAt: new Date().toISOString(),
-    privacyNotice: "This report may contain public IP addresses, DNS resolver addresses and destination DNS records, WebRTC ICE candidates, browser fingerprint attributes, Canvas markers, GPU metadata, installed extension names, IDs and permissions, Firefox privacy settings, and tested URLs. Review it before sharing.",
+    privacyNotice: "This report may contain public IP addresses, DNS resolver addresses and destination DNS records, WebRTC ICE candidates, browser fingerprint attributes, Canvas markers, GPU metadata, installed extension names, IDs and permissions, Firefox privacy settings, installed extension names, IDs and permissions, Firefox privacy settings, watchdog IP observations and network events, and tested URLs. Review it before sharing.",
     latestChecks: {
       publicIp: stored.lastIpCheck || null,
       dns: stored.lastDnsCheck || null,
@@ -288,6 +310,11 @@ async function buildDiagnosticReport() {
       fingerprint: stored.lastFingerprintCheck || null,
       route: stored.lastRouteCheck || history.find(item => item.type === "Route") || null,
       privacyAudit: stored.lastPrivacyAudit || history.find(item => item.type === "Privacy") || null,
+      connectionWatchdog: {
+        config: stored.watchdogConfig || null,
+        state: stored.watchdogState || null,
+        events: watchdogEvents
+      },
       ipv6: history.find(item => item.type === "IPv6") || null,
       website: history.find(item => item.type === "Сайт") || null
     },
