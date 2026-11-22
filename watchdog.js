@@ -79,8 +79,8 @@
   function summarizeEvents(events) {
     return (Array.isArray(events) ? events : []).map(event => {
       if (event.eventType === "ip-changed") return "Публичный IP изменился: " + event.previousIp + " → " + event.currentIp;
-      if (event.eventType === "connection-lost") return "Контрольные сетевые сервисы недоступны";
-      if (event.eventType === "connection-restored") return "Ответы от контрольных сервисов восстановились";
+      if (event.eventType === "connection-lost") return "Контрольные HTTPS-пробы не завершились";
+      if (event.eventType === "connection-restored") return "Контрольные HTTPS-пробы снова завершаются успешно";
       return event.message || "Изменение сети";
     }).join(". ");
   }
