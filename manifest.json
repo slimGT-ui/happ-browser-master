@@ -34,5 +34,15 @@
       "id": "happ-browser@slimgt-ui",
       "strict_min_version": "109.0"
     }
+  },
+  "optional_permissions": [
+    "alarms",
+    "notifications"
+  ],
+  "background": {
+    "scripts": [
+      "ip-validation.js",
+      "watchdog.js"
+    ]
   }
 }
