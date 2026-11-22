@@ -53,6 +53,19 @@ Use the same device and network for paired VPN-off / VPN-on comparisons. Do not 
 | PRV-08 | Persistence and integrations | Complete audit, reopen popup, inspect Timeline, Security Overview and JSON report | Latest audit restores as historical, event is in Timeline, Security Overview uses the latest result, JSON contains the audit |
 | PRV-09 | Read-only behavior | Record privacy settings and extension enabled states, run audit, check them again | No browser setting changes; no extension is enabled, disabled or uninstalled |
 | PRV-10 | Permission increase update | Update an existing signed installation to the build containing privacy and management permissions | Firefox displays the new permission request; after accepting, prior local diagnostic data remains available |
+| WATCH-01 | Enable and first baseline | Enable Watchdog and accept the alarms permission; optionally accept notifications | A background schedule is created, an immediate observation runs, first valid IP becomes baseline without a false IP-change event |
+| WATCH-02 | Background operation | Enable Watchdog, close popup, wait at least one selected interval, reopen popup | Last-check timestamp updates while popup is closed; background event page performs scheduled checks |
+| WATCH-03 | Public IP change | Establish baseline, change network/VPN exit where possible, wait for next successful IP observation | One IP-change event and optional desktop notification show old/new public IP; no claim that VPN disconnected |
+| WATCH-04 | Single failed cycle | Temporarily block all three probes for one cycle, then restore them | State is uncertain; no outage event or notification after only one failed cycle |
+| WATCH-05 | Consecutive unavailable cycles | Keep all three probe endpoints unavailable for two consecutive scheduled cycles | One control-service-unavailable event is recorded after the second cycle; no repeated notifications during the same outage |
+| WATCH-06 | Recovery | Restore access after WATCH-05 and wait for a successful cycle | One recovery event is recorded; connectivity state returns to online |
+| WATCH-07 | Browser restart | Enable Watchdog, close Firefox fully, reopen the same profile | Saved configuration remains; startup recreates the alarm and a new observation runs |
+| WATCH-08 | Optional permission denial/revocation | Deny notifications but grant alarms; separately revoke alarms in Add-ons Manager | Monitoring can run without desktop notifications; without alarms it is clearly marked as requiring permission and does not claim to monitor |
+| WATCH-09 | Stop monitoring | Enable Watchdog, then click Stop | Alarm is cleared, config is disabled, no later scheduled observations or notifications are created |
+| WATCH-10 | Interval selection | Start with each offered interval, then change interval by stopping and restarting | Only 5/10/15/30-minute intervals are accepted; new schedule uses the selected interval |
+| WATCH-11 | Partial endpoint failure | Block ipwho.is while leaving Google or Cloudflare reachable | Watchdog does not report a general outage; previous valid IP baseline is preserved and no IP-change event is invented |
+| WATCH-12 | Timeline and report | Generate Watchdog events, inspect Timeline, clear history, export JSON | Events appear under Watchdog filter, clear-history removes both history streams, JSON includes configuration/state/events |
+
 
 
 | HIST-01 | History persistence | Run several check types, close and reopen popup | Entries remain in local Firefox storage and show the correct type/status |
@@ -71,7 +84,7 @@ Run from the repository root with Node.js 20 (the version used by GitHub Actions
 node --test
 ```
 
-Current automated suite before Connection Quality Monitor: 30 tests, including timeline sorting, filtering, summaries, status interpretation, descriptions, date grouping, change detection, previous-event lookup, popup wiring, WebRTC validator references, serialized history, release metadata and storage-failure handling. It covers valid and invalid IPv4/IPv6 (including full, compressed and IPv4-mapped forms), malformed IPv6 group counts/compression, the combined IP validator, manifest structure, popup asset references and version consistency. The Connection Quality Monitor adds five unit tests for latency statistics and result classification. GitHub Actions also runs JavaScript syntax checks for popup.js, advanced.js, ip-validation.js, ip-classification.js, timeline.js and quality-monitor.js. These checks do not replace the manual browser/network scenarios below.
+Automated coverage is maintained with Node.js 20 and runs through `npm run validate` (JavaScript syntax checks plus `node --test`). It covers IP validation/classification, DNS intelligence, quality statistics, fingerprint and route diagnostics, privacy audit, Timeline, popup wiring, manifest permissions, storage behavior, and Connection Watchdog transitions/probes/background lifecycle. The Watchdog tests include IP baseline changes, consecutive-failure thresholding, recovery, optional permission declarations, mocked HTTPS probes and Firefox alarm restoration. CI results are tracked per commit; automated tests do not replace the manual browser/network scenarios below.
 
 Latest verified automated run: **30 passed, 0 failed** (commit 2978253; [GitHub Actions run 43510101050](https://github.com/slimGT-ui/happ-browser-master/actions/runs/43510101050)). Previous manual matrix: **23 passed, 0 failed, 0 deferred** (user-confirmed before the latest pre-release hardening). The additional 0.10.0 changes below require a focused manual retest before release.
 

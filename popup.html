@@ -17,6 +17,7 @@
   <script src="fingerprint.js" defer></script>
   <script src="route-diagnostics.js" defer></script>
   <script src="privacy-audit.js" defer></script>
+  <script src="watchdog-ui.js" defer></script>
 </head>
 <body>
   <main class="app">
@@ -126,6 +127,27 @@
         <p class="dns-note">Проверки используют сторонние сервисы: ipwho.is, ipify, dnsleak.dev и Google STUN. Они могут видеть ваш сетевой IP и данные, необходимые для теста. Результаты и история хранятся локально в Firefox; автоматической отправки истории нет.</p>
         <p class="report-warning">JSON-отчёт содержит диагностические данные и создаётся только по запросу. Проверь его перед отправкой. Проверка сайта обращается к выбранному адресу после отдельного разрешения Firefox.</p>
       </section>
+      <section class="report-panel watchdog-panel" aria-label="Connection Watchdog">
+        <div class="history-heading"><span class="eyebrow">CONNECTION WATCHDOG</span><span id="watchdog-status" class="status-pill" data-state="idle">ОТКЛЮЧЁН</span></div>
+        <p class="dns-note">Периодически проверяет доступность сетевых контрольных сервисов и изменения публичного IP, даже когда popup закрыт. Watchdog не определяет напрямую, включён ли VPN.</p>
+        <div class="watchdog-controls">
+          <label for="watchdog-interval">Интервал проверки</label>
+          <select id="watchdog-interval">
+            <option value="5">Каждые 5 минут</option>
+            <option value="10">Каждые 10 минут</option>
+            <option value="15">Каждые 15 минут</option>
+            <option value="30">Каждые 30 минут</option>
+          </select>
+          <button id="watchdog-start" class="secondary" type="button">Включить Watchdog</button>
+          <button id="watchdog-stop" class="secondary" type="button" disabled>Остановить</button>
+        </div>
+        <p id="watchdog-message" class="dns-message" role="status" aria-live="polite">Фоновый мониторинг выключен.</p>
+        <div class="watchdog-metrics">
+          <div><span>ПОСЛЕДНЯЯ ПРОВЕРКА</span><strong id="watchdog-last-check">Ещё не проверялось</strong></div>
+          <div><span>ПОСЛЕДНИЙ ПУБЛИЧНЫЙ IP</span><strong id="watchdog-last-ip">Нет успешного наблюдения</strong></div>
+        </div>
+        <div id="watchdog-events" class="watchdog-events" aria-live="polite"></div>
+      </section>
       <section class="report-panel timeline-panel" aria-label="История и временная шкала диагностики">
         <div class="history-heading"><span class="eyebrow">DIAGNOSTIC TIMELINE</span><button id="clear-history" class="text-button" type="button">Очистить</button></div>
         <p class="dns-note">Хронология последних 50 проверок. События сгруппированы по дате; фильтр помогает отследить изменения отдельного типа диагностики.</p>
@@ -142,6 +164,7 @@
             <option value="Quality">Connection Quality</option>
             <option value="Route">Network Path Diagnostics</option>
             <option value="Privacy">Privacy &amp; Permissions Audit</option>
+            <option value="Watchdog">Connection Watchdog</option>
           </select>
         </div>
         <div id="history-list" class="history-list" aria-live="polite"></div>
