@@ -236,6 +236,8 @@ test("Connection Watchdog uses an optional Firefox MV3 event page and requests r
   assert.match(source, /browserApi\.runtime\.onInstalled\.addListener/);
   assert.match(source, /browserApi\.notifications\.create/);
   assert.doesNotMatch(source, /browserApi\.proxy\./, "watchdog must not claim to inspect VPN or proxy state");
+  const workflow = read(".github/workflows/release-candidate.yml");
+  assert.match(workflow, /watchdog\\.js watchdog-ui\\.js/, "Firefox ZIP must include both background and popup Watchdog scripts");
 });
 
 test("Watchdog UI is present and its permission request is initiated by a user click", () => {
