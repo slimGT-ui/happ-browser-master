@@ -37,7 +37,7 @@
         eventType: "connection-lost",
         status: "connection-lost",
         checkedAt,
-        message: "Контрольные сетевые сервисы не ответили в двух проверках подряд. Это может указывать на проблему соединения или фильтрацию сервисов, но не доказывает отключение VPN."
+        message: "Контрольные HTTPS-пробы не завершились в двух циклах подряд. Это может указывать на проблему соединения или фильтрацию endpoint, но не доказывает отключение VPN."
       });
     }
     if (connectivity === "online" && previousConnectivity === "offline") {
@@ -45,7 +45,7 @@
         eventType: "connection-restored",
         status: "connection-restored",
         checkedAt,
-        message: "Контрольные сетевые сервисы снова отвечают."
+        message: "Контрольные HTTPS-пробы снова завершаются успешно."
       });
     }
     const previousIp = typeof previous.lastIp === "string" ? previous.lastIp : null;
@@ -161,6 +161,8 @@
 
   async function notifyEvents(browserApi, events) {
     if (!events.length || !browserApi.notifications?.create) return;
+    const granted = await browserApi.permissions.contains({ permissions: ["notifications"] }).catch(() => false);
+    if (!granted) return;
     try {
       await browserApi.notifications.create("happ-watchdog-event", {
         type: "basic",
