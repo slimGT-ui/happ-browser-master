@@ -302,7 +302,7 @@ async function buildDiagnosticReport() {
       platform: "Firefox"
     },
     generatedAt: new Date().toISOString(),
-    privacyNotice: "This report may contain public IP addresses, DNS resolver addresses and destination DNS records, WebRTC ICE candidates, browser fingerprint attributes, Canvas markers, GPU metadata, installed extension names, IDs and permissions, Firefox privacy settings, installed extension names, IDs and permissions, Firefox privacy settings, watchdog IP observations and network events, and tested URLs. Review it before sharing.",
+    privacyNotice: "This report may contain public IP addresses, DNS resolver addresses and destination DNS records, WebRTC ICE candidates, browser fingerprint attributes, Canvas markers, GPU metadata, installed extension names, IDs and permissions, Firefox privacy settings, watchdog IP observations and network events, and tested URLs. Review it before sharing.",
     latestChecks: {
       publicIp: stored.lastIpCheck || null,
       dns: stored.lastDnsCheck || null,
