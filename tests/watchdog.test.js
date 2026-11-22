@@ -67,7 +67,7 @@ test("simultaneous IP and reachability changes can be summarized in one notifica
     { eventType: "ip-changed", previousIp: "203.0.113.10", currentIp: "198.51.100.20" }
   ];
   const summary = watchdog.summarizeEvents(events);
-  assert.match(summary, /Ответы от контрольных сервисов восстановились/);
+  assert.match(summary, /Контрольные HTTPS-пробы снова завершаются успешно/);
   assert.match(summary, /203\.0\.113\.10 → 198\.51\.100\.20/);
 });
 
@@ -78,7 +78,7 @@ test("IP probe validates the service response and keeps the request cache-free",
     request = { url, options };
     return { ok: true, json: async () => ({ success: true, ip: "203.0.113.10", country: "Example" }) };
   }, {
-    validIPv4: value => /^\\d+\\.\\d+\\.\\d+\\.\\d+$/.test(value),
+    validIPv4: value => value === "203.0.113.10",
     validIPv6: () => false
   });
   assert.equal(result.ok, true);
