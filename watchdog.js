@@ -155,7 +155,7 @@
     const stored = await browserApi.storage.local.get("watchdogEvents");
     const current = Array.isArray(stored.watchdogEvents) ? stored.watchdogEvents : [];
     await browserApi.storage.local.set({
-      watchdogEvents: [...events.map(event => ({ id: root.crypto?.randomUUID?.() || String(Date.now()), type: "Watchdog", ...event })), ...current].slice(0, EVENT_LIMIT)
+      watchdogEvents: [...events.map(event => ({ id: globalThis.crypto?.randomUUID?.() || String(Date.now()) + "-" + current.length, type: "Watchdog", ...event })), ...current].slice(0, EVENT_LIMIT)
     });
   }
 
