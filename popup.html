@@ -16,6 +16,7 @@
   <script src="quality-monitor.js" defer></script>
   <script src="fingerprint.js" defer></script>
   <script src="route-diagnostics.js" defer></script>
+  <script src="privacy-audit.js" defer></script>
 </head>
 <body>
   <main class="app">
@@ -84,6 +85,13 @@
       <div class="site-check-form"><input id="site-url" type="url" placeholder="example.com" autocomplete="url" aria-label="Адрес сайта"><button id="run-site-check" class="secondary" type="button">Проверить сайт</button></div>
       <p id="site-message" class="dns-message" role="status" aria-live="polite">Введи адрес сайта для проверки.</p>
       <div id="site-results" class="advanced-results" aria-live="polite"></div>
+      <section class="report-panel privacy-audit-panel" aria-label="Аудит приватности и разрешений">
+        <div class="history-heading"><span class="eyebrow">PRIVACY &amp; PERMISSIONS AUDIT</span><span class="soon">FIREFOX SETTINGS</span></div>
+        <p class="dns-note">Проверяет разрешения HAPP Browser, список установленных расширений и доступные настройки Firefox: WebRTC, сетевое предсказание, HTTPS-Only и GPC. Аудит только читает данные и ничего не меняет.</p>
+        <button id="run-privacy-audit" class="secondary" type="button">Запустить аудит приватности</button>
+        <p id="privacy-audit-message" class="dns-message" role="status" aria-live="polite">Аудит ещё не запускался.</p>
+        <div id="privacy-audit-results" class="advanced-results" aria-live="polite"></div>
+      </section>
       <section class="report-panel security-panel" aria-label="Сводка безопасности">
         <div class="history-heading"><span class="eyebrow">SECURITY OVERVIEW</span><button id="refresh-security" class="text-button" type="button">Обновить</button></div>
         <div class="security-coverage"><strong id="security-coverage-value">0%</strong><span>покрытие диагностики</span></div>
@@ -133,6 +141,7 @@
             <option value="Сайт">Website</option>
             <option value="Quality">Connection Quality</option>
             <option value="Route">Network Path Diagnostics</option>
+            <option value="Privacy">Privacy &amp; Permissions Audit</option>
           </select>
         </div>
         <div id="history-list" class="history-list" aria-live="polite"></div>

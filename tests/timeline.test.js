@@ -138,3 +138,20 @@ test("route diagnostics timeline labels, statuses, descriptions and comparisons"
   assert.match(describe(before), /example.com.*контрольные узлы: 2\/2/);
   assert.equal(compareEvents(after, before).state, "changed");
 });
+
+
+test("privacy audit timeline labels, summarizes results and compares audit coverage", () => {
+  const before = {
+    type: "Privacy", status: "observed", settingsAvailable: 4, settingsTotal: 5,
+    reviewCount: 2, grantedApi: 6, declaredApi: 6,
+    checkedAt: "2026-11-19T10:00:00.000Z"
+  };
+  const after = {
+    ...before, settingsAvailable: 5, reviewCount: 0, checkedAt: "2026-11-19T11:00:00.000Z"
+  };
+  assert.equal(TYPE_LABELS.Privacy, "Privacy & Permissions Audit");
+  assert.deepEqual(getStatus(before), { state: "review", label: "НАСТРОЙКИ ТРЕБУЮТ ВНИМАНИЯ" });
+  assert.deepEqual(getStatus(after), { state: "success", label: "АУДИТ ВЫПОЛНЕН" });
+  assert.match(describe(before), /4\/5 настроек Firefox.*2 требуют внимания/);
+  assert.equal(compareEvents(after, before).state, "changed");
+});
