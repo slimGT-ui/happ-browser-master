@@ -55,8 +55,8 @@
   function getStatus(item) {
     if (!item || item.status === "error" || item.verdict === "error") return { state: "error", label: "ОШИБКА" };
     if (item.type === "Watchdog") {
-      if (item.eventType === "connection-lost") return { state: "warning", label: "НЕТ ОТВЕТОВ ОТ КОНТРОЛЬНЫХ СЕРВИСОВ" };
-      if (item.eventType === "connection-restored") return { state: "success", label: "ОТВЕТЫ ВОССТАНОВИЛИСЬ" };
+      if (item.eventType === "connection-lost") return { state: "warning", label: "КОНТРОЛЬНЫЕ HTTPS-ПРОБЫ НЕ ПРОШЛИ" };
+      if (item.eventType === "connection-restored") return { state: "success", label: "HTTPS-ПРОБЫ ВОССТАНОВИЛИСЬ" };
       if (item.eventType === "ip-changed") return { state: "review", label: "ПУБЛИЧНЫЙ IP ИЗМЕНИЛСЯ" };
       return { state: "incomplete", label: "СЕТЕВОЕ СОБЫТИЕ" };
     }
