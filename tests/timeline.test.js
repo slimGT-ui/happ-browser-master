@@ -155,3 +155,21 @@ test("privacy audit timeline labels, summarizes results and compares audit cover
   assert.match(describe(before), /4\/5 настроек Firefox.*2 требуют внимания/);
   assert.equal(compareEvents(after, before).state, "changed");
 });
+
+
+test("watchdog events have distinct labels, statuses, descriptions and comparisons", () => {
+  const changed = {
+    type: "Watchdog", eventType: "ip-changed", previousIp: "203.0.113.10",
+    currentIp: "198.51.100.20", checkedAt: "2026-11-22T10:00:00.000Z"
+  };
+  const lost = { type: "Watchdog", eventType: "connection-lost", message: "No control endpoint response" };
+  const restored = { type: "Watchdog", eventType: "connection-restored" };
+  assert.equal(TYPE_LABELS.Watchdog, "Connection Watchdog");
+  assert.deepEqual(getStatus(changed), { state: "review", label: "ПУБЛИЧНЫЙ IP ИЗМЕНИЛСЯ" });
+  assert.deepEqual(getStatus(lost), { state: "warning", label: "НЕТ ОТВЕТОВ ОТ КОНТРОЛЬНЫХ СЕРВИСОВ" });
+  assert.deepEqual(getStatus(restored), { state: "success", label: "ОТВЕТЫ ВОССТАНОВИЛИСЬ" });
+  assert.match(describe(changed), /203\.0\.113\.10 → 198\.51\.100\.20/);
+  assert.equal(compareEvents(
+    { ...changed, currentIp: "198.51.100.30" }, changed
+  ).state, "changed");
+});
