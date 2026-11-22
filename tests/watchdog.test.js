@@ -70,3 +70,80 @@ test("simultaneous IP and reachability changes can be summarized in one notifica
   assert.match(summary, /Ответы от контрольных сервисов восстановились/);
   assert.match(summary, /203\.0\.113\.10 → 198\.51\.100\.20/);
 });
+
+
+test("IP probe validates the service response and keeps the request cache-free", async () => {
+  let request;
+  const result = await watchdog.probeIp(async (url, options) => {
+    request = { url, options };
+    return { ok: true, json: async () => ({ success: true, ip: "203.0.113.10", country: "Example" }) };
+  }, {
+    validIPv4: value => /^\\d+\\.\\d+\\.\\d+\\.\\d+$/.test(value),
+    validIPv6: () => false
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.ip, "203.0.113.10");
+  assert.equal(request.url, "https://ipwho.is/");
+  assert.equal(request.options.cache, "no-store");
+  assert.equal(request.options.credentials, "omit");
+  const invalid = await watchdog.probeIp(async () => ({
+    ok: true, json: async () => ({ success: true, ip: "not-an-ip" })
+  }), { validIPv4: () => false, validIPv6: () => false });
+  assert.equal(invalid.ok, false);
+});
+
+test("HTTPS control probe records request completion without claiming HTTP status", async () => {
+  const result = await watchdog.probeEndpoint(async (url, options) => {
+    assert.equal(options.mode, "no-cors");
+    assert.equal(options.method, "GET");
+    return { type: "opaque", ok: false, status: 0 };
+  }, { key: "google", url: "https://www.google.com/generate_204" });
+  assert.deepEqual(result, { key: "google", ok: true });
+  const failed = await watchdog.probeEndpoint(async () => { throw new Error("blocked"); }, {
+    key: "cloudflare", url: "https://www.cloudflare.com/cdn-cgi/trace"
+  });
+  assert.equal(failed.ok, false);
+});
+
+test("background watchdog restores its alarm and performs an initial observation", async () => {
+  const listeners = {};
+  const store = { watchdogConfig: { enabled: true, intervalMinutes: 10 }, watchdogState: {} };
+  const alarms = [];
+  const browserApi = {
+    storage: { local: {
+      get: async keys => Array.isArray(keys)
+        ? Object.fromEntries(keys.map(key => [key, store[key]]))
+        : { [keys]: store[keys] },
+      set: async values => Object.assign(store, values)
+    } },
+    permissions: { contains: async ({ permissions }) => permissions.includes("alarms") },
+    alarms: {
+      clear: async name => { alarms.push({ action: "clear", name }); },
+      create: async (name, options) => { alarms.push({ action: "create", name, options }); },
+      onAlarm: { addListener: fn => { listeners.alarm = fn; } }
+    },
+    notifications: { create: async () => "notification-id" },
+    runtime: {
+      onMessage: { addListener: fn => { listeners.message = fn; } },
+      onStartup: { addListener: fn => { listeners.startup = fn; } },
+      onInstalled: { addListener: fn => { listeners.installed = fn; } }
+    }
+  };
+  const root = {
+    HappValidation: { validIPv4: value => value === "203.0.113.10", validIPv6: () => false },
+    fetch: async url => url === "https://ipwho.is/"
+      ? { ok: true, json: async () => ({ success: true, ip: "203.0.113.10", country: "Example" }) }
+      : { type: "opaque", ok: false, status: 0 }
+  };
+  const controller = watchdog.initialize(browserApi, root);
+  await controller.restore();
+  assert.ok(alarms.some(item => item.action === "create" && item.options.periodInMinutes === 10));
+  assert.equal(store.watchdogState.connectivity, "online");
+  assert.equal(store.watchdogState.lastIp, "203.0.113.10");
+  assert.equal(typeof listeners.message, "function");
+  assert.equal(typeof listeners.startup, "function");
+  assert.equal(typeof listeners.installed, "function");
+  await controller.stop();
+  assert.equal(store.watchdogConfig.enabled, false);
+  assert.ok(alarms.some(item => item.action === "clear"));
+});
